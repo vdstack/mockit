@@ -45,7 +45,7 @@ Until now, I found that mocking dependencies in Typescript is a bit of a pain: y
 With Mockit, it's as easy as a function call.
 
 ```ts
-import { mockFunction } from "@vdcode/mockit";
+import { mockFunction } from "@vdstack/mockit";
 
 class Hi {
   public sayHi() {
@@ -75,7 +75,7 @@ Except they can now be spied on, and their behaviour can be changed at will.
 Reading test code often happens when you broke it, and chances are high that you're not the one who wrote it: Mockit's API is designed to be as semantic as possible, so that you can easily understand what the test is about.
 
 ```ts
-import { mockFunction, when } from "@vdcode/mockit";
+import { mockFunction, when } from "@vdstack/mockit";
 
 function log(anything: string): void {
   // ...
@@ -146,7 +146,7 @@ The API varies a bit depending on the type of the thing you want to mock, becaus
 You can generate a mocked version of any functions with the `mockFunction` helper. It will return a function that returns undefined by default (you can change that behaviour though, cf below).
 
 ```ts
-import { Mockit } from "@vdcode/mockit";
+import { Mockit } from "@vdstack/mockit";
 function hello() {
   return "hello";
 }
@@ -159,7 +159,7 @@ const mock = Mockit.mockFunction(hello);
 To generate a class mock, you can use the `mock` helper. It will return a `ClassMock` instance, which is a dummy class with the same methods as the class you passed as parameter. All these methods will return `undefined` by default (you can change that behaviour though, cf below).
 
 ```ts
-import { Mockit } from "@vdcode/mockit";
+import { Mockit } from "@vdstack/mockit";
 class Hello {
   public sayHello() {
     return "hello";
@@ -176,7 +176,7 @@ This is where things get interesting. You can mock abstract classes with the `mo
 To make it work, `mockAbstract` requires two parameters: the first one is the abstract class you want to mock, and the second one is an array of strings, containing the names of the abstract methods of the class you want to mock. This allows Mockit to generate a dummy class that implements the interface you want to mock, and to generate a mock for each of the abstract methods you passed as parameter.
 
 ```ts
-import { mockAbstract } from "@vdcode/mockit";
+import { mockAbstract } from "@vdstack/mockit";
 
 abstract class Hello {
   public abstract sayHello(): string;
