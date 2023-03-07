@@ -532,6 +532,37 @@ test("it should be called three times, 'hello' twice and 'hiii' once", () => {
 });
 ```
 
+**You can verify any type of mock**, not just functions. It will internally iterate over the functions of a mocked class or interface and verify each of them against the suppositions you created
+
+**You can pass multiple mocks to `verify`**. It will verify each of them against the suppositions you created.
+
+```ts
+// Using so many mocks at once is not a typical use case but it's possible.
+const fMock = mockFunction(f);
+const classMock = mockClass(Class);
+const interfaceMock = mockInterface(Interface);
+const typeMock = mockType(Type);
+const abstractMock = mockAbstractClass(AbstractClass);
+
+// ... make some suppositions for each of them
+suppose(fMock).willBeCalledWith("hiii").once();
+// etc...
+
+// call something that should call all the mocks the way you expect
+doSomething({
+  deps: {
+    fM: fMock,
+    classM: classMock,
+    interfaceM: interfaceMock,
+    typeM: typeMock,
+    abstractM: abstractMock,
+  },
+});
+
+// One verify to rule them all !
+verify(fMock, classMock, interfaceMock, typeMock, abstractMock);
+```
+
 ## Usage with Zod
 
 You can use any Zod schema to create suppositions.
