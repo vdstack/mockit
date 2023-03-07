@@ -9,6 +9,7 @@ import {
   verify,
   when,
 } from "./mockit";
+
 export {
   Mockit,
   mock,

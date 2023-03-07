@@ -1,4 +1,4 @@
-import { mockFunction, suppose, verify, when } from "../";
+import { mockFunction, suppose, verify, when } from "..";
 
 function log(_: string): void {
   // ... logs something
