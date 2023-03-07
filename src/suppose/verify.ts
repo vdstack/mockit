@@ -8,6 +8,16 @@ export function verify(...mocks: any[]) {
       "suppositionsMap"
     ) as SuppositionRegistry;
 
+    if (suppositions == null) {
+      // We're in the class or abstract class or interface mock case
+      const properties = Object.getOwnPropertyNames(mock);
+      for (const property of properties) {
+        verify(mock[property]);
+      }
+
+      return;
+    }
+
     const spy = new FunctionSpy(mock);
 
     const defaultNever = suppositions

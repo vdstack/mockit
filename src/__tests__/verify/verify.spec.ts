@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { mockFunction, suppose, verify } from "../../mockit";
+import {
+  mock,
+  mockAbstract,
+  mockFunction,
+  mockInterface,
+  suppose,
+  verify,
+} from "../../mockit";
 
 function hello(..._args: any[]) {}
 
@@ -143,5 +150,40 @@ describe("suppose then verify", () => {
     mock2();
 
     verify(mock, mock2);
+  });
+
+  it("should allow to verify structured mocks (classes & interfaces) instead of their individual functions", () => {
+    interface HelloInterface {
+      hello(..._args: any[]): void;
+    }
+
+    class HelloClass {
+      hello(..._args: any[]): void {}
+    }
+
+    abstract class HelloAbstractClass {
+      abstract hello(..._args: any[]): void;
+    }
+
+    const interfaceMock = mockInterface<HelloInterface>("hello");
+
+    suppose(interfaceMock.hello).willBeCalled.once();
+    expect(() => verify(interfaceMock)).toThrow();
+    interfaceMock.hello();
+    verify(interfaceMock);
+
+    const classMock = mock(HelloClass);
+    suppose(classMock.hello).willBeCalled.once();
+    expect(() => verify(classMock)).toThrow();
+    classMock.hello();
+    verify(classMock);
+
+    const abstractClassMock = mockAbstract(HelloAbstractClass, ["hello"]);
+    suppose(abstractClassMock.hello).willBeCalled.once();
+    expect(() => verify(abstractClassMock)).toThrow();
+    abstractClassMock.hello();
+    verify(abstractClassMock);
+
+    verify(interfaceMock, classMock, abstractClassMock);
   });
 });
