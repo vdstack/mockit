@@ -65,9 +65,27 @@ abstract class Hola {
   public abstract sayHola(): string;
 }
 const holaMock = mockAbstract(Hello, ["sayHola"]); // Mockit will help you by hinting you with the names of the abstract methods of your class, using generics to catch the type of the class you pass as the first parameter.
+
+type HiType = {
+  sayHi(): string;
+};
+
+interface HiInterface {
+  sayHi(): string;
+}
+
+const hiTypeMock = mockInterface<HiType>("sayHi"); // same here, the second parameter is the name of the method you want to mock, and it's hinted with generics.
+const hiInterfaceMock = mockInterface<HiInterface>("sayHi"); // same
 ```
 
-For TypeScript compiler, hiMock is an instance of Hi, and helloMock is a function with the same signature as hello.
+For TypeScript compiler:
+
+- hiMock is an instance of the Hi class
+- helloMock is a function with the same signature as hello.
+- holaMock can be used as an instance of any class that extends or implements the abstract class Hola
+- hiTypeMock is an object with a sayHi method, and can also be used as an instance of any class that implements the HiType type
+- hiInterfaceMock is an object with a sayHi method, and can also be used as an instance of any class that implements the HiInterface interface.
+
 Except they can now be spied on, and their behaviour can be changed at will.
 
 ## Mocking should be semantic
@@ -196,7 +214,7 @@ This is done by leveraging the power of TypeScript's generics, and the `keyof` o
 - get the names of the abstract methods of the class we passed as parameter
 - provide a type to the second parameter of the function, helping you write your code faster and avoid spelling mistakes.
 
-This is a **really** convenient feature when you need to test a function that depends on an abstract class instead of of concrete implementation.
+This is a **really** convenient feature when you need to test a function that depends on an abstract class instead of a concrete implementation.
 
 ## Mocking interfaces
 
@@ -212,19 +230,10 @@ interface House {
   getDoorsCount(): number;
 }
 
-describe("mockInterface", () => {
-  it("should mock an interface", () => {
-    const house = mockInterface<House>("getRoomsCount", "getDoorsCount");
-    when(house.getRoomsCount).isCalled.thenReturn(3);
-
-    expect(house.getRoomsCount()).toBe(3);
-
-    // This will throw an error because the method is not mocked
-    expect(() => house.getWindowsCount()).toThrowError(
-      "house.getWindowsCount is not a function"
-    );
-  });
-});
+const house = mockInterface<House>("getRoomsCount", "getDoorsCount");
+house.getRoomsCount(); // returns undefined by default.
+house.getWindowsCount(); // will throw: it's not mocked.
+// house.getWindowsCount is not a function
 ```
 
 ## Set default behaviour
@@ -245,25 +254,51 @@ You can currently set the following behaviours:
 - Reject any value
 - Call any callback function
 
+Any type of mock can be combined with any of the behaviours.
+
 ```ts
+/** Return + Function mock **/
 function hello(...args: any[]) {}
 const mockedHello = Mockit.mockFunction(hello);
 
 mockedHello(); // undefined
 
-when(mock).isCalled.thenReturn("hiii");
+when(mockedHello).isCalled.thenReturn("hiii");
 mockedHello(); // "hiii"
 
-when(mock).isCalled.thenThrow(new Error("hiii"));
-mockedHello(); // throws Error("hiii")
+/** Throw + Class mock **/
+class HelloClass {
+  public hello() {
+    return "hiii";
+  }
+}
 
-when(mock).isCalled.thenResolve("hiii");
-mockedHello(); // Promise.resolves("hiii");
+const helloClassMock = Mockit.mock(HelloClass);
+when(helloClassMock.hello).isCalled.thenThrow(new Error("hiii"));
 
-when(mock).isCalled.thenReject(new Error("hiii"));
-mockedHello(); // Promise.rejects(Error("hiii"));
+helloClassMock.hello(); // throws Error("hiii")
 
-when(mock).isCalled.thenCall((...args) => {
+/** Resolve + Abstract class mock **/
+abstract class HelloAbstract {
+  public abstract hello(): string;
+}
+
+const helloAbstractMock = Mockit.mockAbstract(HelloAbstract, ["hello"]);
+when(helloAbstractMock.hello).isCalled.thenResolve("hiii");
+
+helloAbstractMock.hello(); // Promise.resolves("hiii")
+
+/** Reject + Interface mock **/
+interface HelloInterface {
+  hello(): string;
+}
+
+const helloInterfaceMock = Mockit.mockInterface<HelloInterface>("hello");
+when(helloInterfaceMock.hello).isCalled.thenReject(new Error("hiii"));
+helloInterfaceMock.hello(); // Promise.rejects(Error("hiii"))
+
+/** Function + Callback **/
+when(mockedHello).isCalled.thenCall((...args) => {
   console.log(args);
 });
 mockedHello("hiii"); // logs ["hiii"]
@@ -276,6 +311,7 @@ You can also set a specific behaviour for a specific set of arguments. This is u
 To do that, you can use the `isCalledWith(...args)` helper, which takes the same arguments as the mocked function, and then set the behaviour you want.
 
 At that point the API is the same as the default behaviour.
+All mocks can be combined with any of the behaviours, for any set of arguments.
 
 ```ts
 function hello(...args: any[]) {}
