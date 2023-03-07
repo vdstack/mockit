@@ -80,11 +80,15 @@ const hiInterfaceMock = mockInterface<HiInterface>("sayHi"); // same
 
 For TypeScript compiler:
 
-- hiMock is an instance of the Hi class
-- helloMock is a function with the same signature as hello.
-- holaMock can be used as an instance of any class that extends or implements the abstract class Hola
-- hiTypeMock is an object with a sayHi method, and can also be used as an instance of any class that implements the HiType type
-- hiInterfaceMock is an object with a sayHi method, and can also be used as an instance of any class that implements the HiInterface interface.
+- `hiMock` is an instance of the `Hi` class
+- `helloMock` is a function with the same signature as the `hello` function.
+- `holaMock` can be used as an instance of any class that extends or implements the `abstract class Hola`.
+- `hiTypeMock`
+  - is an object with a implementation of the `HiType` type
+  - and can also be used as an instance of any class that implements the `HiType` type
+- `hiInterfaceMock`
+  - is an object with a implementation of the `HiInterface` type
+  - and can also be used as an instance of any class that implements the `HiInterface` type
 
 Except they can now be spied on, and their behaviour can be changed at will.
 
