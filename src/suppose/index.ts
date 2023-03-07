@@ -16,89 +16,152 @@ export class SuppositionRegistry {
   }
 }
 
-export function suppose(mock: any) {
+export function suppose(mock: any): SupposeResponse {
   const suppositionsMap = Reflect.get(
     mock,
     "suppositionsMap"
   ) as SuppositionRegistry;
+
+  const followup: {
+    and: SupposeResponse;
+  } = {
+    get and() {
+      return suppose(mock);
+    },
+  };
+
   return {
     willNotBeCalled() {
-      return suppositionsMap.addSupposition({
+      suppositionsMap.addSupposition({
         args: undefined,
         count: "NEVER",
       });
+
+      return followup;
     },
     willNotBeCalledWith(...args: any[]) {
-      return suppositionsMap.addSupposition({
+      suppositionsMap.addSupposition({
         args,
         count: "NEVER",
       });
+
+      return followup;
     },
     willBeCalled: {
       atLeastOnce() {
-        return suppositionsMap.addSupposition({
+        suppositionsMap.addSupposition({
           args: undefined,
           count: "atLeastOnce",
         });
+
+        return followup;
       },
       once() {
-        return suppositionsMap.addSupposition({
+        suppositionsMap.addSupposition({
           args: undefined,
           count: 1,
         });
+
+        return followup;
       },
       twice() {
-        return suppositionsMap.addSupposition({
+        suppositionsMap.addSupposition({
           args: undefined,
           count: 2,
         });
+
+        return followup;
       },
       thrice() {
-        return suppositionsMap.addSupposition({
+        suppositionsMap.addSupposition({
           args: undefined,
           count: 3,
         });
+
+        return followup;
       },
       nTimes(n: number) {
-        return suppositionsMap.addSupposition({
+        suppositionsMap.addSupposition({
           args: undefined,
           count: n,
         });
+
+        return followup;
       },
     },
     willBeCalledWith(...args: any[]) {
       return {
         atLeastOnce() {
-          return suppositionsMap.addSupposition({
+          suppositionsMap.addSupposition({
             args,
             count: "atLeastOnce",
           });
+
+          return followup;
         },
         once() {
-          return suppositionsMap.addSupposition({
+          suppositionsMap.addSupposition({
             args,
             count: 1,
           });
+
+          return followup;
         },
         twice() {
-          return suppositionsMap.addSupposition({
+          suppositionsMap.addSupposition({
             args,
             count: 2,
           });
+
+          return followup;
         },
         thrice() {
-          return suppositionsMap.addSupposition({
+          suppositionsMap.addSupposition({
             args,
             count: 3,
           });
+
+          return followup;
         },
         nTimes(n: number) {
-          return suppositionsMap.addSupposition({
+          suppositionsMap.addSupposition({
             args,
             count: n,
           });
+
+          return followup;
         },
       };
     },
   };
 }
+
+type SuppositionSugar = {
+  atLeastOnce(): {
+    and: SupposeResponse;
+  };
+  once(): {
+    and: SupposeResponse;
+  };
+  twice(): {
+    and: SupposeResponse;
+  };
+  thrice(): {
+    and: SupposeResponse;
+  };
+  nTimes(n: number): {
+    and: SupposeResponse;
+  };
+};
+
+type SupposeResponse = {
+  willNotBeCalled(): {
+    and: SupposeResponse;
+  };
+  willNotBeCalledWith(...args: any[]): {
+    and: SupposeResponse;
+  };
+
+  willBeCalled: SuppositionSugar;
+  willBeCalledWith(...args: any[]): SuppositionSugar;
+};
