@@ -3,19 +3,17 @@ import { countMatchingCalls } from "../../utils/countMatchingCalls";
 import { argsContainZodSchema } from "../../utils/argsContainZodSchema";
 
 import { NewBehaviourParam } from "../functionMock/behaviour";
+import { MockGetters } from "../functionMock/accessors";
 
 export class FunctionSpy {
   constructor(private proxy: any) {}
 
   private get callsMap() {
-    return Reflect.get(this.proxy, "callsMap") as FunctionCalls;
+    return MockGetters(this.proxy).callsMap;
   }
 
   public get calls() {
-    return Reflect.get(this.proxy, "calls") as {
-      args: any[];
-      behaviour: NewBehaviourParam;
-    }[];
+    return MockGetters(this.proxy).calls;
   }
 
   public get wasCalled() {
@@ -110,6 +108,7 @@ export class FunctionSpy {
 }
 
 export type Call = {
+  args?: any[];
   behaviour: NewBehaviourParam;
 };
 

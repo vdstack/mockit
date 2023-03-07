@@ -1,11 +1,10 @@
-import { HashingMap } from "../../utils/HashingMap";
 import { Behaviour, NewBehaviourParam } from "./behaviour";
 
-import { FunctionCalls } from "../functionSpy";
+import { MockGetters } from "./accessors";
 
-export function applyCatch(_target, _thisArg, argumentsList) {
+export function applyCatch(target, _thisArg, argumentsList) {
   // Checking if there is a custom behaviour for this call
-  const mockMap: HashingMap = Reflect.get(_target, "mockMap");
+  const mockMap = MockGetters(target).mockMap;
 
   const behaviourWithTheseArguments = mockMap.get(argumentsList) as {
     calls: any[];
@@ -16,21 +15,21 @@ export function applyCatch(_target, _thisArg, argumentsList) {
 
   // Default behaviour
   if (!behaviour) {
-    behaviour = Reflect.get(_target, "defaultBehaviour");
+    behaviour = MockGetters(target).defaultBehaviour;
   }
 
   // Adding the call to the list of calls, for the spy
-  const calls = Reflect.get(_target, "calls");
+  const calls = MockGetters(target).calls;
   calls.push({
     args: argumentsList,
     behaviour,
   });
 
-  const callsMap: FunctionCalls = Reflect.get(_target, "callsMap");
+  const callsMap = MockGetters(target).callsMap;
   callsMap.registerCall(argumentsList, behaviour);
-  Reflect.set(_target, "callsMap", callsMap);
+  Reflect.set(target, "callsMap", callsMap);
 
-  Reflect.set(_target, "calls", calls);
+  Reflect.set(target, "calls", calls);
 
   switch (behaviour.behaviour) {
     case Behaviour.Return:

@@ -1,4 +1,5 @@
 import { HashingMap } from "../../utils/HashingMap";
+import { MockGetters } from "./accessors";
 import { NewBehaviourParam } from "./behaviour";
 
 export function setCatch(target, prop, newValue, receiver) {
@@ -26,7 +27,7 @@ export function setCatch(target, prop, newValue, receiver) {
         customBehaviour: NewBehaviourParam;
       };
 
-      const mockMap: HashingMap = Reflect.get(target, "mockMap");
+      const mockMap: HashingMap = MockGetters(target).mockMap;
       const existingCustomBehaviour = mockMap.get(args) as {
         calls: any[];
         customBehaviour: NewBehaviourParam;
