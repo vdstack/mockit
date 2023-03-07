@@ -1,3 +1,5 @@
+import { MockGetters } from "../internal/functionMock/accessors";
+
 export type SuppositionCount = "atLeastOnce" | "NEVER" | number;
 export type Supposition = {
   args: any[] | undefined;
@@ -17,10 +19,7 @@ export class SuppositionRegistry {
 }
 
 export function suppose(mock: any): SupposeResponse {
-  const suppositionsMap = Reflect.get(
-    mock,
-    "suppositionsMap"
-  ) as SuppositionRegistry;
+  const suppositionsRegistry = MockGetters(mock).suppositionsRegistry;
 
   const followup: {
     and: SupposeResponse;
@@ -32,7 +31,7 @@ export function suppose(mock: any): SupposeResponse {
 
   return {
     willNotBeCalled() {
-      suppositionsMap.addSupposition({
+      suppositionsRegistry.addSupposition({
         args: undefined,
         count: "NEVER",
       });
@@ -40,7 +39,7 @@ export function suppose(mock: any): SupposeResponse {
       return followup;
     },
     willNotBeCalledWith(...args: any[]) {
-      suppositionsMap.addSupposition({
+      suppositionsRegistry.addSupposition({
         args,
         count: "NEVER",
       });
@@ -49,7 +48,7 @@ export function suppose(mock: any): SupposeResponse {
     },
     willBeCalled: {
       atLeastOnce() {
-        suppositionsMap.addSupposition({
+        suppositionsRegistry.addSupposition({
           args: undefined,
           count: "atLeastOnce",
         });
@@ -57,7 +56,7 @@ export function suppose(mock: any): SupposeResponse {
         return followup;
       },
       once() {
-        suppositionsMap.addSupposition({
+        suppositionsRegistry.addSupposition({
           args: undefined,
           count: 1,
         });
@@ -65,7 +64,7 @@ export function suppose(mock: any): SupposeResponse {
         return followup;
       },
       twice() {
-        suppositionsMap.addSupposition({
+        suppositionsRegistry.addSupposition({
           args: undefined,
           count: 2,
         });
@@ -73,7 +72,7 @@ export function suppose(mock: any): SupposeResponse {
         return followup;
       },
       thrice() {
-        suppositionsMap.addSupposition({
+        suppositionsRegistry.addSupposition({
           args: undefined,
           count: 3,
         });
@@ -81,7 +80,7 @@ export function suppose(mock: any): SupposeResponse {
         return followup;
       },
       nTimes(n: number) {
-        suppositionsMap.addSupposition({
+        suppositionsRegistry.addSupposition({
           args: undefined,
           count: n,
         });
@@ -92,7 +91,7 @@ export function suppose(mock: any): SupposeResponse {
     willBeCalledWith(...args: any[]) {
       return {
         atLeastOnce() {
-          suppositionsMap.addSupposition({
+          suppositionsRegistry.addSupposition({
             args,
             count: "atLeastOnce",
           });
@@ -100,7 +99,7 @@ export function suppose(mock: any): SupposeResponse {
           return followup;
         },
         once() {
-          suppositionsMap.addSupposition({
+          suppositionsRegistry.addSupposition({
             args,
             count: 1,
           });
@@ -108,7 +107,7 @@ export function suppose(mock: any): SupposeResponse {
           return followup;
         },
         twice() {
-          suppositionsMap.addSupposition({
+          suppositionsRegistry.addSupposition({
             args,
             count: 2,
           });
@@ -116,7 +115,7 @@ export function suppose(mock: any): SupposeResponse {
           return followup;
         },
         thrice() {
-          suppositionsMap.addSupposition({
+          suppositionsRegistry.addSupposition({
             args,
             count: 3,
           });
@@ -124,7 +123,7 @@ export function suppose(mock: any): SupposeResponse {
           return followup;
         },
         nTimes(n: number) {
-          suppositionsMap.addSupposition({
+          suppositionsRegistry.addSupposition({
             args,
             count: n,
           });

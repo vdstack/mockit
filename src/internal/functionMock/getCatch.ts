@@ -1,26 +1,19 @@
-import { HashingMap } from "../../utils/HashingMap";
-import { SuppositionRegistry } from "../../suppose";
-
-import { FunctionCalls } from "../functionSpy";
+import { MockGetters } from "./accessors";
 
 export function getCatch(target, prop, _receiver) {
   switch (prop) {
-    case "calls":
     case "defaultBehaviour":
+      return MockGetters(target).defaultBehaviour;
+    case "calls":
+      return MockGetters(target).calls;
     case "functionName":
-      return Reflect.get(target, prop);
+      return MockGetters(target).functionName;
     case "mockMap":
-      const mockMap = Reflect.get(target, "mockMap") as HashingMap;
-      return mockMap;
+      return MockGetters(target).mockMap;
     case "callsMap":
-      const callsMap = Reflect.get(target, "callsMap") as FunctionCalls;
-      return callsMap;
+      return MockGetters(target).callsMap;
     case "suppositionsMap":
-      const suppositionsMap = Reflect.get(
-        target,
-        "suppositionsMap"
-      ) as SuppositionRegistry;
-      return suppositionsMap;
+      return MockGetters(target).suppositionsRegistry;
     default:
       throw new Error("Unauthorized property");
   }
