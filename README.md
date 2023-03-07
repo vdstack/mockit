@@ -444,7 +444,7 @@ spiedHello.wasCalledWith("hiii").nTimes(1); // true
 
 ## Integration with Zod
 
-We believe that [Zod](https://github.com/colinhacks/zod) is a game changer when it comes to validating data (and more).
+We believe that [Zod](https://github.com/colinhacks/zod) is a game changer when it comes to validating data (and more !)
 Mockit integrates with Zod to provide you with a powerful way to check if your mocked functions have been called with specific arguments.
 
 This means you can not only check if a function has been called with a specific set of argument, but also:
