@@ -136,6 +136,9 @@ describe("suppose then verify", () => {
     expect(() => verify(mock, mock2)).toThrow();
 
     mock();
+
+    expect(() => verify(mock, mock2)).toThrow();
+
     mock2();
     mock2();
 
