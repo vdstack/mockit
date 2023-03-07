@@ -58,8 +58,5 @@ export function verify(...mocks: any[]) {
     if (analysis.some((a) => a === false)) {
       throw new Error("Verification failed");
     }
-
-    // TODO: beautiful error message with lots of details
-    // TODO: safeVerify that does not throw but instead returns the analysis with details
   }
 }
