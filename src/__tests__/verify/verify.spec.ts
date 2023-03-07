@@ -125,4 +125,20 @@ describe("suppose then verify", () => {
     mock("hello");
     expect(() => verify(mock)).toThrow();
   });
+
+  it("should allow to verify multiple mocks in one call", () => {
+    const mock = mockFunction(hello);
+    const mock2 = mockFunction(hello);
+
+    suppose(mock).willBeCalled.once();
+    suppose(mock2).willBeCalled.twice();
+
+    expect(() => verify(mock, mock2)).toThrow();
+
+    mock();
+    mock2();
+    mock2();
+
+    verify(mock, mock2);
+  });
 });

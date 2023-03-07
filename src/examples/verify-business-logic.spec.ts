@@ -61,8 +61,7 @@ it("should only call minor registration if user is minor", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verify(minorRegistrationMock);
-  verify(adultRegistrationMock);
+  verify(minorRegistrationMock, adultRegistrationMock);
 });
 
 it("should only call adult registration if user is adult", () => {
@@ -81,6 +80,5 @@ it("should only call adult registration if user is adult", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verify(adultRegistrationMock);
-  verify(minorRegistrationMock);
+  verify(adultRegistrationMock, minorRegistrationMock);
 });
