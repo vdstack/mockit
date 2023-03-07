@@ -47,7 +47,7 @@ function createAccount(
 it("should only call minor registration if user is minor", () => {
   const adultRegistrationMock = mockFunction(registerAdultAccount);
   const minorRegistrationMock = mockFunction(registerMinorAccount);
-  suppose(minorRegistrationMock).willBeCalledWith(minorSchema).once;
+  suppose(minorRegistrationMock).willBeCalledWith(minorSchema).once();
   suppose(adultRegistrationMock).willNotBeCalled();
 
   createAccount(
@@ -68,7 +68,7 @@ it("should only call adult registration if user is adult", () => {
   const adultRegistrationMock = mockFunction(registerAdultAccount);
   const minorRegistrationMock = mockFunction(registerMinorAccount);
   suppose(minorRegistrationMock).willNotBeCalled();
-  suppose(adultRegistrationMock).willBeCalledWith(adultSchema).once;
+  suppose(adultRegistrationMock).willBeCalledWith(adultSchema).once();
 
   createAccount(
     {
