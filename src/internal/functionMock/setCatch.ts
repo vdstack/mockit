@@ -1,24 +1,32 @@
 import { HashingMap } from "../../utils/HashingMap";
-import { MockGetters } from "./accessors";
+import { MockGetters, MockSetters } from "./accessors";
 import { NewBehaviourParam } from "./behaviour";
 
 export function setCatch(target, prop, newValue, receiver) {
+  const Setters = MockSetters(target);
   if (prop === "init") {
-    Reflect.set(target, "defaultBehaviour", newValue.defaultBehaviour);
-    Reflect.set(target, "calls", []);
-    Reflect.set(target, "functionName", newValue.functionName);
-    Reflect.set(target, "mockMap", newValue.mockMap);
-    Reflect.set(target, "callsMap", newValue.callsMap);
-    Reflect.set(target, "suppositionsMap", newValue.suppositionsMap);
+    Setters.defaultBehaviour = newValue.defaultBehaviour;
+    Setters.functionName = newValue.functionName;
+    Setters.mockMap = newValue.mockMap;
+    Setters.callsMap = newValue.callsMap;
+    Setters.suppositionsRegistry = newValue.suppositionsRegistry;
+    Setters.calls = [];
+
     return true;
   }
 
   // this will list authorized properties
   switch (prop) {
-    case "defaultBehaviour":
-    case "calls":
+    case "defaultBehaviour": {
+      Setters.defaultBehaviour = newValue;
+      break;
+    }
+    case "calls": {
+      Setters.calls = newValue;
+      break;
+    }
     case "functionName": {
-      Reflect.set(target, prop, newValue);
+      Setters.functionName = newValue;
       break;
     }
     case "newCustomBehaviour": {

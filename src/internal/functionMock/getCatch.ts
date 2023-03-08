@@ -12,7 +12,7 @@ export function getCatch(target, prop, _receiver) {
       return MockGetters(target).mockMap;
     case "callsMap":
       return MockGetters(target).callsMap;
-    case "suppositionsMap":
+    case "suppositionsRegistry":
       return MockGetters(target).suppositionsRegistry;
     default:
       throw new Error("Unauthorized property");

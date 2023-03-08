@@ -1,3 +1,4 @@
+import { MockSetters } from "./accessors";
 import { Behaviour, NewBehaviourParam } from "./behaviour";
 import { initializeProxy, changeDefaultBehaviour } from "./index";
 
@@ -65,51 +66,52 @@ export class FunctionMockUtils {
 
   public callController(...args: any[]) {
     const self = this;
+    const Setters = MockSetters(this.proxy);
     return {
       thenReturn(value: any) {
-        Reflect.set(self.proxy, "newCustomBehaviour", {
-          customBehaviour: {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
             behaviour: Behaviour.Return,
             returnedValue: value,
           },
-          args,
         });
       },
       thenThrow(error: any) {
-        Reflect.set(self.proxy, "newCustomBehaviour", {
-          customBehaviour: {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
             behaviour: Behaviour.Throw,
             error,
           },
-          args,
         });
       },
       thenCall(callback: (...args: any[]) => any) {
-        Reflect.set(self.proxy, "newCustomBehaviour", {
-          customBehaviour: {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
             behaviour: Behaviour.Call,
             callback,
           },
-          args,
         });
       },
       thenResolve(value: any) {
-        Reflect.set(self.proxy, "newCustomBehaviour", {
-          customBehaviour: {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
             behaviour: Behaviour.Resolve,
             resolvedValue: value,
           },
-          args,
         });
       },
 
       thenReject(error: any) {
-        Reflect.set(self.proxy, "newCustomBehaviour", {
-          customBehaviour: {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
             behaviour: Behaviour.Reject,
             rejectedValue: error,
           },
-          args,
         });
       },
     };

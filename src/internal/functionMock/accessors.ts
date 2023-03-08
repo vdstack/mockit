@@ -65,7 +65,7 @@ function getFunctionName(target: any) {
 function getSuppositionsRegistry(target: any) {
   const suppositionsRegistry: SuppositionRegistry = Reflect.get(
     target,
-    "suppositionsMap"
+    "suppositionsRegistry"
   );
 
   // Not throwing an error here because the suppositionsRegistry is optional
@@ -99,6 +99,78 @@ export function MockGetters(mock: any) {
     },
     get suppositionsRegistry() {
       return getSuppositionsRegistry(mock);
+    },
+  };
+}
+
+export function setMockMap(target: any, mockMap: HashingMap) {
+  Reflect.set(target, "mockMap", mockMap);
+}
+
+export function setCallsMap(target: any, callsMap: FunctionCalls) {
+  Reflect.set(target, "callsMap", callsMap);
+}
+
+export function setCalls(target: any, callsMap: Call[]) {
+  Reflect.set(target, "calls", callsMap);
+}
+
+export function setFunctionName(target: any, functionName: string) {
+  Reflect.set(target, "functionName", functionName);
+}
+
+export function setSuppositionsRegistry(
+  target: any,
+  suppositionsRegistry: SuppositionRegistry
+) {
+  Reflect.set(target, "suppositionsRegistry", suppositionsRegistry);
+}
+
+export function setDefaultBehaviour(
+  target: any,
+  defaultBehaviour: NewBehaviourParam
+) {
+  Reflect.set(target, "defaultBehaviour", defaultBehaviour);
+}
+
+export function registerNewCustomBehaviour(
+  target: any,
+  params: {
+    behaviour: NewBehaviourParam;
+    args: any[];
+  }
+) {
+  Reflect.set(target, "newCustomBehaviour", {
+    customBehaviour: params.behaviour,
+    args: params.args,
+  });
+}
+
+export function MockSetters(mock: any) {
+  return {
+    set mockMap(mockMap: HashingMap) {
+      setMockMap(mock, mockMap);
+    },
+    set callsMap(callsMap: FunctionCalls) {
+      setCallsMap(mock, callsMap);
+    },
+    set calls(calls: Call[]) {
+      setCalls(mock, calls);
+    },
+    set functionName(functionName: string) {
+      setFunctionName(mock, functionName);
+    },
+    set suppositionsRegistry(suppositionsRegistry: SuppositionRegistry) {
+      setSuppositionsRegistry(mock, suppositionsRegistry);
+    },
+    set defaultBehaviour(defaultBehaviour: NewBehaviourParam) {
+      setDefaultBehaviour(mock, defaultBehaviour);
+    },
+    registerNewCustomBehaviour(params: {
+      behaviour: NewBehaviourParam;
+      args: any[];
+    }) {
+      registerNewCustomBehaviour(mock, params);
     },
   };
 }

@@ -1,6 +1,6 @@
 import { Behaviour, NewBehaviourParam } from "./behaviour";
 
-import { MockGetters } from "./accessors";
+import { MockGetters, MockSetters } from "./accessors";
 
 export function applyCatch(target, _thisArg, argumentsList) {
   // Checking if there is a custom behaviour for this call
@@ -27,9 +27,9 @@ export function applyCatch(target, _thisArg, argumentsList) {
 
   const callsMap = MockGetters(target).callsMap;
   callsMap.registerCall(argumentsList, behaviour);
-  Reflect.set(target, "callsMap", callsMap);
 
-  Reflect.set(target, "calls", calls);
+  MockSetters(target).callsMap = callsMap;
+  MockSetters(target).calls = calls;
 
   switch (behaviour.behaviour) {
     case Behaviour.Return:
