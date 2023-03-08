@@ -8,6 +8,7 @@ import { getCatch } from "./getCatch";
 import { setCatch } from "./setCatch";
 
 import { FunctionMockUtils } from "./utils";
+import { MockSetters } from "./accessors";
 
 export const Behaviours = {
   Return: "Return",
@@ -71,7 +72,7 @@ export function initializeProxy(proxy: any, functionName: string) {
     calls: [],
     mockMap: new HashingMap(),
     callsMap: new FunctionCalls(),
-    suppositionsMap: new SuppositionRegistry(),
+    suppositionsRegistry: new SuppositionRegistry(),
   });
 }
 
@@ -81,5 +82,5 @@ export function changeDefaultBehaviour(
   proxy: any,
   newBehaviour: NewBehaviourParam
 ) {
-  Reflect.set(proxy, "defaultBehaviour", newBehaviour);
+  MockSetters(proxy).defaultBehaviour = newBehaviour;
 }
