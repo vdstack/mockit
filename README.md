@@ -46,7 +46,12 @@ Until now, I found that mocking dependencies in Typescript is a bit of a pain: y
 With Mockit, it's as easy as a function call.
 
 ```ts
-import { mockFunction } from "@vdstack/mockit";
+import {
+  mock,
+  mockAbstract,
+  mockFunction,
+  mockInterface,
+} from "@vdstack/mockit";
 
 class Hi {
   public sayHi() {
@@ -75,11 +80,11 @@ interface HiInterface {
   sayHi(): string;
 }
 
-const hiTypeMock = mockInterface<HiType>("sayHi"); // same here, the second parameter is the name of the method you want to mock, and it's hinted with generics.
+const hiTypeMock = mockInterface<HiType>("sayHi"); // same idea here, generics will help you by hinting the names of the interface's functions that you want to mock.
 const hiInterfaceMock = mockInterface<HiInterface>("sayHi"); // same
 ```
 
-For TypeScript compiler:
+For TypeScript's compiler:
 
 - `hiMock` is an instance of the `Hi` class
 - `helloMock` is a function with the same signature as the `hello` function.
@@ -91,13 +96,14 @@ For TypeScript compiler:
   - is an object with a implementation of the `HiInterface` type
   - and can also be used as an instance of any class that implements the `HiInterface` type
 
-Except they can now be spied on, and their behaviour can be changed at will.
+What's cool is that they can now be spied on, and their behaviour can be changed at will.
 
 ## Mocking should be semantic
 
-Reading test code often happens when you broke it, and chances are high that you're not the one who wrote it: Mockit's API is designed to be as semantic as possible, so that you can easily understand what the test is about.
+Reading test code often happens when you broke it, and chances are high that you're not the one who wrote it in the first place: Mockit's API is designed to be as semantic as possible, so that you can easily understand what the test is about.
 
 ```ts
+// This example is available in src/examples folder if you want to run it.
 import { mockFunction, when } from "@vdstack/mockit";
 
 function log(anything: string): void {
@@ -148,10 +154,10 @@ Changing all my mocks when switching from `jest` to `vitest`, `mocha`, `ava`, `c
 
 ## Mocking should be able to use types
 
-Depending on interfaces is a very good practices in any language: this allows you to easily swap implementations, and thus makes your code more flexible and testable. It can be quite tricky in TypeScript though, because types are not usable at runtime.
+Depending on interfaces rather than concrete implementations is a very good practices in any language: this allows you to easily swap implementations, and thus makes your code more reusable and testable. It can be quite tricky to generate mocked versions in TypeScript though, because types are not usable at runtime.
 Mockit [provides a `mockAbstract` function that helps you with that](#mocking-abstract-classes).
 
-We also provide a `mockInterface` function that does the same thing, [but for interfaces](#mocking-interfaces).
+We also provide a `mockInterface` function that does the same thing, [but for interfaces and types](#mocking-interfaces).
 
 # Mocks
 
@@ -160,7 +166,7 @@ With Mockit you can mock:
 - Functions
 - Classes
 - Abstract classes
-- Interfaces
+- Interfaces and types
 
 The API varies a bit depending on the type of the thing you want to mock, because of a big TypeScript's limitation: we cannot use types as values.
 
@@ -376,8 +382,6 @@ spiedHello.calls.length; // 3
 spiedHello.calls[0].args; // ["hiii"]
 spiedHello.calls[1].args; // ["hello"]
 spiedHello.calls[2].args; // ["please throw"]
-
-// TODO: add behaviour examples since they're returned too
 ```
 
 ## Has the function been called?
@@ -499,7 +503,7 @@ mock(["1", "2", "3"]);
 spiedHello.wasCalledWith(z.array(z.string())).once; // true
 ```
 
-These are just a few basic examples, but you can user any zod schema. For more information I highly recommend that you check out the [Zod documentation](https://zod.dev/).
+These are just a few basic examples, but **you can use any zod schema**! For more information I highly recommend that you check out the [Zod documentation](https://zod.dev/).
 
 # Suppose and Verify
 
@@ -513,15 +517,20 @@ Mockit exposes two helpers that allow you to write tests in a more natural way:
 You can create suppositions with any arguments you want.
 Once all your suppositions have been created, you can call `verify` to check if they have been met.
 
+You can also chain suppositions together to create more complex expectations.
+
 ```ts
 import { mockFunction, suppose, verify } from "mockit";
 function hello(...args: any[]) {}
 
-test("it should be called three times, 'hello' twice and 'hiii' once", () => {
+test("it should be called only three times, 'hello' twice and 'hiii' once", () => {
   const mock = mockFunction(hello);
-  suppose(mock).willBeCalledWith("hiii").once();
-  suppose(mock).willBeCalledWith("hello").twice();
-  suppose(mock).willBeCalled.thrice();
+  suppose(mock)
+    .willBeCalledWith("hiii")
+    .once()
+    .and.willBeCalledWith("hello")
+    .twice()
+    .and.willBeCalled.thrice();
 
   mock("hiii");
 
@@ -535,7 +544,7 @@ test("it should be called three times, 'hello' twice and 'hiii' once", () => {
 
 **You can verify any type of mock**, not just functions. It will internally iterate over the functions of a mocked class or interface and verify each of them against the suppositions you created
 
-**You can pass multiple mocks to `verify`**. It will verify each of them against the suppositions you created.
+**You can pass multiple mocks to `verify`**. It will iterate over all of them.
 
 ```ts
 // Using so many mocks at once is not a typical use case but it's possible.
@@ -566,11 +575,12 @@ verify(fMock, classMock, interfaceMock, typeMock, abstractMock);
 
 ## Usage with Zod
 
-You can use any Zod schema to create suppositions.
+**You can use any Zod schema to create suppositions.**
 This allows you to check if the mocked function has been called with specific kind of arguments, or even with arguments that match a more specific and limitative schema (like a positive integer, for example).
 You can also check that a mock has not been called.
 
 ```ts
+// This example can be found in src/examples/conditional-dependency-call.spec.ts
 import { mockFunction, suppose, verify } from "mockit";
 import { z } from "zod";
 
@@ -641,7 +651,7 @@ it("should only call adult registration if user is adult", () => {
 
 # Why not mock objects?
 
-Mocking objects is a great way to test your code, but it's already been done by other libraries. My favorite is [@anatine/zod-mock](https://www.npmjs.com/package/@anatine/zod-mock) which I highly recommend you use.
+Mocking objects is a great way to test your code, but it's already been done by other libraries. My favorite is [@anatine/zod-mock](https://www.npmjs.com/package/@anatine/zod-mock) which I highly recommend you use. We might extend mockit by using this library internally at some point but for now it's not the priority.
 
 # Next up
 
