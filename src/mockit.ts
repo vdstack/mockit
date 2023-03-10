@@ -40,7 +40,7 @@ export function mockInterface<T>(...functionsToMock: Array<keyof T>): T {
   return mock as T;
 }
 
-export function when<T>(method: any) {
+export function when<T>(method: (...args: any[]) => any) {
   return {
     /**
      * This function sets up the behaviour of the mocked method.
@@ -86,7 +86,7 @@ export class Mockit {
     return mockAbstract(_original, propertiesToMock);
   }
 
-  static when<T>(method: any) {
+  static when<T>(method: (...args: any[]) => any) {
     return when(method);
   }
 
