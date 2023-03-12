@@ -421,7 +421,7 @@ spiedHello.wasCalled.nTimes(3); // true
 
 ## Has the function been called with specific arguments?
 
-You can also check if the mocked function has been called with specific arguments. To do that, you just need to chain the `withArgs(...args)` helper, which takes the same arguments as the mocked function.
+You can also check if the mocked function has been called with specific arguments. To do that, you can use the `wasCalledWith(...args)` helper, which accepts any set of arguments.
 From there, you can use the same helpers as above.
 
 ```ts
