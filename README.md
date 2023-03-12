@@ -1,7 +1,7 @@
 [![npm version](https://badge.fury.io/js/@vdstack%2Fmockit.svg)](https://badge.fury.io/js/@vdstack%2Fmockit)
 [![Wallaby.js](https://img.shields.io/badge/wallaby.js-powered-blue.svg?style=flat&logo=github)](https://wallabyjs.com/oss/)
 
-Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript.
+Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. Its API is inspired by Java's Mockito package, but diverges in a few ways (especially `when` setups and because of the zod integration).
 
 It gives you access to a simple API to mock functions, classes and even abstract classes and interfaces, so that any type of dependency can be mocked with minimum effort and maximum flexibility.
 
