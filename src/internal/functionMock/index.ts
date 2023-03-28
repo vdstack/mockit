@@ -8,7 +8,7 @@ import { getCatch } from "./getCatch";
 import { setCatch } from "./setCatch";
 
 import { FunctionMockUtils } from "./utils";
-import { MockSetters } from "./accessors";
+import { MockGetters, MockSetters } from "./accessors";
 
 export const Behaviours = {
   Return: "Return",
@@ -74,6 +74,11 @@ export function initializeProxy(proxy: any, functionName: string) {
     callsMap: new FunctionCalls(),
     suppositionsRegistry: new SuppositionRegistry(),
   });
+}
+
+export function resetProxy(proxy: any) {
+  const functionName = MockGetters(proxy).functionName;
+  initializeProxy(proxy, functionName);
 }
 
 // TODO: expose this in some way to allow users to change the default behaviour
