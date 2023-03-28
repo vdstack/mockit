@@ -25,6 +25,10 @@ export function setCatch(target, prop, newValue, receiver) {
       Setters.calls = newValue;
       break;
     }
+    case "callsMap": {
+      Setters.callsMap = newValue;
+      break;
+    }
     case "functionName": {
       Setters.functionName = newValue;
       break;
