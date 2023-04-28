@@ -1,6 +1,6 @@
 import { Mockit, when } from "../../mockit";
 
-import { Equal, Expect } from "../utils";
+import { Equal, Expect } from "../../utils/testing-types";
 
 it("should allow to return a typesafe value", () => {
   function hello(...args: any[]) {
