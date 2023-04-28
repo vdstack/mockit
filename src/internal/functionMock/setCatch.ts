@@ -15,14 +15,34 @@ export function setCatch(target, prop, newValue, receiver) {
     return true;
   }
 
+  if (prop === "resetBehaviour") {
+    Setters.defaultBehaviour = newValue.defaultBehaviour;
+    Setters.mockMap = newValue.mockMap;
+    return true;
+  }
+
+  if (prop === "resetCallHistory") {
+    Setters.calls = [];
+    Setters.callsMap = newValue.callsMap;
+    return true;
+  }
+
   // this will list authorized properties
   switch (prop) {
     case "defaultBehaviour": {
       Setters.defaultBehaviour = newValue;
       break;
     }
+    case "suppositionsRegistry": {
+      Setters.suppositionsRegistry = newValue;
+      break;
+    }
     case "calls": {
       Setters.calls = newValue;
+      break;
+    }
+    case "mockMap": {
+      Setters.mockMap = newValue;
       break;
     }
     case "callsMap": {

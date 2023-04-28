@@ -76,6 +76,22 @@ export function initializeProxy(proxy: any, functionName: string) {
   });
 }
 
+export function resetProxyBehaviour(proxy: any) {
+  Reflect.set(proxy, "resetBehaviour", {
+    defaultBehaviour,
+    mockMap: new HashingMap(),
+  });
+}
+
+export function resetProxyCallHistory(proxy: any) {
+  MockSetters(proxy).calls = [];
+  MockSetters(proxy).callsMap = new FunctionCalls();
+}
+
+export function resetProxySuppositions(proxy: any) {
+  MockSetters(proxy).suppositionsRegistry = new SuppositionRegistry();
+}
+
 export function resetProxy(proxy: any) {
   const functionName = MockGetters(proxy).functionName;
   initializeProxy(proxy, functionName);

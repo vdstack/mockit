@@ -8,6 +8,7 @@ import {
   verify,
   mockInterface,
   mockAbstract,
+  Reset,
 } from "../../mockit";
 
 function hello(...args: any[]) {
@@ -132,5 +133,15 @@ describe("Reset mock behaviour", () => {
 
     reset(mock);
     expect(mock.hello("hello")).toBeUndefined();
+  });
+
+  it("should be accessible via Reset static", () => {
+    const mock = mockFunction(hello);
+    when(mock).isCalledWith("hello").thenReturn("hello");
+
+    expect(mock("hello")).toBe("hello");
+
+    Reset.mocks(mock);
+    expect(mock("hello")).toBeUndefined();
   });
 });

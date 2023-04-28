@@ -17,7 +17,7 @@ import {
 
 import { suppose } from "./suppose";
 import { verify } from "./suppose/verify";
-import { reset } from "./reset";
+import { reset, Reset, resetBehaviour, resetCallHistory } from "./reset";
 
 export function mockAbstract<T>(
   _original: AbstractClass<T>, // it's here to activate the generic type
@@ -58,7 +58,7 @@ export function when<T>(method: (...args: any[]) => any) {
   };
 }
 
-export { suppose, verify, reset };
+export { suppose, verify, reset, resetBehaviour, resetCallHistory, Reset };
 export { Behaviour };
 
 export function spy<T extends (...args: any[]) => any>(

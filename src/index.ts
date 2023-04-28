@@ -4,6 +4,10 @@ import {
   mockAbstract,
   mockFunction,
   mockInterface,
+  reset,
+  Reset,
+  resetBehaviour,
+  resetCallHistory,
   spy,
   suppose,
   verify,
@@ -12,6 +16,10 @@ import {
 
 export {
   Mockit,
+  Reset,
+  reset,
+  resetBehaviour,
+  resetCallHistory,
   mock,
   mockAbstract,
   mockFunction,
