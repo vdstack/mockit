@@ -2,7 +2,7 @@ import { MockSetters } from "./accessors";
 import { Behaviour, NewBehaviourParam } from "./behaviour";
 import { initializeProxy, changeDefaultBehaviour } from "./index";
 
-export class FunctionMockUtils {
+export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
   constructor(private proxy: any) {}
 
   public initialize(functionName: string) {
@@ -25,6 +25,12 @@ export class FunctionMockUtils {
           returnedValue: value,
         });
       },
+      thenReturnSafe(value: ReturnType<TFunc>) {
+        self.changeDefaultBehaviour({
+          behaviour: Behaviour.Return,
+          returnedValue: value,
+        });
+      },
       /**
        * @param error error to throw when the method is called
        */
@@ -38,6 +44,12 @@ export class FunctionMockUtils {
        * @param value value to resolve when the method is called
        */
       thenResolve(value: any) {
+        self.changeDefaultBehaviour({
+          behaviour: Behaviour.Resolve,
+          resolvedValue: value,
+        });
+      },
+      thenResolveSafe(value: Awaited<ReturnType<TFunc>>) {
         self.changeDefaultBehaviour({
           behaviour: Behaviour.Resolve,
           resolvedValue: value,
@@ -77,6 +89,15 @@ export class FunctionMockUtils {
           },
         });
       },
+      thenReturnSafe(value: ReturnType<TFunc>) {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
+            behaviour: Behaviour.Return,
+            returnedValue: value,
+          },
+        });
+      },
       thenThrow(error: any) {
         Setters.registerNewCustomBehaviour({
           args,
@@ -96,6 +117,15 @@ export class FunctionMockUtils {
         });
       },
       thenResolve(value: any) {
+        Setters.registerNewCustomBehaviour({
+          args,
+          behaviour: {
+            behaviour: Behaviour.Resolve,
+            resolvedValue: value,
+          },
+        });
+      },
+      thenResolveSafe(value: Awaited<ReturnType<TFunc>>) {
         Setters.registerNewCustomBehaviour({
           args,
           behaviour: {

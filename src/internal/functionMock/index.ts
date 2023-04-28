@@ -28,7 +28,10 @@ export type BehaviourType = typeof Behaviours[keyof typeof Behaviours];
  *
  * It's a central piece of the library, because it is used in all mocks (function, class, abstract)
  */
-export function FunctionMock(functionName: string) {
+export function FunctionMock<TFunc extends (...args: any[]) => any>(
+  functionName: string,
+  original?: TFunc
+) {
   const proxy = new Proxy(() => {}, {
     /**
      * This will be triggered when the function mock is called.
@@ -48,7 +51,7 @@ export function FunctionMock(functionName: string) {
     set: setCatch,
   });
 
-  new FunctionMockUtils(proxy).initialize(functionName);
+  new FunctionMockUtils<TFunc>(proxy).initialize(functionName);
   return proxy;
 }
 
