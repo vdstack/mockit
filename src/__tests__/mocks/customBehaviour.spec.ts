@@ -1,7 +1,7 @@
 import { Mockit } from "../../mockit";
 
 function hello(...args: any[]) {
-  return "hello world";
+  return "hello world" as const;
 }
 
 /**

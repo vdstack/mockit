@@ -33,7 +33,7 @@ export function mock<T>(_original: Class<T>): T {
 export function mockFunction<T extends (...args: any[]) => any>(
   original: T
 ): T {
-  return FunctionMock(original.name) as T;
+  return FunctionMock(original.name, original) as T;
 }
 
 export function mockInterface<T>(...functionsToMock: Array<keyof T>): T {
@@ -41,18 +41,18 @@ export function mockInterface<T>(...functionsToMock: Array<keyof T>): T {
   return mock as T;
 }
 
-export function when<T>(method: (...args: any[]) => any) {
+export function when<TFunc extends (...args: any[]) => any>(method: TFunc) {
   return {
     /**
      * This function sets up the behaviour of the mocked method.
      * If the mocked method is called with parameters that are not setup for custom behaviour, this will be the default behaviour
      */
     get isCalled() {
-      const utils = new FunctionMockUtils(method);
+      const utils = new FunctionMockUtils<TFunc>(method);
       return utils.defaultBehaviourController();
     },
     isCalledWith(...args: any[]) {
-      const utils = new FunctionMockUtils(method);
+      const utils = new FunctionMockUtils<TFunc>(method);
       return utils.callController(...args);
     },
   };
@@ -87,8 +87,8 @@ export class Mockit {
     return mockAbstract(_original, propertiesToMock);
   }
 
-  static when<T>(method: (...args: any[]) => any) {
-    return when(method);
+  static when<TFunc extends (...args: any[]) => any>(method: TFunc) {
+    return when<TFunc>(method);
   }
 
   static mock<T>(_original: Class<T>): T {
