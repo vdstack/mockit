@@ -17,6 +17,7 @@ import {
 
 import { suppose } from "./suppose";
 import { verify } from "./suppose/verify";
+import { reset, Reset, resetBehaviour, resetCallHistory } from "./reset";
 
 export function mockAbstract<T>(
   _original: AbstractClass<T>, // it's here to activate the generic type
@@ -57,7 +58,7 @@ export function when<T>(method: (...args: any[]) => any) {
   };
 }
 
-export { suppose, verify };
+export { suppose, verify, reset, resetBehaviour, resetCallHistory, Reset };
 export { Behaviour };
 
 export function spy<T extends (...args: any[]) => any>(
@@ -110,6 +111,7 @@ export class Mockit {
 
   static suppose = suppose;
   static verify = verify;
+  static reset = reset;
 
   static get any() {
     // this is just a port to zod, you can pass zod schemas directly

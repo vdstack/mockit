@@ -3,7 +3,7 @@ import { countMatchingCalls } from "../../utils/countMatchingCalls";
 import { argsContainZodSchema } from "../../utils/argsContainZodSchema";
 
 import { NewBehaviourParam } from "../functionMock/behaviour";
-import { MockGetters } from "../functionMock/accessors";
+import { MockGetters, MockSetters } from "../functionMock/accessors";
 
 export class FunctionSpy {
   constructor(private proxy: any) {}
@@ -14,6 +14,16 @@ export class FunctionSpy {
 
   public get calls() {
     return MockGetters(this.proxy).calls;
+  }
+
+  /**
+   * Reset the spy data of the mock
+   * BEWARE: any "verify" call will be affected by this reset
+   * because the mock itself will reset its data
+   */
+  public reset() {
+    MockSetters(this.proxy).calls = [];
+    MockSetters(this.proxy).callsMap = new FunctionCalls();
   }
 
   public get wasCalled() {
