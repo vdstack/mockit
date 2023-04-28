@@ -35,6 +35,8 @@ it("should allow to return a typesafe value", () => {
     Expect<Equal<Parameters<typeof thenReturnSafeAsync>[0], typeof prom>>,
     Expect<Equal<Parameters<typeof thenResolveSafeAsync>[0], "hello world">>
   ];
+
+  expect(true).toBe(true);
 });
 
 it("should allow a typesafe value for isCalledWithArgs as well", () => {
@@ -66,4 +68,6 @@ it("should allow a typesafe value for isCalledWithArgs as well", () => {
     Expect<Equal<Parameters<typeof thenReturnSafeAsync>[0], typeof prom>>,
     Expect<Equal<Parameters<typeof thenResolveSafeAsync>[0], "hello world">>
   ];
+
+  expect(true).toBe(true);
 });
