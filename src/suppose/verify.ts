@@ -82,10 +82,10 @@ export function verify(...mocks: any[]) {
       const suppositionsErrors = `
 ${failedSuppositions
   .map(
-    (a) =>
-      `${parseSuppositionText(a.supposition.count)}${parseSuppositionsArgs(
-        a.supposition.args
-      )}.`
+    (a, index) =>
+      `Supposition ${index + 1}:${parseSuppositionText(
+        a.supposition.count
+      )}${parseSuppositionsArgs(a.supposition.args)}.`
   )
   .join("\n\n")}
       `;
@@ -95,7 +95,7 @@ ${failedSuppositions
       const callsText = parseCallsText(calls);
       const helpText =
         "You can setup a spy and use it to access the history arguments yourself.";
-      const error = `Function "${functionName}" failed its verification\n${callsText}\n${suppositionsErrors}\n${helpText}`;
+      const error = `Function "${functionName}" failed its verification\n${callsText}\n\nRegistered suppositions:${suppositionsErrors}\n${helpText}`;
       throw new Error(error);
     }
   }
@@ -103,14 +103,14 @@ ${failedSuppositions
 
 function parseSuppositionText(supp: SuppositionCount) {
   if (supp === "NEVER") {
-    return "Suppositions:\nIt was expected to never be called";
+    return "\nIt was expected to never be called";
   }
 
   if (supp === "atLeastOnce") {
-    return "Suppositions:\nIt was expected to be called at least once";
+    return "\nIt was expected to be called at least once";
   }
 
-  return `Suppositions:\nIt was expected to be called ${supp} time(s)`;
+  return `\nIt was expected to be called ${supp} time(s)`;
 }
 
 function parseSuppositionsArgs(suppArgs: Supposition["args"]) {
@@ -136,7 +136,9 @@ function parseCallsText(calls: FunctionCalls) {
     )}`;
   }
 
-  const parsedArgs = args.map((a) => JSON.stringify(a, null, 2)).join("\n");
+  const parsedArgs = args
+    .map((a, index) => `Call ${index + 1}:\n ${JSON.stringify(a, null, 2)}`)
+    .join("\n\n");
   return `It was called ${
     timesMap[args.length] ?? `${args.length} times`
   }.\n\nRegistered calls:\n${parsedArgs}`;

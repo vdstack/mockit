@@ -101,7 +101,6 @@ describe("suppose then verify", () => {
     });
     expect(() => verify(mock)).toThrow(); // the last supposition is not complete: it needs another call
 
-    verify(mock);
     mock({
       hello: "hello",
       world: 2,
