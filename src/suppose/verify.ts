@@ -1,4 +1,4 @@
-import { FunctionSpy } from "../internal/functionSpy";
+import { FunctionCalls, FunctionSpy } from "../internal/functionSpy";
 import { MockGetters } from "../internal/functionMock/accessors";
 import { Supposition, SuppositionCount } from ".";
 
@@ -80,17 +80,22 @@ export function verify(...mocks: any[]) {
       const mockGetter = MockGetters(mock);
       const functionName = mockGetter.functionName;
       const suppositionsErrors = `
-        ${failedSuppositions
-          .map(
-            (a) =>
-              `${parseSuppositionText(
-                a.supposition.count
-              )}${parseSuppositionsArgs(a.supposition.args)}.`
-          )
-          .join("\n\n")}
+${failedSuppositions
+  .map(
+    (a, index) =>
+      `Supposition ${index + 1}:${parseSuppositionText(
+        a.supposition.count
+      )}${parseSuppositionsArgs(a.supposition.args)}.`
+  )
+  .join("\n\n")}
       `;
 
-      const error = `Function "${functionName}" failed its verification\n${suppositionsErrors}`;
+      const calls = mockGetter.callsMap;
+
+      const callsText = parseCallsText(calls);
+      const helpText =
+        "Small hint: You can setup a spy and use it to access the history arguments yourself.";
+      const error = `Function "${functionName}" failed its verification\n${callsText}\n\nRegistered suppositions:${suppositionsErrors}\n${helpText}`;
       throw new Error(error);
     }
   }
@@ -98,14 +103,14 @@ export function verify(...mocks: any[]) {
 
 function parseSuppositionText(supp: SuppositionCount) {
   if (supp === "NEVER") {
-    return "It was expected to never be called";
+    return "\nIt was expected to never be called";
   }
 
   if (supp === "atLeastOnce") {
-    return "It was expected to be called at least once";
+    return "\nIt was expected to be called at least once";
   }
 
-  return `It was expected to be called ${supp} time(s)`;
+  return `\nIt was expected to be called ${supp} time(s)`;
 }
 
 function parseSuppositionsArgs(suppArgs: Supposition["args"]) {
@@ -115,3 +120,31 @@ function parseSuppositionsArgs(suppArgs: Supposition["args"]) {
 
   return ` with arguments: ${JSON.stringify(suppArgs, null, 2)}`;
 }
+
+function parseCallsText(calls: FunctionCalls) {
+  const args = calls.getArgs();
+
+  if (!args.length) {
+    return "It was never called";
+  }
+
+  if (args.length === 1) {
+    return `It was called once with arguments:\n${JSON.stringify(
+      args[0],
+      null,
+      2
+    )}`;
+  }
+
+  const parsedArgs = args
+    .map((a, index) => `Call ${index + 1}:\n ${JSON.stringify(a, null, 2)}`)
+    .join("\n\n");
+  return `It was called ${
+    timesMap[args.length] ?? `${args.length} times`
+  }.\n\nRegistered calls:\n${parsedArgs}`;
+}
+
+const timesMap = {
+  1: "once",
+  2: "twice",
+};
