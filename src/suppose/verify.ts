@@ -94,7 +94,7 @@ ${failedSuppositions
 
       const callsText = parseCallsText(calls);
       const helpText =
-        "You can setup a spy and use it to access the history arguments yourself.";
+        "Small hint: You can setup a spy and use it to access the history arguments yourself.";
       const error = `Function "${functionName}" failed its verification\n${callsText}\n\nRegistered suppositions:${suppositionsErrors}\n${helpText}`;
       throw new Error(error);
     }
