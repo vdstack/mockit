@@ -1,6 +1,6 @@
 import { verify } from "../../mockit";
 import { mockFunction, spy } from "../../mockit";
-import { Reset, resetCallHistory } from "../../reset";
+import { Reset } from "../../reset";
 import { suppose } from "../../suppose";
 
 describe("It should permit to reset the call history without touching the mock behaviour", () => {
@@ -15,7 +15,7 @@ describe("It should permit to reset the call history without touching the mock b
     mock(2);
     mock(3);
     expect(mSpy.calls.length).toBe(3);
-    resetCallHistory(mock);
+    Reset.historyOf(mock);
     expect(mSpy.calls.length).toBe(0);
   });
 
@@ -32,7 +32,7 @@ describe("It should permit to reset the call history without touching the mock b
     mock2(3);
     expect(mSpy1.calls.length).toBe(3);
     expect(mSpy2.calls.length).toBe(3);
-    resetCallHistory(mock1, mock2);
+    Reset.historyOf(mock1, mock2);
     expect(mSpy1.calls.length).toBe(0);
     expect(mSpy2.calls.length).toBe(0);
   });
@@ -44,28 +44,11 @@ describe("It should permit to reset the call history without touching the mock b
     mock(2);
     mock(3);
     expect(mSpy.wasCalled.thrice).toBe(true);
-    resetCallHistory(mock);
+    Reset.historyOf(mock);
     expect(mSpy.wasCalled.nTimes(0)).toBe(true);
   });
 
   it("should work with verification & suppositions as well", () => {
-    const mock = mockFunction(hello);
-
-    suppose(mock).willBeCalled.thrice();
-    suppose(mock).willBeCalledWith(1, 2, 3).once();
-
-    mock(1, 2, 3);
-    mock();
-    mock();
-
-    verify(mock);
-
-    resetCallHistory(mock);
-
-    expect(() => verify(mock)).toThrow();
-  });
-
-  it("should work with Reset", () => {
     const mock = mockFunction(hello);
 
     suppose(mock).willBeCalled.thrice();

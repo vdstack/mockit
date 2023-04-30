@@ -1,4 +1,4 @@
-import { Reset, mockFunction, resetBehaviour, when } from "../../mockit";
+import { Reset, mockFunction, when } from "../../mockit";
 
 describe("It should permit to reset mock behaviour without touching the call history", () => {
   function hello(...args: any[]) {
@@ -14,24 +14,11 @@ describe("It should permit to reset mock behaviour without touching the call his
     when(mock).isCalled.thenReturn("WORLD");
     expect(mock()).toBe("WORLD");
 
-    resetBehaviour(mock);
+    Reset.behaviourOf(mock);
     expect(mock()).toBeUndefined();
   });
 
   it("should reset custom behaviours to default behaviour", () => {
-    const mock = mockFunction(hello);
-    when(mock).isCalledWith("hello").thenReturn("hello");
-    when(mock).isCalledWith("world").thenReturn("world");
-
-    expect(mock("hello")).toBe("hello");
-    expect(mock("world")).toBe("world");
-
-    resetBehaviour(mock);
-    expect(mock("hello")).toBeUndefined();
-    expect(mock("world")).toBeUndefined();
-  });
-
-  it("should be accessible via Reset", () => {
     const mock = mockFunction(hello);
     when(mock).isCalledWith("hello").thenReturn("hello");
     when(mock).isCalledWith("world").thenReturn("world");
@@ -54,7 +41,7 @@ describe("It should permit to reset mock behaviour without touching the call his
     expect(mock1("hello")).toBe("hello");
     expect(mock2("world")).toBe("world");
 
-    resetBehaviour(mock1, mock2);
+    Reset.behaviourOf(mock1, mock2);
     expect(mock1("hello")).toBeUndefined();
     expect(mock2("world")).toBeUndefined();
   });
