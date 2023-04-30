@@ -2,7 +2,6 @@ import {
   mock as mockClass,
   mockFunction,
   when,
-  reset,
   spy,
   suppose,
   verify,
@@ -25,7 +24,7 @@ describe("Reset mock behaviour", () => {
     when(mock).isCalled.thenReturn("WORLD");
     expect(mock()).toBe("WORLD");
 
-    reset(mock);
+    Reset.completely(mock);
     expect(mock()).toBeUndefined();
   });
 
@@ -37,7 +36,7 @@ describe("Reset mock behaviour", () => {
     expect(mock("hello")).toBe("hello");
     expect(mock("world")).toBe("world");
 
-    reset(mock);
+    Reset.completely(mock);
     expect(mock("hello")).toBeUndefined();
     expect(mock("world")).toBeUndefined();
   });
@@ -54,7 +53,7 @@ describe("Reset mock behaviour", () => {
     expect(espion.wasCalledWith("hello").once).toBe(true);
     expect(espion.wasCalledWith("world").once).toBe(true);
 
-    reset(mock);
+    Reset.completely(mock);
     expect(espion.wasCalled.twice).toBe(false);
     expect(espion.wasCalledWith("hello").once).toBe(false);
     expect(espion.wasCalledWith("world").once).toBe(false);
@@ -69,7 +68,7 @@ describe("Reset mock behaviour", () => {
     mock("hello");
     verify(mock);
 
-    reset(mock);
+    Reset.completely(mock);
     verify(mock); // should not throw because the mock was reset
   });
 
@@ -83,7 +82,7 @@ describe("Reset mock behaviour", () => {
     expect(mock1("hello")).toBe("hello");
     expect(mock2("world")).toBe("world");
 
-    reset(mock1, mock2);
+    Reset.completely(mock1, mock2);
 
     expect(mock1("hello")).toBeUndefined();
     expect(mock2("world")).toBeUndefined();
@@ -102,7 +101,7 @@ describe("Reset mock behaviour", () => {
     expect(mock.hello("hello")).toBe("hello");
     expect(mock.HELLAWORLD("hello")).toBe("hello");
 
-    reset(mock);
+    Reset.completely(mock);
     expect(mock.hello("hello")).toBeUndefined();
     expect(mock.HELLAWORLD("hello")).toBeUndefined();
   });
@@ -117,7 +116,7 @@ describe("Reset mock behaviour", () => {
 
     expect(mock.hello("hello")).toBe("hello");
 
-    reset(mock);
+    Reset.completely(mock);
     expect(mock.hello("hello")).toBeUndefined();
   });
 
@@ -131,17 +130,7 @@ describe("Reset mock behaviour", () => {
 
     expect(mock.hello("hello")).toBe("hello");
 
-    reset(mock);
+    Reset.completely(mock);
     expect(mock.hello("hello")).toBeUndefined();
-  });
-
-  it("should be accessible via Reset static", () => {
-    const mock = mockFunction(hello);
-    when(mock).isCalledWith("hello").thenReturn("hello");
-
-    expect(mock("hello")).toBe("hello");
-
-    Reset.mocks(mock);
-    expect(mock("hello")).toBeUndefined();
   });
 });

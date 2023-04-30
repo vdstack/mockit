@@ -1,5 +1,5 @@
 import { mockFunction, verify } from "../../mockit";
-import { Reset, resetCallHistory, resetSuppositions } from "../../reset";
+import { Reset } from "../../reset";
 import { suppose } from "../../suppose";
 
 describe("It should permit to reset mock suppositions without touching the call history", () => {
@@ -16,7 +16,7 @@ describe("It should permit to reset mock suppositions without touching the call 
 
     verify(mock);
 
-    resetSuppositions(mock);
+    Reset.suppositionsOn(mock);
 
     suppose(mock).willBeCalled.thrice();
     expect(() => verify(mock)).toThrowError();
@@ -34,8 +34,8 @@ describe("It should permit to reset mock suppositions without touching the call 
 
     verify(mock);
 
-    resetSuppositions(mock);
-    resetCallHistory(mock);
+    Reset.suppositionsOn(mock);
+    Reset.historyOf(mock);
 
     suppose(mock).willBeCalled.once();
     expect(() => verify(mock)).toThrowError();
@@ -56,25 +56,12 @@ describe("It should permit to reset mock suppositions without touching the call 
     verify(mock1);
     verify(mock2);
 
-    resetSuppositions(mock1, mock2);
+    Reset.suppositionsOn(mock1, mock2);
 
     suppose(mock1).willBeCalled.once();
     suppose(mock2).willBeCalled.twice();
 
     verify(mock1);
     expect(() => verify(mock2)).toThrowError();
-  });
-
-  it("should work with Reset", () => {
-    const mock = mockFunction(hellaw);
-    suppose(mock).willBeCalled.once();
-    mock();
-    verify(mock);
-
-    Reset.suppositionsOn(mock);
-    suppose(mock).willBeCalled.twice();
-    expect(() => verify(mock)).toThrowError();
-    mock();
-    verify(mock);
   });
 });

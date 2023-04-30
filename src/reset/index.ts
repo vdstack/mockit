@@ -74,20 +74,14 @@ export function resetSuppositions<T>(...mocks: T[]): void {
   }
 }
 
-export class Reset {
-  static mocks(...mocks: any[]) {
-    reset(...mocks);
-  }
-
-  static behaviourOf(...mocks: any[]) {
-    resetBehaviour(...mocks);
-  }
-
-  static historyOf(...mocks: any[]) {
-    resetCallHistory(...mocks);
-  }
-
-  static suppositionsOn(...mocks: any[]) {
-    resetSuppositions(...mocks);
-  }
-}
+export const Reset: {
+  completely: (...mocks: any[]) => void;
+  behaviourOf: (...mocks: any[]) => void;
+  historyOf: (...mocks: any[]) => void;
+  suppositionsOn: (...mocks: any[]) => void;
+} = {
+  completely: (...mocks: any[]) => reset(...mocks),
+  behaviourOf: (...mocks: any[]) => resetBehaviour(...mocks),
+  historyOf: (...mocks: any[]) => resetCallHistory(...mocks),
+  suppositionsOn: (...mocks: any[]) => resetSuppositions(...mocks),
+};
