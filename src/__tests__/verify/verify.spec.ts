@@ -74,7 +74,7 @@ describe("suppose then verify", () => {
     verify(mock);
   });
 
-  it("should accept multiple complex arguments on multiple suppositions", () => {
+  it.only("should accept multiple complex arguments on multiple suppositions", () => {
     const mock = mockFunction(hello);
     suppose(mock).willBeCalledWith(z.number(), z.string()).once();
     suppose(mock).willBeCalledWith(z.string(), z.number()).once();
@@ -101,6 +101,7 @@ describe("suppose then verify", () => {
     });
     expect(() => verify(mock)).toThrow(); // the last supposition is not complete: it needs another call
 
+    verify(mock);
     mock({
       hello: "hello",
       world: 2,
