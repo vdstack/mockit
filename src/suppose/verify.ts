@@ -101,6 +101,34 @@ ${failedSuppositions
   }
 }
 
+export function verifyThat<Params extends any[], Result>(
+  mockedFunction: (...args: Params) => Result
+) {
+  return {
+    wasCalledWith: (...params: [Params[0], Params[1], Params[2] extends {} ? Params[2] : never, Params[3] extends {} ? Params[3] : never, Params[4] Params[4] extends {} ? Params[4]: never]) => {
+
+    }
+  }
+}
+
+function mockedFunction(a: string, number: number) {
+  return "a";
+}
+
+verifyThat(mockedFunction).wasCalledWith(
+  "azezae",
+  1,
+  undefined,
+  undefined,
+  undefined
+);
+
+// I want to catch the args so I can use them in the verifyThat
+
+function verifyThat2(
+  mockedFunction: ()
+)
+
 function parseSuppositionText(supp: SuppositionCount) {
   if (supp === "NEVER") {
     return "\nIt was expected to never be called";
