@@ -1,58 +1,69 @@
 import { z } from "zod";
 
-import { mockFunction } from "../../mockit";
-import { verifyThat } from "../../suppose/verifyThat";
+import { mockFunction, verifyThat } from "../../mockit";
 
 function hello(..._args: any[]) {}
 
 describe("Verify that", () => {
   it("should be able to verify how many times a mock was called", () => {
     const mockedFunction = mockFunction(hello);
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.twice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.thrice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.nTimes(1)).toThrow();
+    verifyThat(mockedFunction).wasCalledNTimes(0);
+    verifyThat(mockedFunction).wasNeverCalled();
+    expect(() => verifyThat(mockedFunction).wasCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled.once();
-    verifyThat(mockedFunction).wasCalled.atLeastOnce();
+    verifyThat(mockedFunction).wasCalled();
     verifyThat(mockedFunction).wasCalledOnce();
-    verifyThat(mockedFunction).wasCalled.nTimes(1);
-    expect(() => verifyThat(mockedFunction).wasCalled.twice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.thrice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.nTimes(2)).toThrow();
+    verifyThat(mockedFunction).wasCalledNTimes(1);
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledNTimes(2)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled.twice();
-    verifyThat(mockedFunction).wasCalled.atLeastOnce();
-    verifyThat(mockedFunction).wasCalled.nTimes(2);
+    verifyThat(mockedFunction).wasCalled();
     verifyThat(mockedFunction).wasCalledTwice();
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.thrice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.nTimes(1)).toThrow();
+    verifyThat(mockedFunction).wasCalledNTimes(2);
+    verifyThat(mockedFunction).wasCalledTwice();
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled.thrice();
-    verifyThat(mockedFunction).wasCalled.atLeastOnce();
-    verifyThat(mockedFunction).wasCalled.nTimes(3);
+    verifyThat(mockedFunction).wasCalled();
     verifyThat(mockedFunction).wasCalledThrice();
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.twice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.nTimes(1)).toThrow();
+    verifyThat(mockedFunction).wasCalledNTimes(3);
+    verifyThat(mockedFunction).wasCalledThrice();
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled.nTimes(4);
-    verifyThat(mockedFunction).wasCalled.atLeastOnce();
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.twice()).toThrow();
-    expect(() => verifyThat(mockedFunction).wasCalled.thrice()).toThrow();
+    verifyThat(mockedFunction).wasCalled();
+    verifyThat(mockedFunction).wasCalledNTimes(4);
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
   });
 
   it("should allow to track calls with specific arguments", () => {
     const mockedFunction = mockFunction(hello);
+    verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
+
     mockedFunction("hello", "world");
+
     verifyThat(mockedFunction).wasCalledOnceWith("hello", "world");
+    expect(() =>
+      verifyThat(mockedFunction).wasNeverCalledWith("hello", "world")
+    ).toThrow();
     expect(() =>
       verifyThat(mockedFunction).wasCalledOnceWith("hello")
     ).toThrow();

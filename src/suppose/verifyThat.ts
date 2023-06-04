@@ -8,15 +8,12 @@ import { FunctionSpy } from "../internal";
 export function verifyThat<Params extends any[], Result>(
   mock: (...args: Params) => Result
 ): {
+  wasNeverCalled: () => void;
+  wasNeverCalledWith: (...params: any[]) => void;
+  wasNeverCalledWithSafe: (...params: Params) => void;
   wasCalledWithSafe: (...params: Params) => void;
   wasCalledWith: (...params: any[]) => void;
-  wasCalled: {
-    atLeastOnce(): void;
-    once(): void;
-    twice(): void;
-    thrice(): void;
-    nTimes: (howMuch: number) => void;
-  };
+  wasCalled: () => void;
   wasCalledOnce: (...params: any[]) => void;
   wasCalledOnceWith: (...params: any[]) => void;
   wasCalledOnceWithSafe: (...params: Params) => void;
@@ -41,42 +38,13 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledWithSafe: (...params: Params) => {
       return spy.wasCalledWith(...params);
     },
-    wasCalled: {
-      atLeastOnce: () => {
-        if (!spy.wasCalled.atLeastOnce) {
-          throw new Error("Function was never called");
-        }
-      },
-      nTimes: (howMuch: number) => {
-        if (spy.calls.length !== howMuch) {
-          throw new Error(
-            `Function was called ${spy.calls.length} times, expected ${howMuch}`
-          );
-        }
-      },
-      once: () => {
-        if (!spy.wasCalled.once) {
-          throw new Error(
-            `Function was not called exactly once, but ${spy.calls.length} times`
-          );
-        }
-      },
-      twice: () => {
-        if (!spy.wasCalled.twice) {
-          throw new Error(
-            `Function was not called exactly twice, but ${spy.calls.length} times`
-          );
-        }
-      },
-      thrice: () => {
-        if (!spy.wasCalled.thrice) {
-          throw new Error(
-            `Function was not called exactly thrice, but ${spy.calls.length} times`
-          );
-        }
-      },
+    wasCalled: () => {
+      if (!spy.wasCalled.atLeastOnce) {
+        throw new Error(
+          `Function was not called, but ${spy.calls.length} times`
+        );
+      }
     },
-
     wasCalledOnce: () => {
       if (!spy.wasCalled.once) {
         throw new Error(
@@ -168,6 +136,27 @@ export function verifyThat<Params extends any[], Result>(
       if (!spy.wasCalledWith(...params).nTimes) {
         throw new Error(
           `Function was not called ${howMuch} times with ${params}`
+        );
+      }
+    },
+    wasNeverCalled: () => {
+      if (spy.calls.length !== 0) {
+        throw new Error(
+          `Function was called ${spy.calls.length} times, expected 0`
+        );
+      }
+    },
+    wasNeverCalledWith: (...params: any[]) => {
+      if (spy.wasCalledWith(...params).atLeastOnce) {
+        throw new Error(
+          `Function was called with ${params}, but it should not have been`
+        );
+      }
+    },
+    wasNeverCalledWithSafe: (...params: Params) => {
+      if (spy.wasCalledWith(...params).atLeastOnce) {
+        throw new Error(
+          `Function was called with ${params}, but it should not have been`
         );
       }
     },

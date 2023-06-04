@@ -6,25 +6,44 @@ describe("Reset > verifyThat", () => {
 
   it("should be able able to reset calls count", () => {
     const mockedFunction = mockFunction(hello);
-    mockedFunction();
-    verifyThat(mockedFunction).wasCalled.once();
-    Reset.completely(mockedFunction);
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
+    verifyThat(mockedFunction).wasNeverCalled();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled.once();
+    verifyThat(mockedFunction).wasCalledOnce();
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
+
+    Reset.completely(mockedFunction);
+
+    verifyThat(mockedFunction).wasNeverCalled();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
+
+    mockedFunction();
+    verifyThat(mockedFunction).wasCalledOnce();
+    expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
 
     Reset.historyOf(mockedFunction);
-    expect(() => verifyThat(mockedFunction).wasCalled.once()).toThrow();
+
+    verifyThat(mockedFunction).wasNeverCalled();
+    expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
   });
 
   it("should be able able to reset calls count for specific arguments", () => {
     const mockedFunction = mockFunction(hello);
+    verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
+
     mockedFunction("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith(z.string(), z.string());
+    expect(() =>
+      verifyThat(mockedFunction).wasNeverCalledWith("hello", "world")
+    ).toThrow();
+    expect(() => {
+      verifyThat(mockedFunction).wasNeverCalledWithSafe("hello", "world");
+    }).toThrow();
+
     Reset.completely(mockedFunction);
 
+    verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
     expect(() =>
       verifyThat(mockedFunction).wasCalledOnceWith("hello", "world")
     ).toThrow();
@@ -35,8 +54,12 @@ describe("Reset > verifyThat", () => {
     mockedFunction("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith(z.string(), z.string());
+    expect(() => {
+      verifyThat(mockedFunction).wasNeverCalledWithSafe("hello", "world");
+    }).toThrow();
 
     Reset.historyOf(mockedFunction);
+    verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
     expect(() =>
       verifyThat(mockedFunction).wasCalledOnceWith("hello", "world")
     ).toThrow();
