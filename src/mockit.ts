@@ -17,6 +17,8 @@ import {
 
 import { suppose } from "./suppose";
 import { verify } from "./suppose/verify";
+import { verifyThat } from "./suppose/verifyThat";
+
 import { Reset } from "./reset";
 
 export function mockAbstract<T>(
@@ -58,7 +60,7 @@ export function when<TFunc extends (...args: any[]) => any>(method: TFunc) {
   };
 }
 
-export { suppose, verify, Reset };
+export { suppose, verify, verifyThat, Reset };
 export { Behaviour };
 
 export function spy<T extends (...args: any[]) => any>(
@@ -111,6 +113,7 @@ export class Mockit {
 
   static suppose = suppose;
   static verify = verify;
+  static verifyThat = verifyThat;
   static reset = Reset;
 
   static get any() {

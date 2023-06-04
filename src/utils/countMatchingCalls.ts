@@ -13,34 +13,48 @@ export function countMatchingCalls({
   STOP_ONCE_MATCHES_TIMES?: number;
 }) {
   let matches = 0;
-  let allArgsMatch = expectedArgs.map(() => false);
   for (
     let CALLED_LIST_INDEX = 0;
     CALLED_LIST_INDEX < calledArgsList.length;
     CALLED_LIST_INDEX++
   ) {
-    // Reset the array to false for the next iteration
-    allArgsMatch = allArgsMatch.map(() => false);
-
     if (STOP_ONCE_MATCHES_TIMES && matches === STOP_ONCE_MATCHES_TIMES) {
       return true;
     }
 
     // Get the args for the current analysed call
     const calledArgs = calledArgsList[CALLED_LIST_INDEX];
+
+    // Different handling for calls with no args. We need to check if the expected args are also empty
+    if (calledArgs?.length === 0) {
+      if (expectedArgs.length === 0) {
+        matches++;
+      }
+
+      // It cannot match if the expected args are not empty while the called args are: continue to the next call
+      continue;
+    }
+
+    const allArgsMatch = calledArgs.map(() => false);
+
     for (
       let SPY_ARG_INDEX = 0;
       SPY_ARG_INDEX < expectedArgs.length;
       SPY_ARG_INDEX++
     ) {
+      if (calledArgs.length !== expectedArgs.length) {
+        // If the number of args is different, the call cannot match
+        continue;
+      }
+
       // Here we check for each spied argument if it matches the called arg at the same index
       const arg = expectedArgs[SPY_ARG_INDEX];
       /** ZOD ARGUMENT */
       if (arg instanceof ZodType) {
         if (arg.safeParse(calledArgs[SPY_ARG_INDEX]).success) {
           allArgsMatch[SPY_ARG_INDEX] = true;
+          continue; // here in this success only, we can skip the rest of the checks and continue to the next argument
         }
-        continue;
       }
 
       /** SIMPLE PRIMITIVE ARGUMENT */
