@@ -10,7 +10,25 @@ export function verifyThat<Params extends any[], Result>(
 ): {
   wasCalledWithSafe: (...params: Params) => void;
   wasCalledWith: (...params: any[]) => void;
-  wasCalled: () => void;
+  wasCalled: {
+    atLeastOnce(): void;
+    once(): void;
+    twice(): void;
+    thrice(): void;
+    nTimes: (howMuch: number) => void;
+  };
+  wasCalledOnce: (...params: any[]) => void;
+  wasCalledOnceWith: (...params: any[]) => void;
+  wasCalledOnceWithSafe: (...params: Params) => void;
+  wasCalledTwice: (...params: any[]) => void;
+  wasCalledTwiceWith: (...params: any[]) => void;
+  wasCalledTwiceWithSafe: (...params: Params) => void;
+  wasCalledThrice: (...params: any[]) => void;
+  wasCalledThriceWith: (...params: any[]) => void;
+  wasCalledThriceWithSafe: (...params: Params) => void;
+  wasCalledNTimes: (howMuch: number) => void;
+  wasCalledNTimesWith: (howMuch: number, ...params: any[]) => void;
+  wasCalledNTimesWithSafe: (howMuch: number, ...params: Params) => void;
 };
 export function verifyThat<Params extends any[], Result>(
   mockedFunction: (...args: Params) => Result
@@ -23,50 +41,135 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledWithSafe: (...params: Params) => {
       return spy.wasCalledWith(...params);
     },
-    wasCalled: () => {
-      return spy.wasCalled.atLeastOnce;
+    wasCalled: {
+      atLeastOnce: () => {
+        if (!spy.wasCalled.atLeastOnce) {
+          throw new Error("Function was never called");
+        }
+      },
+      nTimes: (howMuch: number) => {
+        if (spy.calls.length !== howMuch) {
+          throw new Error(
+            `Function was called ${spy.calls.length} times, expected ${howMuch}`
+          );
+        }
+      },
+      once: () => {
+        if (!spy.wasCalled.once) {
+          throw new Error(
+            `Function was not called exactly once, but ${spy.calls.length} times`
+          );
+        }
+      },
+      twice: () => {
+        if (!spy.wasCalled.twice) {
+          throw new Error(
+            `Function was not called exactly twice, but ${spy.calls.length} times`
+          );
+        }
+      },
+      thrice: () => {
+        if (!spy.wasCalled.thrice) {
+          throw new Error(
+            `Function was not called exactly thrice, but ${spy.calls.length} times`
+          );
+        }
+      },
+    },
+
+    wasCalledOnce: () => {
+      if (!spy.wasCalled.once) {
+        throw new Error(
+          `Function was not called exactly once, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledOnceWith: (...params: any[]) => {
+      if (!spy.wasCalledWith(...params).once) {
+        throw new Error(
+          `Function was not called exactly once with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledOnceWithSafe: (...params: Params) => {
+      if (!spy.wasCalledWith(...params).once) {
+        throw new Error(
+          `Function was not called exactly once with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledTwice: () => {
+      if (!spy.wasCalled.twice) {
+        throw new Error(
+          `Function was not called exactly twice, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledTwiceWith: (...params: any[]) => {
+      if (!spy.wasCalledWith(...params).twice) {
+        throw new Error(
+          `Function was not called exactly twice with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledTwiceWithSafe: (...params: Params) => {
+      if (!spy.wasCalledWith(...params).twice) {
+        throw new Error(
+          `Function was not called exactly twice with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledThrice: () => {
+      if (!spy.wasCalled.thrice) {
+        throw new Error(
+          `Function was not called exactly thrice, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledThriceWith: (...params: any[]) => {
+      if (!spy.wasCalledWith(...params).thrice) {
+        throw new Error(
+          `Function was not called exactly thrice with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledThriceWithSafe: (...params: Params) => {
+      if (!spy.wasCalledWith(...params).thrice) {
+        throw new Error(
+          `Function was not called exactly thrice with ${params}, but ${spy.calls.length} times`
+        );
+      }
+    },
+    wasCalledNTimes: (howMuch: number) => {
+      if (spy.calls.length !== howMuch) {
+        throw new Error(
+          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+        );
+      }
+    },
+    wasCalledNTimesWith: (howMuch: number, ...params: any[]) => {
+      if (spy.calls.length !== howMuch) {
+        throw new Error(
+          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+        );
+      }
+      if (!spy.wasCalledWith(...params).nTimes) {
+        throw new Error(
+          `Function was not called ${howMuch} times with ${params}`
+        );
+      }
+    },
+    wasCalledNTimesWithSafe: (howMuch: number, ...params: Params) => {
+      if (spy.calls.length !== howMuch) {
+        throw new Error(
+          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+        );
+      }
+      if (!spy.wasCalledWith(...params).nTimes) {
+        throw new Error(
+          `Function was not called ${howMuch} times with ${params}`
+        );
+      }
     },
   };
 }
-
-function mockedFunction(a: string, number: number) {
-  return "a";
-}
-
-function test2(
-  a: string,
-  b: number,
-  c: string,
-  d: number,
-  e: string,
-  f: number,
-  z: { x: 1 },
-  g: string
-) {
-  return "a";
-}
-
-function test3(a: { x: number; fullName: string }, email: string) {
-  return "a";
-}
-
-verifyThat(mockedFunction).wasCalledWithSafe("azezae", 1);
-
-verifyThat(test2).wasCalledWithSafe(
-  "azea",
-  1,
-  "azeaz",
-  2,
-  "azeae",
-  3,
-  { x: 1 },
-  "hello"
-);
-
-verifyThat(test3).wasCalledWithSafe(
-  {
-    fullName: "azeaze",
-    x: 1,
-  },
-  "victor"
-);
