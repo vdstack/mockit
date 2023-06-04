@@ -121,7 +121,7 @@ function parseSuppositionsArgs(suppArgs: Supposition["args"]) {
   return ` with arguments: ${JSON.stringify(suppArgs, null, 2)}`;
 }
 
-function parseCallsText(calls: FunctionCalls) {
+export function parseCallsText(calls: FunctionCalls) {
   const args = calls.getArgs();
 
   if (!args.length) {

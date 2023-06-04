@@ -1,4 +1,7 @@
 import { FunctionSpy } from "../internal";
+import { MockGetters } from "../internal/functionMock/accessors";
+
+import { parseCallsText } from "./verify";
 
 /**
  *
@@ -31,134 +34,150 @@ export function verifyThat<Params extends any[], Result>(
   mockedFunction: (...args: Params) => Result
 ) {
   const spy = new FunctionSpy(mockedFunction);
+
+  const calls = MockGetters(mockedFunction).callsMap;
+  const functionName = MockGetters(mockedFunction).functionName;
+  const callsText = parseCallsText(calls);
+
+  const helpText =
+    "Small hint: You can setup a spy and use it to access the history arguments yourself.";
+  const suffix = `\n${callsText}\n\n${helpText}`;
   return {
     wasCalledWith: (...params: any[]) => {
-      return spy.wasCalledWith(...params);
+      if (!spy.wasCalledWith(...params).atLeastOnce) {
+        throw new Error(
+          `Function "${functionName}" was not called with parameters ${params}${suffix}`
+        );
+      }
     },
     wasCalledWithSafe: (...params: Params) => {
-      return spy.wasCalledWith(...params);
+      if (!spy.wasCalledWith(...params).atLeastOnce) {
+        throw new Error(
+          `Function "${functionName}" was not called with parameters ${params}${suffix}`
+        );
+      }
     },
     wasCalled: () => {
       if (!spy.wasCalled.atLeastOnce) {
-        throw new Error(
-          `Function was not called, but ${spy.calls.length} times`
-        );
+        throw new Error(`Function "${functionName}" was never called.`);
       }
     },
     wasCalledOnce: () => {
       if (!spy.wasCalled.once) {
         throw new Error(
-          `Function was not called exactly once, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly once.${suffix}`
         );
       }
     },
     wasCalledOnceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).once) {
         throw new Error(
-          `Function was not called exactly once with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly once with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledOnceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).once) {
         throw new Error(
-          `Function was not called exactly once with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly once with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledTwice: () => {
       if (!spy.wasCalled.twice) {
         throw new Error(
-          `Function was not called exactly twice, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly twice${suffix}`
         );
       }
     },
     wasCalledTwiceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).twice) {
         throw new Error(
-          `Function was not called exactly twice with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly twice with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledTwiceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).twice) {
         throw new Error(
-          `Function was not called exactly twice with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly twice with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledThrice: () => {
       if (!spy.wasCalled.thrice) {
         throw new Error(
-          `Function was not called exactly thrice, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly thrice${suffix}`
         );
       }
     },
     wasCalledThriceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).thrice) {
         throw new Error(
-          `Function was not called exactly thrice with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly thrice with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledThriceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).thrice) {
         throw new Error(
-          `Function was not called exactly thrice with ${params}, but ${spy.calls.length} times`
+          `Function "${functionName}" was not called exactly thrice with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledNTimes: (howMuch: number) => {
       if (spy.calls.length !== howMuch) {
         throw new Error(
-          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+          `Function "${functionName}" was called not called ${howMuch} times.${suffix}`
         );
       }
     },
     wasCalledNTimesWith: (howMuch: number, ...params: any[]) => {
       if (spy.calls.length !== howMuch) {
         throw new Error(
-          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+          `Function "${functionName}" was called ${howMuch} times.${suffix}`
         );
       }
       if (!spy.wasCalledWith(...params).nTimes) {
         throw new Error(
-          `Function was not called ${howMuch} times with ${params}`
+          `Function "${functionName}" was not called ${howMuch} times with parameters ${params}${suffix}`
         );
       }
     },
     wasCalledNTimesWithSafe: (howMuch: number, ...params: Params) => {
       if (spy.calls.length !== howMuch) {
         throw new Error(
-          `Function was called ${spy.calls.length} times, expected ${howMuch}`
+          `Function "${functionName}" was called ${howMuch} times.${suffix}`
         );
       }
       if (!spy.wasCalledWith(...params).nTimes) {
         throw new Error(
-          `Function was not called ${howMuch} times with ${params}`
+          `Function "${functionName}" was not called ${howMuch} times with parameters ${params}${suffix}`
         );
       }
     },
     wasNeverCalled: () => {
       if (spy.calls.length !== 0) {
         throw new Error(
-          `Function was called ${spy.calls.length} times, expected 0`
+          `You expected the function ${functionName} to never be called. ${suffix}`
         );
       }
     },
     wasNeverCalledWith: (...params: any[]) => {
       if (spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function was called with ${params}, but it should not have been`
+          `Function "${functionName}" was called with parameters ${params}. ${suffix}`
         );
       }
     },
     wasNeverCalledWithSafe: (...params: Params) => {
       if (spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function was called with ${params}, but it should not have been`
+          `Function "${functionName}" was called with parameters ${params}. ${suffix}`
         );
       }
     },
   };
 }
+
+// TODO: should we rework the wasCalledNTimesWith function API ?
