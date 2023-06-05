@@ -18,11 +18,13 @@ export class SuppositionRegistry {
   }
 }
 
-export function suppose(mock: any): SupposeResponse {
+export function suppose<Params extends any[]>(
+  mock: (...args: Params) => any
+): SupposeResponse<Params> {
   const suppositionsRegistry = MockGetters(mock).suppositionsRegistry;
 
   const followup: {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   } = {
     get and() {
       return suppose(mock);
@@ -39,6 +41,14 @@ export function suppose(mock: any): SupposeResponse {
       return followup;
     },
     willNotBeCalledWith(...args: any[]) {
+      suppositionsRegistry.addSupposition({
+        args,
+        count: "NEVER",
+      });
+
+      return followup;
+    },
+    willNotBeCalledWithSafe(...args: Params) {
       suppositionsRegistry.addSupposition({
         args,
         count: "NEVER",
@@ -135,32 +145,61 @@ export function suppose(mock: any): SupposeResponse {
   };
 }
 
-type SuppositionSugar = {
+type SuppositionSugar<Params extends any[]> = {
   atLeastOnce(): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
   once(): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
   twice(): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
   thrice(): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
   nTimes(n: number): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
 };
 
-type SupposeResponse = {
+type SupposeResponse<Params extends any[]> = {
   willNotBeCalled(): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
   willNotBeCalledWith(...args: any[]): {
-    and: SupposeResponse;
+    and: SupposeResponse<Params>;
   };
+  willNotBeCalledWithSafe(...args: Params): {
+    and: SupposeResponse<Params>;
+  };
+  willBeCalledOnce(): SuppositionSugar<Params>;
+  willBeCalledTwice(): SuppositionSugar<Params>;
+  willBeCalledThrice(): SuppositionSugar<Params>;
+  willBeCalledNTimes(n: number): SuppositionSugar<Params>;
 
-  willBeCalled: SuppositionSugar;
-  willBeCalledWith(...args: any[]): SuppositionSugar;
+  willBeCalledOnceWith(...args: any[]): SuppositionSugar<Params>;
+  willBeCalledTwiceWith(...args: any[]): SuppositionSugar<Params>;
+  willBeCalledThriceWith(...args: any[]): SuppositionSugar<Params>;
+  willBeCalledNTimesWith(
+    howMuch: number,
+    ...args: any[]
+  ): SuppositionSugar<Params>;
+
+  willBeCalledOnceWithSafe(...args: Params): SuppositionSugar<Params>;
+  willBeCalledTwiceWithSafe(...args: Params): SuppositionSugar<Params>;
+  willBeCalledThriceWithSafe(...args: Params): SuppositionSugar<Params>;
+  willBeCalledNTimesWithSafe(
+    howMuch: number,
+    ...args: Params
+  ): SuppositionSugar<Params>;
+
+  willBeCalled: SuppositionSugar<Params>;
+  willBeCalledWith(...args: any[]): SuppositionSugar<Params>;
 };
+
+suppose((a: string, b: number, c: object) => {}).willNotBeCalledWithSafe(
+  "a",
+  1,
+  {}
+);
