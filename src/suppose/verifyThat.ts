@@ -14,9 +14,9 @@ export function verifyThat<Params extends any[], Result>(
   wasNeverCalled: () => void;
   wasNeverCalledWith: (...params: any[]) => void;
   wasNeverCalledWithSafe: (...params: Params) => void;
-  wasCalledWithSafe: (...params: Params) => void;
-  wasCalledWith: (...params: any[]) => void;
-  wasCalled: () => void;
+  wasCalledAtLeastOnce: () => void;
+  wasCalledAtLeastOnceWith: (...params: any[]) => void;
+  wasCalledAtLeastOnceWithSafe: (...params: Params) => void;
   wasCalledOnce: (...params: any[]) => void;
   wasCalledOnceWith: (...params: any[]) => void;
   wasCalledOnceWithSafe: (...params: Params) => void;
@@ -43,21 +43,21 @@ export function verifyThat<Params extends any[], Result>(
     "Small hint: You can setup a spy and use it to access the history arguments yourself.";
   const suffix = `\n${callsText}\n\n${helpText}`;
   return {
-    wasCalledWith: (...params: any[]) => {
+    wasCalledAtLeastOnceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
           `Function "${functionName}" was not called with parameters ${params}${suffix}`
         );
       }
     },
-    wasCalledWithSafe: (...params: Params) => {
+    wasCalledAtLeastOnceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
           `Function "${functionName}" was not called with parameters ${params}${suffix}`
         );
       }
     },
-    wasCalled: () => {
+    wasCalledAtLeastOnce: () => {
       if (!spy.wasCalled.atLeastOnce) {
         throw new Error(`Function "${functionName}" was never called.`);
       }
