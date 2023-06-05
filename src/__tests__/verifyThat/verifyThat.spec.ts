@@ -9,14 +9,14 @@ describe("Verify that", () => {
     const mockedFunction = mockFunction(hello);
     verifyThat(mockedFunction).wasCalledNTimes(0);
     verifyThat(mockedFunction).wasNeverCalled();
-    expect(() => verifyThat(mockedFunction).wasCalled()).toThrow();
+    expect(() => verifyThat(mockedFunction).wasCalledAtLeastOnce()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled();
+    verifyThat(mockedFunction).wasCalledAtLeastOnce();
     verifyThat(mockedFunction).wasCalledOnce();
     verifyThat(mockedFunction).wasCalledNTimes(1);
     expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
@@ -25,27 +25,25 @@ describe("Verify that", () => {
     expect(() => verifyThat(mockedFunction).wasCalledNTimes(2)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled();
+    verifyThat(mockedFunction).wasCalledAtLeastOnce();
     verifyThat(mockedFunction).wasCalledTwice();
     verifyThat(mockedFunction).wasCalledNTimes(2);
-    verifyThat(mockedFunction).wasCalledTwice();
     expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledThrice()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled();
+    verifyThat(mockedFunction).wasCalledAtLeastOnce();
     verifyThat(mockedFunction).wasCalledThrice();
     verifyThat(mockedFunction).wasCalledNTimes(3);
-    verifyThat(mockedFunction).wasCalledThrice();
     expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledTwice()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledNTimes(1)).toThrow();
 
     mockedFunction();
-    verifyThat(mockedFunction).wasCalled();
+    verifyThat(mockedFunction).wasCalledAtLeastOnce();
     verifyThat(mockedFunction).wasCalledNTimes(4);
     expect(() => verifyThat(mockedFunction).wasNeverCalled()).toThrow();
     expect(() => verifyThat(mockedFunction).wasCalledOnce()).toThrow();
@@ -58,11 +56,11 @@ describe("Verify that", () => {
     const mockedFunction = mockFunction(hello);
     verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
     expect(() =>
-      verifyThat(mockedFunction).wasCalledWith("hello", "world")
+      verifyThat(mockedFunction).wasCalledAtLeastOnceWith("hello", "world")
     ).toThrow();
     mockedFunction("hello", "world");
 
-    verifyThat(mockedFunction).wasCalledWith("hello", "world");
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWith("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith("hello", "world");
     expect(() =>
       verifyThat(mockedFunction).wasNeverCalledWith("hello", "world")
@@ -72,7 +70,7 @@ describe("Verify that", () => {
     ).toThrow();
 
     mockedFunction("hello", "world");
-    verifyThat(mockedFunction).wasCalledWith("hello", "world");
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWith("hello", "world");
     verifyThat(mockedFunction).wasCalledTwiceWith("hello", "world");
     expect(() =>
       verifyThat(mockedFunction).wasCalledTwiceWith("hello")
@@ -87,13 +85,13 @@ describe("Verify that", () => {
     const mockedFunction = mockFunction(hiii);
     mockedFunction("hello", 2222);
     verifyThat(mockedFunction).wasCalledOnceWithSafe("hello", 2222);
-    verifyThat(mockedFunction).wasCalledWithSafe("hello", 2222);
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWithSafe("hello", 2222);
     expect(() =>
       verifyThat(mockedFunction).wasCalledOnceWithSafe("hello", 99999)
     ).toThrow();
 
     mockedFunction("hello", 2222);
-    verifyThat(mockedFunction).wasCalledWithSafe("hello", 2222);
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWithSafe("hello", 2222);
     verifyThat(mockedFunction).wasCalledTwiceWithSafe("hello", 2222);
     expect(() =>
       verifyThat(mockedFunction).wasCalledTwiceWithSafe("hello", 99999)
@@ -112,7 +110,7 @@ describe("Verify that", () => {
       verifyThat(mockedFunction).wasCalledOnceWith(z.string())
     ).toThrow();
     expect(() =>
-      verifyThat(mockedFunction).wasCalledWith(z.string())
+      verifyThat(mockedFunction).wasCalledAtLeastOnceWith(z.string())
     ).toThrow();
 
     mockedFunction();
@@ -123,8 +121,8 @@ describe("Verify that", () => {
     ).toThrow();
     verifyThat(mockedFunction).wasCalledOnceWith(z.string(), z.string());
     verifyThat(mockedFunction).wasCalledOnceWith(z.any(), z.any());
-    verifyThat(mockedFunction).wasCalledWith(z.string(), z.string());
-    verifyThat(mockedFunction).wasCalledWith(z.any(), z.any());
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWith(z.string(), z.string());
+    verifyThat(mockedFunction).wasCalledAtLeastOnceWith(z.any(), z.any());
 
     expect(() =>
       verifyThat(mockedFunction).wasCalledOnceWith(
