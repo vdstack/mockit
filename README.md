@@ -39,9 +39,9 @@ Skip this part if you want to jump straight to the [API](#mocks).
 
 ## Mocking should be easy
 
-Until now, I found that mocking dependencies in Typescript is a bit of a pain: you're often forced to build complete fake implementations of your dependencies, which can be a bit tedious, especially as they grow more complex.
+Until now, I found that mocking dependencies in Typescript is a bit of a pain: you're often forced to build complete fake implementations of your dependencies, which can be a very tedious, especially as they grow more complex.
 
-**It is fragile when change occurs**. Extending the signature of a module (like adding another method to a class) should not force you to correct your mocks one by one. Or worse, to use `@ts-ignore` and `@ts-expect-error` everywhere.
+**It is fragile when change occurs**. Extending the signature of a module (like adding another method to a class or interface) should not force you to correct your mocks one by one. Or worse, to use `@ts-ignore` and `@ts-expect-error` everywhere.
 
 With Mockit, it's as easy as a function call.
 
@@ -101,6 +101,7 @@ What's cool is that they can now be spied on, and their behaviour can be changed
 ## Mocking should be semantic
 
 Reading test code often happens when you broke it, and chances are high that you're not the one who wrote it in the first place: Mockit's API is designed to be as semantic as possible, so that you can easily understand what the test is about.
+It is also a given in the age of AI models like Copilot, which combines with semantic code very well.
 
 ```ts
 // This example is available in src/examples folder if you want to run it.
@@ -150,14 +151,15 @@ it("should log the error message if broadcast failed", () => {
 
 ## Mocking should not lock you in
 
-Changing all my mocks when switching from `jest` to `vitest`, `mocha`, `ava`, `cypress` or `playwright` is _not_ something I'm a fan of. You can use Mockit with any test runner, effectively making your test code agnostic of the test runner you use, as far as mocking is concerned.
+You shouldn't have to modify all your mocks when switching from a test runner to another.`jest`, `vitest`, `mocha`, `ava`, `cypress` or `playwright` all have their own way of generating & spying on mocked dependencies.
+You can use Mockit with any test runner, effectively making your test code agnostic of the test runner you use, as far as mocking is concerned.
 
 ## Mocking should be able to use types
 
 Depending on interfaces rather than concrete implementations is a very good practices in any language: this allows you to easily swap implementations, and thus makes your code more reusable and testable. It can be quite tricky to generate mocked versions in TypeScript though, because types are not usable at runtime.
 Mockit [provides a `mockAbstract` function that helps you with that](#mocking-abstract-classes).
 
-We also provide a `mockInterface` function that does the same thing, [but for interfaces and types](#mocking-interfaces).
+It also provides a `mockInterface` function that does the same thing, [but for interfaces and types](#mocking-interfaces).
 
 # Mocks
 
