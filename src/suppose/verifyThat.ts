@@ -46,14 +46,18 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledAtLeastOnceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function "${functionName}" was not called with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
     wasCalledAtLeastOnceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function "${functionName}" was not called with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -72,14 +76,18 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledOnceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).once) {
         throw new Error(
-          `Function "${functionName}" was not called exactly once with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly once with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
     wasCalledOnceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).once) {
         throw new Error(
-          `Function "${functionName}" was not called exactly once with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly once with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -93,14 +101,18 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledTwiceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).twice) {
         throw new Error(
-          `Function "${functionName}" was not called exactly twice with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly twice with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
     wasCalledTwiceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).twice) {
         throw new Error(
-          `Function "${functionName}" was not called exactly twice with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly twice with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -114,14 +126,18 @@ export function verifyThat<Params extends any[], Result>(
     wasCalledThriceWith: (...params: any[]) => {
       if (!spy.wasCalledWith(...params).thrice) {
         throw new Error(
-          `Function "${functionName}" was not called exactly thrice with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly thrice with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
     wasCalledThriceWithSafe: (...params: Params) => {
       if (!spy.wasCalledWith(...params).thrice) {
         throw new Error(
-          `Function "${functionName}" was not called exactly thrice with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called exactly thrice with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -140,7 +156,9 @@ export function verifyThat<Params extends any[], Result>(
       }
       if (!spy.wasCalledWith(...params).nTimes) {
         throw new Error(
-          `Function "${functionName}" was not called ${howMuch} times with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called ${howMuch} times with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -152,7 +170,9 @@ export function verifyThat<Params extends any[], Result>(
       }
       if (!spy.wasCalledWith(...params).nTimes) {
         throw new Error(
-          `Function "${functionName}" was not called ${howMuch} times with parameters ${params}${suffix}`
+          `Function "${functionName}" was not called ${howMuch} times with parameters ${readableParams(
+            params
+          )}${suffix}`
         );
       }
     },
@@ -166,18 +186,32 @@ export function verifyThat<Params extends any[], Result>(
     wasNeverCalledWith: (...params: any[]) => {
       if (spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function "${functionName}" was called with parameters ${params}. ${suffix}`
+          `Function "${functionName}" was called with parameters ${readableParams(
+            params
+          )}. ${suffix}`
         );
       }
     },
     wasNeverCalledWithSafe: (...params: Params) => {
       if (spy.wasCalledWith(...params).atLeastOnce) {
         throw new Error(
-          `Function "${functionName}" was called with parameters ${params}. ${suffix}`
+          `Function "${functionName}" was called with parameters ${readableParams(
+            params
+          )}. ${suffix}`
         );
       }
     },
   };
 }
 
-// TODO: should we rework the wasCalledNTimesWith function API ?
+function readableParams(params: any) {
+  if (params === undefined) {
+    return "no arguments";
+  }
+
+  if (params === null) {
+    return "null";
+  }
+
+  return JSON.stringify(params, null, 2);
+}

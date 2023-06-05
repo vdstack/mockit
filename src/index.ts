@@ -8,6 +8,7 @@ import {
   spy,
   suppose,
   verify,
+  verifyThat,
   when,
 } from "./mockit";
 
@@ -21,5 +22,6 @@ export {
   spy,
   suppose,
   verify,
+  verifyThat,
   when,
 };
