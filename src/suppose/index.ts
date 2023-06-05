@@ -56,6 +56,54 @@ export function suppose<Params extends any[]>(
 
       return followup;
     },
+
+    /** Will be called XXXX */
+    willBeCalledAtLeastOnce() {
+      suppositionsRegistry.addSupposition({
+        args: undefined,
+        count: "atLeastOnce",
+      });
+
+      return suppose(mock);
+    },
+    willBeCalledOnce() {
+      suppositionsRegistry.addSupposition({
+        args: undefined,
+        count: 1,
+      });
+
+      return suppose(mock);
+    },
+
+    willBeCalledTwice() {
+      suppositionsRegistry.addSupposition({
+        args: undefined,
+        count: 2,
+      });
+
+      return suppose(mock);
+    },
+
+    willBeCalledThrice() {
+      suppositionsRegistry.addSupposition({
+        args: undefined,
+        count: 3,
+      });
+
+      return suppose(mock);
+    },
+
+    willBeCalledNTimes(n: number) {
+      suppositionsRegistry.addSupposition({
+        args: undefined,
+        count: n,
+      });
+
+      return suppose(mock);
+    },
+
+    /** Will be called  */
+
     willBeCalled: {
       atLeastOnce() {
         suppositionsRegistry.addSupposition({
@@ -173,29 +221,33 @@ type SupposeResponse<Params extends any[]> = {
   willNotBeCalledWithSafe(...args: Params): {
     and: SupposeResponse<Params>;
   };
-  willBeCalledOnce(): SuppositionSugar<Params>;
-  willBeCalledTwice(): SuppositionSugar<Params>;
-  willBeCalledThrice(): SuppositionSugar<Params>;
-  willBeCalledNTimes(n: number): SuppositionSugar<Params>;
 
-  willBeCalledOnceWith(...args: any[]): SuppositionSugar<Params>;
-  willBeCalledTwiceWith(...args: any[]): SuppositionSugar<Params>;
-  willBeCalledThriceWith(...args: any[]): SuppositionSugar<Params>;
-  willBeCalledNTimesWith(
+  willBeCalledAtLeastOnce(): SupposeResponse<Params>;
+  willBeCalledOnce(): SupposeResponse<Params>;
+  willBeCalledTwice(): SupposeResponse<Params>;
+  willBeCalledThrice(): SupposeResponse<Params>;
+  willBeCalledNTimes(n: number): SupposeResponse<Params>;
+
+  willBeCalledAtLeastOnceWith: (...args: any[]) => SupposeResponse<Params>;
+  willBeCalledOnceWith: (...args: any[]) => SupposeResponse<Params>;
+  willBeCalledTwiceWith: (...args: any[]) => SupposeResponse<Params>;
+  willBeCalledThriceWith: (...args: any[]) => SupposeResponse<Params>;
+  willBeCalledNTimesWith: (
     howMuch: number,
     ...args: any[]
-  ): SuppositionSugar<Params>;
+  ) => SupposeResponse<Params>;
 
-  willBeCalledOnceWithSafe(...args: Params): SuppositionSugar<Params>;
-  willBeCalledTwiceWithSafe(...args: Params): SuppositionSugar<Params>;
-  willBeCalledThriceWithSafe(...args: Params): SuppositionSugar<Params>;
-  willBeCalledNTimesWithSafe(
+  willBeCalledAtLeastOnceWithSafe: (...args: Params) => SupposeResponse<Params>;
+  willBeCalledOnceWithSafe: (...args: Params) => SupposeResponse<Params>;
+  willBeCalledTwiceWithSafe: (...args: Params) => SupposeResponse<Params>;
+  willBeCalledThriceWithSafe: (...args: Params) => SupposeResponse<Params>;
+  willBeCalledNTimesWithSafe: (
     howMuch: number,
     ...args: Params
-  ): SuppositionSugar<Params>;
+  ) => SupposeResponse<Params>;
 
-  willBeCalled: SuppositionSugar<Params>;
-  willBeCalledWith(...args: any[]): SuppositionSugar<Params>;
+  willBeCalled: SupposeResponse<Params>;
+  willBeCalledWith(...args: any[]): SupposeResponse<Params>;
 };
 
 suppose((a: string, b: number, c: object) => {}).willNotBeCalledWithSafe(
