@@ -32,10 +32,17 @@ export function mock<T>(_original: Class<T>): T {
   return new ConcreteClassMock<T>(_original) as T;
 }
 
+function generateRandomFunctionName() {
+  return `mockedFunction${Math.random().toString().slice(2)}`;
+}
+
 export function mockFunction<T extends (...args: any[]) => any>(
   original: T
 ): T {
-  return FunctionMock(original.name, original) as T;
+  return FunctionMock(
+    original.name.length ? original.name : generateRandomFunctionName(),
+    original
+  ) as T;
 }
 
 export function mockInterface<T>(...functionsToMock: Array<keyof T>): T {
