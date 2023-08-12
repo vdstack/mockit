@@ -19,13 +19,13 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
       /**
        * @param value value to return when the method is called
        */
-      thenReturn(value: any) {
+      thenReturnUnsafe(value: any) {
         self.changeDefaultBehaviour({
           behaviour: Behaviour.Return,
           returnedValue: value,
         });
       },
-      thenReturnSafe(value: ReturnType<TFunc>) {
+      thenReturn(value: ReturnType<TFunc>) {
         self.changeDefaultBehaviour({
           behaviour: Behaviour.Return,
           returnedValue: value,
@@ -80,7 +80,7 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
     const self = this;
     const Setters = MockSetters(this.proxy);
     return {
-      thenReturn(value: any) {
+      thenReturnUnsafe<T>(value: T) {
         Setters.registerNewCustomBehaviour({
           args,
           behaviour: {
@@ -89,7 +89,7 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
           },
         });
       },
-      thenReturnSafe(value: ReturnType<TFunc>) {
+      thenReturn(value: ReturnType<TFunc>) {
         Setters.registerNewCustomBehaviour({
           args,
           behaviour: {

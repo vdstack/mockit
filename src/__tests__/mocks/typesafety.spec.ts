@@ -14,13 +14,13 @@ it("should allow to return a typesafe value", () => {
   const mock = Mockit.mockFunction(hello);
   const asyncMock = Mockit.mockFunction(asyncHello);
 
-  const { thenReturnSafe, thenResolveSafe } = Mockit.when(mock).isCalled;
+  const { thenReturn, thenResolveSafe } = Mockit.when(mock).isCalled;
   const {
-    thenReturnSafe: thenReturnSafeAsync,
+    thenReturn: thenReturnSafeAsync,
     thenResolveSafe: thenResolveSafeAsync,
   } = Mockit.when(asyncMock).isCalled;
 
-  when(mock).isCalled.thenReturnSafe("hello world");
+  when(mock).isCalled.thenReturn("hello world");
   when(asyncMock);
 
   /** Hello, if you've never seen this before, this is type-level testing
@@ -30,7 +30,7 @@ it("should allow to return a typesafe value", () => {
    */
   const prom = Promise.resolve("hello world" as const);
   type Assertions = [
-    Expect<Equal<Parameters<typeof thenReturnSafe>[0], "hello world">>,
+    Expect<Equal<Parameters<typeof thenReturn>[0], "hello world">>,
     Expect<Equal<Parameters<typeof thenResolveSafe>[0], "hello world">>,
     Expect<Equal<Parameters<typeof thenReturnSafeAsync>[0], typeof prom>>,
     Expect<Equal<Parameters<typeof thenResolveSafeAsync>[0], "hello world">>
@@ -50,9 +50,9 @@ it("should allow a typesafe value for isCalledWithArgs as well", () => {
 
   const mock = Mockit.mockFunction(hello);
   const asyncMock = Mockit.mockFunction(asyncHello);
-  const { thenReturnSafe, thenResolveSafe } = when(mock).isCalledWith("hello");
+  const { thenReturn, thenResolveSafe } = when(mock).isCalledWith("hello");
   const {
-    thenReturnSafe: thenReturnSafeAsync,
+    thenReturn: thenReturnSafeAsync,
     thenResolveSafe: thenResolveSafeAsync,
   } = Mockit.when(asyncMock).isCalledWith("hello");
 
@@ -63,7 +63,7 @@ it("should allow a typesafe value for isCalledWithArgs as well", () => {
    */
   const prom = Promise.resolve("hello world" as const);
   type Assertions = [
-    Expect<Equal<Parameters<typeof thenReturnSafe>[0], "hello world">>,
+    Expect<Equal<Parameters<typeof thenReturn>[0], "hello world">>,
     Expect<Equal<Parameters<typeof thenResolveSafe>[0], "hello world">>,
     Expect<Equal<Parameters<typeof thenReturnSafeAsync>[0], typeof prom>>,
     Expect<Equal<Parameters<typeof thenResolveSafeAsync>[0], "hello world">>

@@ -14,10 +14,10 @@ describe("function custom behaviour", () => {
 
   test("mockit should be able to specify arguments related behaviours", () => {
     const mock = Mockit.mockFunction(hello);
-    Mockit.when(mock).isCalledWith("hello").thenReturn("hello");
-    Mockit.when(mock).isCalledWith("world").thenReturn("world");
-    Mockit.when(mock).isCalledWith().thenReturn("undefinedinput");
-    Mockit.when(mock).isCalled.thenReturn("default");
+    Mockit.when(mock).isCalledWith("hello").thenReturnUnsafe("hello");
+    Mockit.when(mock).isCalledWith("world").thenReturnUnsafe("world");
+    Mockit.when(mock).isCalledWith().thenReturnUnsafe("undefinedinput");
+    Mockit.when(mock).isCalled.thenReturnUnsafe("default");
 
     expect(mock("hello")).toBe("hello");
     expect(mock("world")).toBe("world");
@@ -92,7 +92,7 @@ describe("function custom behaviour", () => {
   it("should be able to specific different behaviours for the same function", () => {
     const mock = Mockit.mockFunction(hello);
     let counter = 0;
-    Mockit.when(mock).isCalledWith("hello").thenReturn("hello");
+    Mockit.when(mock).isCalledWith("hello").thenReturnUnsafe("hello");
     Mockit.when(mock).isCalledWith("world").thenThrow("world");
     Mockit.when(mock)
       .isCalledWith()
