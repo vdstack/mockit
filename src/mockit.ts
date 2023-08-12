@@ -60,7 +60,11 @@ export function when<TFunc extends (...args: any[]) => any>(method: TFunc) {
       const utils = new FunctionMockUtils<TFunc>(method);
       return utils.defaultBehaviourController();
     },
-    isCalledWith(...args: any[]) {
+    isCalledWithUnsafe(...args: any[]) {
+      const utils = new FunctionMockUtils<TFunc>(method);
+      return utils.callController(...args);
+    },
+    isCalledWith(...args: Parameters<TFunc>) {
       const utils = new FunctionMockUtils<TFunc>(method);
       return utils.callController(...args);
     },
