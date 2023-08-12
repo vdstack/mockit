@@ -43,13 +43,13 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
       /**
        * @param value value to resolve when the method is called
        */
-      thenResolve(value: any) {
+      thenResolveUnSafe(value: any) {
         self.changeDefaultBehaviour({
           behaviour: Behaviour.Resolve,
           resolvedValue: value,
         });
       },
-      thenResolveSafe(value: Awaited<ReturnType<TFunc>>) {
+      thenResolve(value: Awaited<ReturnType<TFunc>>) {
         self.changeDefaultBehaviour({
           behaviour: Behaviour.Resolve,
           resolvedValue: value,
@@ -116,7 +116,7 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
           },
         });
       },
-      thenResolve(value: any) {
+      thenResolveUnsafe(value: any) {
         Setters.registerNewCustomBehaviour({
           args,
           behaviour: {
@@ -125,7 +125,7 @@ export class FunctionMockUtils<TFunc extends (...args: any[]) => any> {
           },
         });
       },
-      thenResolveSafe(value: Awaited<ReturnType<TFunc>>) {
+      thenResolve(value: Awaited<ReturnType<TFunc>>) {
         Setters.registerNewCustomBehaviour({
           args,
           behaviour: {
