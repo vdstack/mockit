@@ -1,8 +1,8 @@
 [![npm version](https://badge.fury.io/js/@vdstack%2Fmockit.svg)](https://badge.fury.io/js/@vdstack%2Fmockit)
 
-Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. Its API was inspired by Java's Mockito package, but diverged at some point.
+Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. With its help, patterns like Strategy become super easy to unit test. Its API was inspired by Java's Mockito package, but has now divered diverged at some point.
 
-It gives you access to a simple API to mock functions, classes and even abstract classes and interfaces, so that any type of dependency can be mocked with minimum effort, maximum flexibility and readability.
+Mockit API can mock any dependencies like functions, classes and even abstract classes and interfaces, with minimum effort, maximum flexibility and readability.
 
 ```ts
 const mockedFunc = mockFunction(original);
@@ -28,7 +28,7 @@ verifyThat(mockedFunc).wasCalledTwice();
 verifyThat(mockedFunc).wasCalledOnceWith("hello", "world");
 ```
 
-These verifications are assertive, meaning they will throw an detailed error if the mock was not called the way you expected it to be. No assertion library necessary !
+These verifications are assertive, meaning they will throw a detailed error if the mock was not called the way you expected it to be. No assertion library necessary !
 
 Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
 
@@ -175,10 +175,10 @@ it("should log the error message if broadcast failed", () => {
 
   when(broadCastMock).isCalled.thenThrow();
 
-  suppose(logMock).willBeCalledWith("Sending message hello");
-  suppose(logMock).willBeCalledWith("Error while sending message hello");
-
   sendMessage("hello", { logger: logMock, broadcaster: broadcastMock });
+
+  verifyThat(logMock).wasCalledOnceWith("Sending message hello");
+  verifyThat(logMock).wasCalledOnceWith("Error while sending message hello");
 
   verify(logMock);
 });
@@ -191,7 +191,7 @@ You can use Mockit with any test runner, effectively making your test code agnos
 
 ## Mocking should be able to use types
 
-Depending on interfaces rather than concrete implementations is a very good practices in any language: this allows you to easily swap implementations, and thus makes your code more reusable and testable. It can be quite tricky to generate mocked versions in TypeScript though, because types are not usable at runtime.
+Depending on interfaces rather than concrete implementations is a very good practices in any language: all dependency injection's related patterns are unlocked, which helps you build more reusable and testable code. It can be quite tricky to generate mocked versions in TypeScript though, because types are not usable at runtime.
 Mockit [provides a `mockAbstract` function that helps you with that](#mocking-abstract-classes).
 
 It also provides a `mockInterface` function that does the same thing, [but for interfaces and types](#mocking-interfaces).
