@@ -126,23 +126,4 @@ export class Mockit {
   static verify = verify;
   static verifyThat = verifyThat;
   static reset = Reset;
-
-  static get any() {
-    // this is just a port to zod, you can pass zod schemas directly
-    return {
-      string: z.string(),
-      number: z.number(),
-      boolean: z.boolean(),
-      array: z.array(z.any()),
-      object: z.object({}),
-      function: z.function(),
-      uuid: z.string().uuid(),
-      date: z.date(),
-      email: z.string().email(),
-      url: z.string().url(),
-      map: z.map(z.any(), z.any()),
-      set: z.set(z.any()),
-      bigint: z.bigint(),
-    };
-  }
 }
