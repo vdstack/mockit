@@ -2,6 +2,9 @@ import { FunctionCalls, FunctionSpy } from "../internal/functionSpy";
 import { MockGetters } from "../internal/functionMock/accessors";
 import { Supposition, SuppositionCount } from ".";
 
+/**
+ * @deprecated Use verifyThat instead.
+ */
 export function verify(...mocks: any[]) {
   for (const mock of mocks) {
     const suppositionsRegistry = MockGetters(mock).suppositionsRegistry;

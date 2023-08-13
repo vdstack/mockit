@@ -38,7 +38,7 @@ describe("Reset > verifyThat", () => {
       verifyThat(mockedFunction).wasNeverCalledWith("hello", "world")
     ).toThrow();
     expect(() => {
-      verifyThat(mockedFunction).wasNeverCalledWithSafe("hello", "world");
+      verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
     }).toThrow();
 
     Reset.completely(mockedFunction);
@@ -55,7 +55,7 @@ describe("Reset > verifyThat", () => {
     verifyThat(mockedFunction).wasCalledOnceWith("hello", "world");
     verifyThat(mockedFunction).wasCalledOnceWith(z.string(), z.string());
     expect(() => {
-      verifyThat(mockedFunction).wasNeverCalledWithSafe("hello", "world");
+      verifyThat(mockedFunction).wasNeverCalledWith("hello", "world");
     }).toThrow();
 
     Reset.historyOf(mockedFunction);

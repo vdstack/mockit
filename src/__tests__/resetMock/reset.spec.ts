@@ -95,8 +95,8 @@ describe("Reset mock behaviour", () => {
     }
 
     const mock = mockClass(HelloClass);
-    when(mock.hello).isCalledWith("hello").thenReturn("hello");
-    when(mock.HELLAWORLD).isCalledWith("hello").thenReturn("hello");
+    when(mock.hello).isCalledWith("hello").thenReturnUnsafe("hello");
+    when(mock.HELLAWORLD).isCalledWith("hello").thenReturnUnsafe("hello");
 
     expect(mock.hello("hello")).toBe("hello");
     expect(mock.HELLAWORLD("hello")).toBe("hello");
@@ -112,7 +112,7 @@ describe("Reset mock behaviour", () => {
     }
 
     const mock = mockInterface<HelloInterface>("hello");
-    when(mock.hello).isCalledWith("hello").thenReturn("hello");
+    when(mock.hello).isCalledWith("hello").thenReturnUnsafe("hello");
 
     expect(mock.hello("hello")).toBe("hello");
 
@@ -126,7 +126,7 @@ describe("Reset mock behaviour", () => {
     }
 
     const mock = mockAbstract(HelloAbstractClass, ["hello"]);
-    when(mock.hello).isCalledWith("hello").thenReturn("hello");
+    when(mock.hello).isCalledWith("hello").thenReturnUnsafe("hello");
 
     expect(mock.hello("hello")).toBe("hello");
 

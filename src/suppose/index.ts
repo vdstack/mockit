@@ -18,6 +18,9 @@ export class SuppositionRegistry {
   }
 }
 
+/**
+ * @deprecated Use verifyThat instead.
+ */
 export function suppose(mock: any): SupposeResponse {
   const suppositionsRegistry = MockGetters(mock).suppositionsRegistry;
 
