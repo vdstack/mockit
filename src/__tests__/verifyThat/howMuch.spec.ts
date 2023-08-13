@@ -3,7 +3,9 @@
  * how its mock functions were called.
  *
  * .verifyThat(mock) is an assertive function, meaning that it will actually throw
- * an error if the supposition your built within it is not passed.
+ * an error if the supposition your built within it is not verified.
+ * This is framework agnostic, you don't need to use expect(), assert() or any
+ * other assertive function.
  *
  * It will display an detailed error message indicating which supposition you
  * were expecting, and how the functions was actually called: it will list the arguments
