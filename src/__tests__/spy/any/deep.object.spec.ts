@@ -1,4 +1,5 @@
 import { Mockit } from "../../../mockit";
+import { z } from "zod";
 
 function hello(...args: any[]) {}
 
@@ -7,37 +8,31 @@ describe("Spy: with deep objects and arrays", () => {
     const mock = Mockit.mockFunction(hello);
     const spy = Mockit.spy(mock);
 
-    expect(spy.wasCalledWith({ a: Mockit.any.string }).atLeastOnce).toBe(false);
+    expect(spy.wasCalledWith({ a: z.string() }).atLeastOnce).toBe(false);
     mock({ a: 1 });
-    expect(spy.wasCalledWith({ a: Mockit.any.string }).atLeastOnce).toBe(false);
+    expect(spy.wasCalledWith({ a: z.string() }).atLeastOnce).toBe(false);
     mock({ a: "hello" });
-    expect(spy.wasCalledWith({ a: Mockit.any.string }).atLeastOnce).toBe(true);
+    expect(spy.wasCalledWith({ a: z.string() }).atLeastOnce).toBe(true);
   });
 
   it("should work for level 2 argument", () => {
     const mock = Mockit.mockFunction(hello);
     const spy = Mockit.spy(mock);
 
-    expect(spy.wasCalledWith({ a: { b: Mockit.any.string } }).atLeastOnce).toBe(
-      false
-    );
+    expect(spy.wasCalledWith({ a: { b: z.string() } }).atLeastOnce).toBe(false);
     mock({ a: { b: 1 } });
-    expect(spy.wasCalledWith({ a: { b: Mockit.any.string } }).atLeastOnce).toBe(
-      false
-    );
+    expect(spy.wasCalledWith({ a: { b: z.string() } }).atLeastOnce).toBe(false);
     mock({ a: { b: "hello" } });
-    expect(spy.wasCalledWith({ a: { b: Mockit.any.string } }).atLeastOnce).toBe(
-      true
-    );
+    expect(spy.wasCalledWith({ a: { b: z.string() } }).atLeastOnce).toBe(true);
   });
 
   it("should work for a complex object", () => {
     const object = {
       x: 1,
-      y: { z: { w: { a: Mockit.any.string } } },
+      y: { z: { w: { a: z.string() } } },
       b: true,
-      //   c: [1, 2, Mockit.any.email], // Not working with arrays somehow
-      z: { w: { a: Mockit.any.function } },
+      c: [1, 2, z.string().email()],
+      z: { w: { a: z.function() } },
       list: [
         1,
         2,
@@ -45,7 +40,7 @@ describe("Spy: with deep objects and arrays", () => {
         4,
         {
           x: 1,
-          y: { z: { w: { a: Mockit.any.set } } },
+          y: { z: { w: { a: z.set(z.any()) } } },
         },
       ],
     };
@@ -58,7 +53,7 @@ describe("Spy: with deep objects and arrays", () => {
       x: 1,
       y: { z: { w: { a: "hell" } } },
       b: true,
-      //   c: [1, 2, "not an email"],
+      c: [1, 2, "not an email"],
       z: { w: { a: "not a function" } },
     });
     expect(spy.wasCalledWith(object).atLeastOnce).toBe(false);
@@ -67,6 +62,7 @@ describe("Spy: with deep objects and arrays", () => {
       x: 1,
       y: { z: { w: { a: "hello" } } },
       b: true,
+      c: [1, 2, "vdcd120491@gmail.com"],
       z: { w: { a: () => {} } },
       list: [
         1,
@@ -87,10 +83,10 @@ describe("Spy: with deep objects and arrays", () => {
     const schemas = [
       {
         x: 1,
-        y: { z: { w: { a: Mockit.any.string } } },
+        y: { z: { w: { a: z.string() } } },
       },
       {
-        y: Mockit.any.number,
+        y: z.number(),
       },
     ];
 
