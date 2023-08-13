@@ -57,7 +57,7 @@ Feel free to contribute :)
 - [Verification](#verification)
   - [Was the function called ?](#was-the-function-called-)
   - [How was the function called ?](#how-was-the-function-called-)
-    - [Integration with Zod](#integration-with-zod)
+  - [Integration with Zod](#integration-with-zod)
 - [TODO: Document old spies API](#todo-document-old-spies-api)
 - [TODO: Document the new Reset API.](#todo-document-the-new-reset-api)
 
@@ -250,7 +250,7 @@ All wasCalledXXXWith functions are type-safe. This is both a help for DX (hintin
 
 If you don't care about the type of the returned value, you can use `wasCalledXXXWithUnsafe`. It can help when testing for invalid parameters in some cases.
 
-### Integration with Zod
+## Integration with Zod
 
 Zod is a powerful library that allows you to validate data. Mockit integrates with Zod to provide you with a powerful way to check if your mocked functions have been called with arguments matching a validation schema. It can help a lot when you don't control the values passed to your mocked functions, and want to make sure they are valid. For example, if your test generated a random email using faker, you can avoid the need to store this email somewhere, and instead check that your mock was called with an email.
 
