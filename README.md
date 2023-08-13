@@ -252,7 +252,7 @@ type EmailService = {
 it("should send a welcome email to the user", () => {
   const EmailService = mockService<EmailService>("sendEmail");
   await sendWelcomeEmail(randomUser(), EmailService);
-  verifyThat(EmailService.sendEmail).wasCalledOnceWith({
+  verifyThat(EmailService.sendEmail).wasCalledOnceWithUnsafe({
     email: z.string().email(), // no need to check the exact email value
     template: "welcome.mjml",
   });
