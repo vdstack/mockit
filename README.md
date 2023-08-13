@@ -239,6 +239,8 @@ Zod is a powerful library that allows you to validate data. Mockit integrates wi
 
 You don't need to provide complete schemas if you know some values, you can use partial schemas as well.
 
+When using zod schemas, you're stuck in type-unsafe mode. z.string() is not a string, which makes it impossible (or at least very hard, we didn't try fixing it yet) to accept corresponding zod schemas in the type-safe mode. With some ts-wizardly magic it could maybe happen.
+
 ```ts
 function randomUser() {
   return {
