@@ -1,13 +1,48 @@
 [![npm version](https://badge.fury.io/js/@vdstack%2Fmockit.svg)](https://badge.fury.io/js/@vdstack%2Fmockit)
-[![Wallaby.js](https://img.shields.io/badge/wallaby.js-powered-blue.svg?style=flat&logo=github)](https://wallabyjs.com/oss/)
 
-Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. Its API is inspired by Java's Mokito package, but diverges in a few ways (especially `when` setups and because of the zod integration).
+Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. Its API was inspired by Java's Mockito package, but diverged at some point.
 
-It gives you access to a simple API to mock functions, classes and even abstract classes and interfaces, so that any type of dependency can be mocked with minimum effort and maximum flexibility.
+It gives you access to a simple API to mock functions, classes and even abstract classes and interfaces, so that any type of dependency can be mocked with minimum effort, maximum flexibility and readability.
 
-You can then setup the behaviour of your mocks, make suppositions on how they will be called and verify that they were called as expected.
+```ts
+const mockedFunc = mockFunction(original);
 
-Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the objects passed to your mocks.
+when(mockedFunc).isCalled.thenReturn(2);
+
+mockedFunc(); // 2
+
+when(mockedFunc).isCalledWith("Victor").thenReturn(42);
+
+mockedFunc(); // 2
+mockedFunc("Victor"); // 42
+```
+
+You can then verify how the mock was called.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc("hello", "world");
+mockedFunc();
+
+verifyThat(mockedFunc).wasCalledTwice();
+verifyThat(mockedFunc).wasCalledOnceWith("hello", "world");
+```
+
+These verifications are assertive, meaning they will throw an detailed error if the mock was not called the way you expected it to be. No assertion library necessary !
+
+Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc({ name: "Victor", age: 42 });
+
+verifyThat(mockedFunc).wasCalledOnceWith(
+  z.object({
+    name: z.string(),
+    age: z.number().positive().int(),
+  })
+);
+```
 
 Feel free to contribute :)
 
