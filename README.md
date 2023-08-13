@@ -1,681 +1,283 @@
 [![npm version](https://badge.fury.io/js/@vdstack%2Fmockit.svg)](https://badge.fury.io/js/@vdstack%2Fmockit)
-[![Wallaby.js](https://img.shields.io/badge/wallaby.js-powered-blue.svg?style=flat&logo=github)](https://wallabyjs.com/oss/)
 
-Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. Its API is inspired by Java's Mokito package, but diverges in a few ways (especially `when` setups and because of the zod integration).
+Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. With its help, patterns like Strategy become super easy to unit test. Its API was inspired by Java's Mockito package, but has now divered diverged at some point.
 
-It gives you access to a simple API to mock functions, classes and even abstract classes and interfaces, so that any type of dependency can be mocked with minimum effort and maximum flexibility.
+Mockit API can mock any dependencies like functions, classes and even abstract classes and interfaces, with minimum effort, maximum flexibility and readability.
 
-You can then setup the behaviour of your mocks, make suppositions on how they will be called and verify that they were called as expected.
+```ts
+const mockedFunc = mockFunction(original);
 
-Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the objects passed to your mocks.
+when(mockedFunc).isCalled.thenReturn(2);
+
+mockedFunc(); // 2
+
+when(mockedFunc).isCalledWith("Victor").thenReturn(42);
+
+mockedFunc(); // 2
+mockedFunc("Victor"); // 42
+```
+
+You can then verify how the mock was called.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc("hello", "world");
+mockedFunc();
+
+verifyThat(mockedFunc).wasCalledTwice();
+verifyThat(mockedFunc).wasCalledOnceWith("hello", "world");
+```
+
+These verifications are assertive, meaning they will throw a detailed error if the mock was not called the way you expected it to be. No assertion library necessary !
+
+Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc({ name: "Victor", age: 42 });
+
+verifyThat(mockedFunc).wasCalledOnceWith(
+  z.object({
+    name: z.string(),
+    age: z.number().positive().int(),
+  })
+);
+```
 
 Feel free to contribute :)
 
-- [Why](#why)
-  - [Mocking should be easy](#mocking-should-be-easy)
-  - [Mocking should be semantic](#mocking-should-be-semantic)
-  - [Mocking should not lock you in](#mocking-should-not-lock-you-in)
-  - [Mocking should be able to use types](#mocking-should-be-able-to-use-types)
 - [Mocks](#mocks)
-  - [Mocking functions](#mocking-functions)
-  - [Mocking classes](#mocking-classes)
-  - [Mocking abstract classes](#mocking-abstract-classes)
-  - [Mocking interfaces](#mocking-interfaces)
-  - [Set default behaviour](#set-default-behaviour)
-  - [Set behaviour for specific arguments](#set-behaviour-for-specific-arguments)
-- [Spies](#spies)
-  - [Calls](#calls)
-  - [Has the function been called?](#has-the-function-been-called)
-  - [Has the function been called with specific arguments?](#has-the-function-been-called-with-specific-arguments)
+  - [Different types of mocks](#different-types-of-mocks)
+    - [Function](#function)
+    - [Class](#class)
+    - [Interfaces and types](#interfaces-and-types)
+    - [Abstract classes](#abstract-classes)
+  - [Default behaviour](#default-behaviour)
+  - [Custom behaviour](#custom-behaviour)
+- [Verification](#verification)
+  - [Was the function called ?](#was-the-function-called-)
+  - [How was the function called ?](#how-was-the-function-called-)
   - [Integration with Zod](#integration-with-zod)
-- [Suppose and verify](#suppose-and-verify)
-  - [Basic usage](#basic-usage)
-  - [Usage with Zod](#usage-with-zod)
-- [Why not mock objects?](#why-not-mock-objects)
+- [TODO: Document old spies API](#todo-document-old-spies-api)
+- [TODO: Document the new Reset API.](#todo-document-the-new-reset-api)
 
-# Why
+# Mocks
 
-Skip this part if you want to jump straight to the [API](#mocks).
+## Different types of mocks
 
-## Mocking should be easy
+You can mock functions, classes, abstract classes, interfaces and types.
 
-Until now, I found that mocking dependencies in Typescript is a bit of a pain: you're often forced to build complete fake implementations of your dependencies, which can be a very tedious, especially as they grow more complex.
-
-**It is fragile when change occurs**. Extending the signature of a module (like adding another method to a class or interface) should not force you to correct your mocks one by one. Or worse, to use `@ts-ignore` and `@ts-expect-error` everywhere.
-
-With Mockit, it's as easy as a function call.
+### Function
 
 ```ts
-import {
-  mock,
-  mockAbstract,
-  mockFunction,
-  mockInterface,
-} from "@vdstack/mockit";
+function hello() {
+  /**/
+}
+const mockedHello = mockFunction(hello);
+mockedHello();
+```
 
-class Hi {
+### Class
+
+```ts
+class Hello {
+  public sayHello() {
+    /**/
+  }
+}
+
+const mockedHello = mock(Hello);
+mockedHello.sayHi();
+```
+
+### Interfaces and types
+
+In TypeScript, you cannot use types at runtime. This is a big limitation for us if we want to generate a mock from a type.
+
+To do that, we created a `mockInterface` function that accepts any type as a generic. It will then require you to input which functions you want to mock, but will use the generic to provide a typesafe list of available functions.
+
+```ts
+// Interfaces
+interface Hello {
+  sayHello(): string;
+  sayHi(): string;
+}
+
+const helloMock = mockInterface<Hello>("sayHello");
+helloMock.sayHello();
+
+// Types (it is the same)
+type Hola = {
+  sayHola(): string;
+  sayBonjour(): string;
+};
+
+const holaMock = mockInterface<Hola>("sayHola");
+holaMock.sayHola();
+```
+
+### Abstract classes
+
+Abstract classes are a special beast, they're both classes and types, as they can contain real implementations and abstract methods.
+If you need to mock the behaviour the abstract methods of an abstract class, you can use the `mockAbstract` function.
+
+```ts
+abstract class Hello {
+  public abstract sayHello(): string;
+}
+
+const mock = mockAbstract(Hello, ["sayHello"]);
+mock.sayHello();
+```
+
+Note that you can also use `mockInterface` !
+
+If you need to mock the behaviour of the concrete methods of an abstract class, you can use the `mock` function.
+
+```ts
+abstract class Hello {
+  public abstract sayHello(): string;
   public sayHi() {
     return "hi";
   }
 }
-const hiMock = mock(Hi);
 
-function hello() {
-  return "hello";
-}
-const helloMock = mockFunction(hello);
-
-abstract class Hola {
-  public abstract sayHello(): string;
-  public abstract sayHi(): string;
-  public abstract sayHola(): string;
-}
-const holaMock = mockAbstract(Hello, ["sayHola"]); // Mockit will help you by hinting you with the names of the abstract methods of your class, using generics to catch the type of the class you pass as the first parameter.
-
-type HiType = {
-  sayHi(): string;
-};
-
-interface HiInterface {
-  sayHi(): string;
-}
-
-const hiTypeMock = mockInterface<HiType>("sayHi"); // same idea here, generics will help you by hinting the names of the interface's functions that you want to mock.
-const hiInterfaceMock = mockInterface<HiInterface>("sayHi"); // same
+const mock = mock(Hello);
+mock.sayHi();
 ```
 
-For TypeScript's compiler:
+## Default behaviour
 
-- `hiMock` is an instance of the `Hi` class
-- `helloMock` is a function with the same signature as the `hello` function.
-- `holaMock` can be used as an instance of any class that extends or implements the `abstract class Hola`.
-- `hiTypeMock`
-  - is an object with a implementation of the `HiType` type
-  - and can also be used as an instance of any class that implements the `HiType` type
-- `hiInterfaceMock`
-  - is an object with a implementation of the `HiInterface` type
-  - and can also be used as an instance of any class that implements the `HiInterface` type
-
-What's cool is that they can now be spied on, and their behaviour can be changed at will.
-
-## Mocking should be semantic
-
-Reading test code often happens when you broke it, and chances are high that you're not the one who wrote it in the first place: Mockit's API is designed to be as semantic as possible, so that you can easily understand what the test is about.
-It is also a given in the age of AI models like Copilot, which combines with semantic code very well.
+By default, any mocked function will return undefined.
+You can change this default behaviour using the `when` helper.
 
 ```ts
-// This example is available in src/examples folder if you want to run it.
-import { mockFunction, when } from "@vdstack/mockit";
+const mockedFunc = mockFunction(original);
 
-function log(anything: string): void {
-  // ...
-}
-function broadCast(anything: string): void {
-  // ...
-}
+when(mockedFunc).isCalled.thenReturn(2);
+mockedFunc(); // 2
 
-function sendMessage(
-  message: string,
-  {
-    logger,
-    broadcaster,
-  }: {
-    logger: (x: string) => void;
-    broadcaster: (x: string) => void;
-  }
-): void {
-  try {
-    logger(`Sending message "${message}"`);
-    broadcaster(message);
-    logger(`Message "${message}" sent`);
-  } catch (err) {
-    logger(`Error while sending message "${message}"`);
-  }
-}
+when(mockedFunc).isCalled.thenThrow(new Error("something went wrong"));
+mockedFunc(); // throws Error("something went wrong")
 
-// test file
-it("should log the error message if broadcast failed", () => {
-  const logMock = mockFunction(log);
-  const broadcastMock = mockFunction(broadCast);
+when(mockedFunc).isCalled.thenResolve(2);
+mockedFunc(); // Promise.resolves(2)
 
-  when(broadCastMock).isCalled.thenThrow();
+when(mockedFunc).isCalled.thenReject(new Error("something went wrong"));
+mockedFunc(); // Promise.rejects(Error("something went wrong"))
 
-  suppose(logMock).willBeCalledWith("Sending message hello");
-  suppose(logMock).willBeCalledWith("Error while sending message hello");
-
-  sendMessage("hello", { logger: logMock, broadcaster: broadcastMock });
-
-  verify(logMock);
-});
-```
-
-## Mocking should not lock you in
-
-You shouldn't have to modify all your mocks when switching from a test runner to another.`jest`, `vitest`, `mocha`, `ava`, `cypress` or `playwright` all have their own way of generating & spying on mocked dependencies.
-You can use Mockit with any test runner, effectively making your test code agnostic of the test runner you use, as far as mocking is concerned.
-
-## Mocking should be able to use types
-
-Depending on interfaces rather than concrete implementations is a very good practices in any language: this allows you to easily swap implementations, and thus makes your code more reusable and testable. It can be quite tricky to generate mocked versions in TypeScript though, because types are not usable at runtime.
-Mockit [provides a `mockAbstract` function that helps you with that](#mocking-abstract-classes).
-
-It also provides a `mockInterface` function that does the same thing, [but for interfaces and types](#mocking-interfaces).
-
-# Mocks
-
-With Mockit you can mock:
-
-- Functions
-- Classes
-- Abstract classes
-- Interfaces and types
-
-The API varies a bit depending on the type of the thing you want to mock, because of a big TypeScript's limitation: we cannot use types as values.
-
-## Mocking functions
-
-You can generate a mocked version of any functions with the `mockFunction` helper. It will return a function that returns undefined by default (you can change that behaviour though, cf below).
-
-```ts
-import { Mockit } from "@vdstack/mockit";
-function hello() {
-  return "hello";
-}
-
-const mock = Mockit.mockFunction(hello);
-```
-
-## Mocking classes
-
-To generate a class mock, you can use the `mock` helper. It will return a `ClassMock` instance, which is a dummy class with the same methods as the class you passed as parameter. All these methods will return `undefined` by default (you can change that behaviour though, cf below).
-
-```ts
-import { Mockit } from "@vdstack/mockit";
-class Hello {
-  public sayHello() {
-    return "hello";
-  }
-}
-
-const mock = Mockit.mock(Hello);
-```
-
-## Mocking abstract classes
-
-This is where things get interesting. You can mock abstract classes with the `mockAbstract` helper. By default, this instance has no methods, because we cannot access abstract methods dynamically from JavaScript code (remember, **abstract methods are types**).
-
-To make it work, `mockAbstract` requires two parameters: the first one is the abstract class you want to mock, and the second one is an array of strings, containing the names of the abstract methods of the class you want to mock. This allows Mockit to generate a dummy class that implements the interface you want to mock, and to generate a mock for each of the abstract methods you passed as parameter.
-
-```ts
-import { mockAbstract } from "@vdstack/mockit";
-
-abstract class Hello {
-  public abstract sayHello(): string;
-  public abstract sayHi(): string;
-  public abstract sayHola(): string;
-}
-
-const helloMock = mockAbstract(Hello, ["sayHola"]); // the mocked instance will mock sayHola.
-
-helloMock.sayHola(); // returns undefined by default.
-helloMock.sayHello(); // will throw: it's not mocked.
-```
-
-This is done by leveraging the power of TypeScript's generics, and the `keyof` operator, which allows us to:
-
-- catch the type of the first parameter
-- get the names of the abstract methods of the class we passed as parameter
-- provide a type to the second parameter of the function, helping you write your code faster and avoid spelling mistakes.
-
-This is a **really** convenient feature when you need to test a function that depends on an abstract class instead of a concrete implementation.
-
-## Mocking interfaces
-
-Mockit provides a `mockInterface` function that allows you to mock types and interfaces. Sadly, you cannot use interfaces as parameters in TypeScript (contrary to abstract classes), so you have to pass the type of the interface manually as a generic parameter. This is not a big deal though, and it's still a lot better than having to write a dummy class that implements the interface you want to mock.
-
-```ts
-import { mockInterface, when } from "../../mockit";
-
-interface House {
-  // it could be a type instead of an interface
-  getRoomsCount(): number;
-  getWindowsCount(): number;
-  getDoorsCount(): number;
-}
-
-const house = mockInterface<House>("getRoomsCount", "getDoorsCount");
-house.getRoomsCount(); // returns undefined by default.
-house.getWindowsCount(); // will throw: it's not mocked.
-// house.getWindowsCount is not a function
-```
-
-## Set default behaviour
-
-Mockit's mocks default behaviour is to return `undefined`.
-You can change this behaviour leveraging the `Mockit.when` helper. This helper takes any mocked function as a parameter, and can then be used with either:
-
-- A function mock
-- Any class mock's method
-- Any abstract class mock's method
-- Any interface mock's method
-
-You can currently set the following behaviours:
-
-- Return any value
-- Throws any value
-- Resolve any value
-- Reject any value
-- Call any callback function
-
-Any type of mock can be combined with any of the behaviours.
-
-```ts
-/** Return + Function mock **/
-function hello(...args: any[]) {}
-const mockedHello = Mockit.mockFunction(hello);
-
-mockedHello(); // undefined
-
-when(mockedHello).isCalled.thenReturn("hiii");
-mockedHello(); // "hiii"
-
-/** Throw + Class mock **/
-class HelloClass {
-  public hello() {
-    return "hiii";
-  }
-}
-
-const helloClassMock = Mockit.mock(HelloClass);
-when(helloClassMock.hello).isCalled.thenThrow(new Error("hiii"));
-
-helloClassMock.hello(); // throws Error("hiii")
-
-/** Resolve + Abstract class mock **/
-abstract class HelloAbstract {
-  public abstract hello(): string;
-}
-
-const helloAbstractMock = Mockit.mockAbstract(HelloAbstract, ["hello"]);
-when(helloAbstractMock.hello).isCalled.thenResolve("hiii");
-
-helloAbstractMock.hello(); // Promise.resolves("hiii")
-
-/** Reject + Interface mock **/
-interface HelloInterface {
-  hello(): string;
-}
-
-const helloInterfaceMock = Mockit.mockInterface<HelloInterface>("hello");
-when(helloInterfaceMock.hello).isCalled.thenReject(new Error("hiii"));
-helloInterfaceMock.hello(); // Promise.rejects(Error("hiii"))
-
-/** Function + Callback **/
-when(mockedHello).isCalled.thenCall((...args) => {
+when(mockedFunc).isCalled.thenCall((...args) => {
   console.log(args);
 });
-mockedHello("hiii"); // logs ["hiii"]
+mockedFunc("hiii"); // logs ["hiii"]
 ```
 
-## Set behaviour for specific arguments
+Note that `thenReturn` and `thenResolve` are type-safe by default.
 
-You can also set a specific behaviour for a specific set of arguments. This is useful when you want to test a function that has different behaviours depending on the arguments it receives.
+If you don't care about the type of the returned value, you can use `thenReturnUnsafe` and `thenResolveUnsafe`. We don't recommend you doing it very often though, as invalid responses should be part of your function signature in the first place.
 
-To do that, you can use the `isCalledWith(...args)` helper, which takes the same arguments as the mocked function, and then set the behaviour you want.
+## Custom behaviour
 
-At that point the API is the same as the default behaviour.
-All mocks can be combined with any of the behaviours, for any set of arguments.
+There might be cases where you want to set a specific behaviour for a specific set of arguments. To do that, you can use the `isCalledWith` helper, which accepts any set of arguments.
 
 ```ts
-function hello(...args: any[]) {}
-const mockedHello = mockFunction(hello);
+const mockedFunc = mockFunction(original);
 
-when(mockedHello).isCalledWith("hiii").thenReturn("hiii");
-when(mockedHello).isCalledWith("hello").thenReturn("hello");
-When(mockedHello).isCalledWith("please throw").thenThrow(new Error("hiii"));
-
-mockedHello("hiii"); // "hiii"
-mockedHello("hello"); // "hello"
-mockedHello("please throw"); // throws Error("hiii")
+when(mockedFunc).isCalledWith("hiii").thenReturn(2);
+when(mockedFunc)
+  .isCalledWith("hello")
+  .thenThrow(new Error("something went wrong"));
+when(mockedFunc).isCalledWith("please throw").thenResolve(2);
+when(mockedFunc)
+  .isCalledWith("please reject")
+  .thenReject(new Error("something went wrong"));
+when(mockedFunc)
+  .isCalledWith("please call")
+  .thenCall((...args) => {
+    console.log(args);
+  });
 ```
 
-# Spies
+`isCalledWith` is type-safe by default. This is both a help for DX (hinting you with the type of the arguments you can pass) and a safety net (you cannot pass arguments that don't match the mocked function's signature) which makes your test code more maintainable.
 
-Mockit provides a `spy` helper which you can use on any of its mocked functions. This helper will give you access to all the calls made on the mocked function, as well as syntactic sugar to check how many times the function has been called, with which arguments, etc.
+If you don't care about the type of the returned value, you can use `isCalledWithUnsafe`. It can help when testing for specific arguments, but we don't recommend you using it since invalid arguments should be part of your function signature in the first place.
 
-It also integrates with the amazing Zod library, effectively giving you the whole power of Zod's validation system to check if the mocked function has been called with extremely specific arguments.
+# Verification
 
-## Calls
+Mockit provides a `verifyThat` helper that allows you to assert that a mocked function has been called the way you expected it to be. It can also integrate with the amazing [Zod](https://github.com/colinhacks/zod) library to provide you with a powerful way to check if your mocked functions have been called with arguments matching a validation schema.
 
-You can access the list of calls made on the mocked function with the `calls` property.
-These calls follow the following interface:
+## Was the function called ?
 
 ```ts
-interface Call {
-  /**
-   * The arguments passed to the mocked function when it was called.
-   */
-  args: any[];
-  /**
-   * The behaviour that was set for this call.
-   * This includes the eventual:
-   * - returnedValue
-   * - error
-   * - resolvedValue
-   * - rejectedValue
-   * - callback
-   */
-  behaviour: Behaviour;
-}
+const mockedFunc = mockFunction(original);
+verifyThat(mockedFunc).wasNeverCalled();
+
+mockedFunc();
+
+verifyThat(mockedFunc).wasCalledOnce();
+verifyThat(mockedFunc).wasCalledAtLeastOnce();
+
+mockedFunc();
+verifyThat(mockedFunc).wasCalledTwice();
+
+mockedFunc();
+verifyThat(mockedFunc).wasCalledThrice();
+
+mockedFunc();
+verifyThat(mockedFunc).wasCalledNTimes(4);
 ```
 
-Here's an example of how you can use the `calls` property:
+These assertions are exclusive, meaning that a function that was called twice cannot be called once, and vice versa.
+
+## How was the function called ?
 
 ```ts
-function hello(...args: any[]) {}
-const mockedHello = mockFunction(hello);
-const spiedHello = Mockit.spy(mock);
+const mockedFunc = mockFunction(original);
 
-mockedHello("hiii");
-mockedHello("hello");
-mockedHello("please throw");
+mockedFunc("hiii");
 
-spiedHello.calls.length; // 3
-spiedHello.calls[0].args; // ["hiii"]
-spiedHello.calls[1].args; // ["hello"]
-spiedHello.calls[2].args; // ["please throw"]
+verifyThat(mockedFunc).wasCalledOnceWith("hiii");
+verifyThat(mockedFunc).wasNeverCalledWith("hello");
+
+mockedFunc("hello");
+mockedFunc("hello");
+
+verifyThat(mockedFunc).wasCalledTwiceWith("hello");
+verifyThat(mockedFunc).wasCalledNTimesWith(2, "hello");
 ```
 
-## Has the function been called?
+All wasCalledXXXWith functions are type-safe. This is both a help for DX (hinting you with the type of the arguments you can pass) and a safety net (you cannot check against obsolete or invalid arguments, which makes your test code more maintainable).
 
-You can check if the mocked function has been called called with a few helpers Mockit provides. Except for `nTimes`, all of these helpers are getters, so you can use them as boolean values. This prevents false positives when using them in weak asserting functions, depending on the library you use.
-
-```ts
-function hello(...args: any[]) {}
-
-const mockedHello = mockFunction(hello);
-const spiedHello = Mockit.spy(mock);
-
-mockedHello("hiii");
-
-spiedHello.wasCalled.once; // true
-spiedHello.wasCalled.twice; // false
-spiedHello.wasCalled.atLeastOnce; // true
-spiedHello.wasCalled.thrice; // false
-spiedHello.wasCalled.nTimes(1); // true
-
-mockedHello("hello");
-
-spiedHello.wasCalled.once; // false
-spiedHello.wasCalled.twice; // true
-spiedHello.wasCalled.atLeastOnce; // true
-spiedHello.wasCalled.thrice; // false
-spiedHello.wasCalled.nTimes(2); // true
-
-mockedHello("please throw");
-
-spiedHello.wasCalled.once; // false
-spiedHello.wasCalled.twice; // false
-spiedHello.wasCalled.atLeastOnce; // true
-spiedHello.wasCalled.thrice; // true
-spiedHello.wasCalled.nTimes(3); // true
-```
-
-## Has the function been called with specific arguments?
-
-You can also check if the mocked function has been called with specific arguments. To do that, you can use the `wasCalledWith(...args)` helper, which accepts any set of arguments.
-From there, you can use the same helpers as above.
-
-```ts
-function hello(...args: any[]) {}
-
-const mock = mockFunction(hello);
-const spiedHello = spy(mock);
-
-spiedHello.wasCalledWith("hiii").once; // false
-spiedHello.wasCalledWith("hiii").twice; // false
-spiedHello.wasCalledWith("hiii").atLeastOnce; // false
-spiedHello.wasCalledWith("hiii").thrice; // false
-spiedHello.wasCalledWith("hiii").nTimes(1); // false
-
-mock("hiii");
-
-spiedHello.wasCalledWith("hiii").once; // true
-spiedHello.wasCalledWith("hiii").twice; // false
-spiedHello.wasCalledWith("hiii").atLeastOnce; // true
-spiedHello.wasCalledWith("hiii").thrice; // false
-spiedHello.wasCalledWith("hiii").nTimes(1); // true
-
-// etc...
-```
+If you don't care about the type of the returned value, you can use `wasCalledXXXWithUnsafe`. It can help when testing for invalid parameters in some cases.
 
 ## Integration with Zod
 
-We believe that [Zod](https://github.com/colinhacks/zod) is a game changer when it comes to validating data (and more !)
-Mockit integrates with Zod to provide you with a powerful way to check if your mocked functions have been called with specific arguments.
+Zod is a powerful library that allows you to validate data. Mockit integrates with Zod to provide you with a powerful way to check if your mocked functions have been called with arguments matching a validation schema. It can help a lot when you don't control the values passed to your mocked functions, and want to make sure they are valid. For example, if your test generated a random email using faker, you can avoid the need to store this email somewhere, and instead check that your mock was called with an email.
 
-This means you can not only check if a function has been called with a specific set of argument, but also:
+You don't need to provide complete schemas if you know some values, you can use partial schemas as well.
 
-- with a specific type of argument
-- with arguments that match a specific zod schema.
-
-Here are a few examples:
+When using zod schemas, you're stuck in type-unsafe mode. z.string() is not a string, which makes it impossible (or at least very hard, we didn't try fixing it yet) to accept corresponding zod schemas in the type-safe mode. With some ts-wizardly magic it could maybe happen.
 
 ```ts
-function hello(...args: any[]) {}
-
-const mock = Mockit.mockFunction(hello);
-const spiedHello = Mockit.spy(mock);
-
-// String
-spiedHello.wasCalledWith(z.string()).once; // false
-mock("hiii");
-spiedHello.wasCalledWith(z.string()).once; // true
-
-// Email
-spiedHello.wasCalledWith(z.string().email()).once; // false
-mock("gracehopper@gmail.com");
-spiedHello.wasCalledWith(z.string().email()).once; // true
-
-// Uuid
-spiedHello.wasCalledWith(z.string().uuid()).once; // false
-mock("a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6");
-spiedHello.wasCalledWith(z.string().uuid()).once; // true
-
-// Negative number
-spiedHello.wasCalledWith(z.number().negative()).once; // false
-mock(-1);
-spiedHello.wasCalledWith(z.number().negative()).once; // true
-
-// Positive number
-spiedHello.wasCalledWith(z.number().positive()).once; // false
-mock(1);
-spiedHello.wasCalledWith(z.number().positive()).once; // true
-
-// Number between 10 and 20
-spiedHello.wasCalledWith(z.number().min(10).max(20)).once; // false
-mock(15);
-spiedHello.wasCalledWith(z.number().min(10).max(20)).once; // true
-
-// Array of strings
-spiedHello.wasCalledWith(z.array(z.string())).once; // false
-mock([1, 2, 3]);
-spiedHello.wasCalledWith(z.array(z.string())).once; // false
-mock(["1", "2", "3"]);
-spiedHello.wasCalledWith(z.array(z.string())).once; // true
-```
-
-These are just a few basic examples, but **you can use any zod schema**! For more information I highly recommend that you check out the [Zod documentation](https://zod.dev/).
-
-# Suppose and Verify
-
-Mockit exposes two helpers that allow you to write tests in a more natural way:
-
-- `suppose` allows you to set expectations on a mocked function
-- `verify` allows you to check if the expectations you set have been met, all at once, with one function call.
-
-## Basic usage
-
-You can create suppositions with any arguments you want.
-Once all your suppositions have been created, you can call `verify` to check if they have been met.
-
-You can also chain suppositions together to create more complex expectations.
-
-```ts
-import { mockFunction, suppose, verify } from "mockit";
-function hello(...args: any[]) {}
-
-test("it should be called only three times, 'hello' twice and 'hiii' once", () => {
-  const mock = mockFunction(hello);
-  suppose(mock)
-    .willBeCalledWith("hiii")
-    .once()
-    .and.willBeCalledWith("hello")
-    .twice()
-    .and.willBeCalled.thrice();
-
-  mock("hiii");
-
-  expect(() => verify(mock)).toThrow(); // only one supposition is met
-  mock("hello");
-  expect(() => verify(mock)).toThrow(); // the second supposition requires another call with "hello"
-  mock("hello");
-  verify(mock); // all suppositions are met
-});
-```
-
-**You can verify any type of mock**, not just functions. It will internally iterate over the functions of a mocked class or interface and verify each of them against the suppositions you created
-
-**You can pass multiple mocks to `verify`**. It will iterate over all of them.
-
-```ts
-// Using so many mocks at once is not a typical use case but it's possible.
-const fMock = mockFunction(f);
-const classMock = mockClass(Class);
-const interfaceMock = mockInterface(Interface);
-const typeMock = mockType(Type);
-const abstractMock = mockAbstractClass(AbstractClass);
-
-// ... make some suppositions for each of them
-suppose(fMock).willBeCalledWith("hiii").once();
-// etc...
-
-// call something that should call all the mocks the way you expect
-doSomething({
-  deps: {
-    fM: fMock,
-    classM: classMock,
-    interfaceM: interfaceMock,
-    typeM: typeMock,
-    abstractM: abstractMock,
-  },
-});
-
-// One verify to rule them all !
-verify(fMock, classMock, interfaceMock, typeMock, abstractMock);
-```
-
-## Usage with Zod
-
-**You can use any Zod schema to create suppositions.**
-This allows you to check if the mocked function has been called with specific kind of arguments, or even with arguments that match a more specific and limitative schema (like a positive integer, for example).
-You can also check that a mock has not been called.
-
-```ts
-// This example can be found in src/examples/conditional-dependency-call.spec.ts
-import { mockFunction, suppose, verify } from "mockit";
-import { z } from "zod";
-
-function registerAdultAccount(...args: any[]) {
-  // ...whatever implementation
+function randomUser() {
+  return {
+    email: faker.internet.email(),
+  };
 }
-function registerMinorAccount(...args: any[]) {
-  // ...whatever implementation
-}
-const adultSchema = z.object({
-  uuid: z.string().uuid(),
-  name: z.string(),
-  email: z.string().email(),
-  age: z.number().int().positive().min(18),
-});
+type EmailService = {
+  sendEmail(params: { email: string; template: string }): Promise<void>;
+};
 
-const minorSchema = z.object({
-  uuid: z.string().uuid(),
-  name: z.string(),
-  email: z.string().email(),
-  age: z.number().int().positive().max(17),
-});
-
-function createAccount(
-  user: z.infer<typeof adultSchema | typeof minorSchema>,
-  registry: {
-    createAdult: typeof registerAdultAccount;
-    createMinor: typeof registerMinorAccount;
-  }
-) {
-  if (user.age < 18) {
-    return registry.createAdult(user);
-  }
-
-  return registry.createMinor(user);
-}
-
-it("should only call minor registration if user is minor", () => {
-  const adultRegistrationMock = mockFunction(registerAdultAccount);
-  const minorRegistrationMock = mockFunction(registerMinorAccount);
-  suppose(minorRegistrationMock).willBeCalledWith(minorSchema).once();
-  suppose(adultRegistrationMock).willNotBeCalled();
-
-  createAccount(
-    { uuid: "123", name: "John", email: "hii@gmail.com", age: 17 },
-    { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
-  );
-
-  verify(minorRegistrationMock);
-  verify(adultRegistrationMock);
-});
-
-it("should only call adult registration if user is adult", () => {
-  const adultRegistrationMock = mockFunction(registerAdultAccount);
-  const minorRegistrationMock = mockFunction(registerMinorAccount);
-  suppose(minorRegistrationMock).willNotBeCalled();
-  suppose(adultRegistrationMock).willBeCalledWith(adultSchema).once();
-
-  createAccount(
-    { uuid: "123", name: "John", email: "adult@gmail.com", age: 18 },
-    { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
-  );
-
-  verify(adultRegistrationMock);
-  verify(minorRegistrationMock);
+it("should send a welcome email to the user", () => {
+  const EmailService = mockService<EmailService>("sendEmail");
+  await sendWelcomeEmail(randomUser(), EmailService);
+  verifyThat(EmailService.sendEmail).wasCalledOnceWithUnsafe({
+    email: z.string().email(), // no need to check the exact email value
+    template: "welcome.mjml",
+  });
 });
 ```
 
-# Why not mock objects?
+## TODO: Document old spies API
 
-Mocking objects is a great way to test your code, but it's already been done by other libraries. My favorite is [@anatine/zod-mock](https://www.npmjs.com/package/@anatine/zod-mock) which I highly recommend you use. We might extend mockit by using this library internally at some point but for now it's not the priority.
-
-# Next up
-
-- [] A great feature I want to implement is to be able to setup a behaviour based on a Zod schema. Kindof the equivalent of what Mockit allows with spies and suppositions.
-
-```ts
-// IDEA ONLY: THIS IS NOT AVAILABLE
-function hello(...args: any[]) {}
-
-const mock = Mockit.mock(hello);
-when(mock).isCalledWith(z.schema({
-  name: z.string(),
-  email: z.email(),
-  age: z.number().min(18)
-})).thenReturn("major");
-
-when(mock).isCalledWith(z.schema({
-  name: z.string(),
-  email: z.email(),
-  age: z.number().max(18)
-}).thenReturn("minor");
-```
-
-- Add a `reset(mock)` function
-- Add a `dryVerify(mock)` or `analyze(mock)` function that returns an object with the suppositions that have been met and the ones that have not been met, instead of throwing an error.
+## TODO: Document the new Reset API.
