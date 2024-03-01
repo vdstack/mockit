@@ -14,11 +14,15 @@ export type UnsafeCall = {
 }
 
 export function mockFunction<T extends (...args: any[]) => any>(
-    original: T
+    original: T,
+    options: { defaultBehaviour?: NewBehaviourParam<T> } = {},
 ): T {
     const calls: Call<T>[] = [];
-    const defaultBehaviour: NewBehaviourParam<T> = { behaviour: Behaviours.Return, returnedValue: undefined } as const;
-    const customBehaviours: Array<NewBehaviourParam<T>> = [];
+    let defaultBehaviour = options?.defaultBehaviour ?? { behaviour: Behaviours.Return, returnedValue: undefined } as NewBehaviourParam<T>;
+    const customBehaviours: Array<{
+        args: any[];
+        behaviour: NewBehaviourParam<T>;
+    }> = [];
     // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
 
     return new Proxy(original, {
@@ -26,7 +30,56 @@ export function mockFunction<T extends (...args: any[]) => any>(
             // What is thisArg ?
             calls.push({ args: callArgs as unknown as Parameters<T>, date: new Date() });
 
-            return; // add custom behaviour here
+            const customBehaviour = customBehaviours.find(behaviour => hasher.hash(behaviour.args) === hasher.hash(callArgs));
+            if (customBehaviour) {
+                switch (customBehaviour.behaviour.behaviour) {
+                    case Behaviours.Throw:
+                        throw customBehaviour.behaviour.error;
+                    case Behaviours.Call:
+                        return customBehaviour.behaviour.callback(...callArgs);
+                    case Behaviours.Return:
+                        return customBehaviour.behaviour.returnedValue;
+                    case Behaviours.Resolve:
+                        return Promise.resolve(customBehaviour.behaviour.resolvedValue);
+                    case Behaviours.Reject:
+                        return Promise.reject(customBehaviour.behaviour.rejectedValue);
+                    case Behaviours.ReturnResultOf:
+                        // @ts-expect-error thank the proxy for that one
+                        return customBehaviour.behaviour.returnedFunction(...callArgs);
+                    case Behaviours.ResolveResultOf:
+                        // @ts-expect-error
+                        return Promise.resolve(customBehaviour.behaviour.resolvedFunction(...callArgs));
+                    case Behaviours.RejectResultOf:
+                        // @ts-expect-error
+                        return Promise.reject(customBehaviour.behaviour.rejectedFunction(...callArgs));
+                    case Behaviours.Preserve:
+                        return original(...callArgs);
+                }
+            }
+
+            switch (defaultBehaviour.behaviour) {
+                case Behaviours.Throw:
+                    throw defaultBehaviour.error;
+                case Behaviours.Call:
+                    return defaultBehaviour.callback(...callArgs);
+                case Behaviours.Return:
+                    return defaultBehaviour.returnedValue;
+                case Behaviours.Resolve:
+                    return Promise.resolve(defaultBehaviour.resolvedValue);
+                case Behaviours.Reject:
+                    return Promise.reject(defaultBehaviour.rejectedValue);
+                case Behaviours.ReturnResultOf:
+                    // @ts-expect-error
+                    return defaultBehaviour.returnedFunction(...callArgs);
+                case Behaviours.ResolveResultOf:
+                    // @ts-expect-error
+                    return Promise.resolve(defaultBehaviour.resolvedFunction(...callArgs));
+                case Behaviours.RejectResultOf:
+                    // @ts-expect-error
+                    return Promise.reject(defaultBehaviour.rejectedFunction(...callArgs));
+                case Behaviours.Preserve:
+                    return original(...callArgs);
+            }
         },
         get: (target, prop, receiver) => {
             if (prop === 'calls') {
@@ -38,6 +91,20 @@ export function mockFunction<T extends (...args: any[]) => any>(
             }
 
             return Reflect.get(target, prop, receiver);
+        },
+        set: (target, prop, value, receiver) => {
+            if (prop === 'defaultBehaviour') {
+                defaultBehaviour = value;
+                return true;
+            }
+
+            if (prop === 'newCustomBehaviour') {
+                customBehaviours.push(value as { 
+                    args: any[];
+                    behaviour: NewBehaviourParam<T>;
+                });
+                return true;
+            }
         }
     })
 };
@@ -56,9 +123,9 @@ type wasZod = {
     wasCalledNTimesWith: (howMuch: number, args: Array<ZodSchema | any>) => boolean;
 }
 
-// This spies the mocked function !
+// This spies the mocked functions only ! 
 export function spyMockedFunction<T extends (...args: any[]) => any>(
-    original: T
+    mockedFunction: T,
 ): {
     getCalls: () =>  Call<T>[];
     getUnsafeCalls: () =>  UnsafeCall;
@@ -73,11 +140,11 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
     unsafe: wasUnsafe;
     zod: wasZod;
 } {
-    if (!Reflect.get(original, 'isMockitMock')) {
-        throw new Error('spy can only be used with functions created by mockit');
+    if (!Reflect.get(mockedFunction, 'isMockitMock')) {
+        throw new Error('This is not a mockit mock');
     }
 
-    const calls = Reflect.get(original, 'calls') as Call<T>[];
+    const calls = Reflect.get(mockedFunction, 'calls') as Call<T>[];
     return {
         getCalls: () => calls,
         getUnsafeCalls: () => calls as unknown as UnsafeCall,
@@ -154,22 +221,6 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
     }
 }
 
-const a = mockFunction((x: 1) => x +1 );
-
-a(1)
-a(1);
-
-spyMockedFunction(a).wasCalledNTimes(2); // true
-spyMockedFunction(a).wasCalledOnce(); // false
-
-// @ts-expect-error
-a(1, { x: 2 });
-
-spyMockedFunction(a).zod.wasCalledOnceWith(
-    1,
-    z.object({ x: z.number() }),
-)
-
 // I'm still wondering if I should just used a restricted string type instead of an enum.
 export const Behaviours = {
     Resolve: 'resolve',
@@ -220,4 +271,18 @@ export type NewBehaviourParam<T extends (...args) => any> =
  * - It requires a bit more work from the user, with .refine calls for exact values.
  * - I split the unsafe and zod based calls assertions, because they're less common cases (we usually check for exact values)
  * 
+ * 
+ * - check both actual & expected args for the zod based assertions (in order !)
  */
+
+
+const mock = mockFunction((x: number, y: 2) => 3);
+
+mock(1, 2);
+
+const spy = spyMockedFunction(mock);
+
+
+const mock2 = mockFunction((x: number, y: 2) => 3, { 
+    defaultBehaviour: { behaviour: Behaviours.Preserve }
+});
