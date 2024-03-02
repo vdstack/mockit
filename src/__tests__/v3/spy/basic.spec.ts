@@ -25,6 +25,10 @@ test("spy should assert if a function was called", () => {
   expect(spy.wasNeverCalled()).toBe(true);
   expect(spy.wasCalledWith(1, "hello")).toBe(false);
   expect(spy.wasCalledWith(2, "world")).toBe(false);
+  expect(spy.wasCalledNTimes(1)).toBe(false);
+  expect(spy.wasCalledNTimesWith({ args: [1, "hello"], howMuch: 1 })).toBe(
+    false
+  );
 
   mock(1, "hello");
 
@@ -33,6 +37,27 @@ test("spy should assert if a function was called", () => {
   expect(spy.wasNeverCalled()).toBe(false);
   expect(spy.wasCalledWith(1, "hello")).toBe(true);
   expect(spy.wasCalledWith(2, "world")).toBe(false);
+  expect(spy.wasCalledNTimes(1)).toBe(true);
+  expect(spy.wasCalledNTimesWith({ args: [1, "hello"], howMuch: 1 })).toBe(
+    true
+  );
+
+  mock(1, "hello");
+  mock(2, "world");
+
+  expect(spy.wasCalledNTimes(1)).toBe(false);
+  expect(spy.wasCalledNTimes(2)).toBe(false);
+  expect(spy.wasCalledNTimes(3)).toBe(true);
+
+  expect(spy.wasCalledNTimesWith({ args: [1, "hello"], howMuch: 1 })).toBe(
+    false
+  );
+  expect(spy.wasCalledNTimesWith({ args: [1, "hello"], howMuch: 2 })).toBe(
+    true
+  );
+  expect(spy.wasCalledNTimesWith({ args: [2, "world"], howMuch: 1 })).toBe(
+    true
+  );
 });
 
 test("spy should assert if a function was called with unsafe arguments", () => {

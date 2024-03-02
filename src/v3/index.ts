@@ -153,7 +153,10 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
   wasCalledOnce(): boolean;
   wasCalledOnceWith: (...args: Parameters<T>) => boolean;
   wasCalledNTimes(howMuch: number): boolean;
-  wasCalledNTimesWith: (howMuch: number, args: Parameters<T>) => boolean;
+  wasCalledNTimesWith: (params: {
+    howMuch: number;
+    args: Parameters<T>;
+  }) => boolean;
   wasCalled: () => boolean;
   wasCalledWith: (...args: Parameters<T>) => boolean;
   wasNeverCalled: () => boolean;
@@ -174,7 +177,13 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
       return calls.some((call) => compareArgs(call.args, expectedArgs));
     },
     wasCalledNTimes: (howMuch: number) => calls.length === howMuch,
-    wasCalledNTimesWith: (howMuch: number, expectedArgs: Parameters<T>) => {
+    wasCalledNTimesWith: ({
+      args: expectedArgs,
+      howMuch,
+    }: {
+      howMuch: number;
+      args: Parameters<T>;
+    }) => {
       return (
         calls.filter((call) => compareArgs(call.args, expectedArgs)).length ===
         howMuch
