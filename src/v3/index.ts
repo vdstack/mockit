@@ -131,7 +131,7 @@ type wasUnsafe = {
   wasCalledOnceWith: (...args: any[]) => boolean;
   wasNeverCalledWith: (...args: any[]) => boolean;
   wasCalledWith: (...args: any[]) => boolean;
-  wasCalledNTimesWith: (howMuch: number, args: any[]) => boolean;
+  wasCalledNTimesWith: (params: { howMuch: number; args: any[] }) => boolean;
 };
 
 type wasZod = {
@@ -200,7 +200,13 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
       wasCalledWith: (...expectedArgs: any[]) => {
         return calls.some((call) => compareArgs(call.args, expectedArgs));
       },
-      wasCalledNTimesWith: (howMuch: number, expectedArgs: any[]) => {
+      wasCalledNTimesWith: ({
+        args: expectedArgs,
+        howMuch,
+      }: {
+        howMuch: number;
+        args: any[];
+      }) => {
         return (
           calls.filter((call) => compareArgs(call.args, expectedArgs))
             .length === howMuch
