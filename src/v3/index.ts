@@ -138,10 +138,10 @@ type wasZod = {
   wasCalledOnceWith: (...args: Array<ZodSchema | any>) => boolean;
   wasNeverCalledWith: (...args: Array<ZodSchema | any>) => boolean;
   wasCalledWith: (...z: Array<ZodSchema | any>) => boolean;
-  wasCalledNTimesWith: (
-    howMuch: number,
-    args: Array<ZodSchema | any>
-  ) => boolean;
+  wasCalledNTimesWith: (params: {
+    howMuch: number;
+    args: Array<ZodSchema | any>;
+  }) => boolean;
 };
 
 // This spies the mocked functions only !
@@ -238,10 +238,13 @@ export function spyMockedFunction<T extends (...args: any[]) => any>(
           compareArgsWithZodSchemas(call.args, expectedArgs)
         );
       },
-      wasCalledNTimesWith: (
-        howMuch: number,
-        expectedArgs: Array<ZodSchema | any>
-      ) => {
+      wasCalledNTimesWith: ({
+        args: expectedArgs,
+        howMuch,
+      }: {
+        howMuch: number;
+        args: Array<ZodSchema | any>;
+      }) => {
         return (
           calls.filter((call) =>
             compareArgsWithZodSchemas(call.args, expectedArgs)

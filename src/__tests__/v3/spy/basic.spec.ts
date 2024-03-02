@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { mockFunction, spyMockedFunction } from "../../../v3";
 
 test("spied function should give access to its calls", () => {
@@ -84,5 +85,41 @@ test("spy should assert if a function was called with unsafe arguments", () => {
       args: [1, "hello"],
       howMuch: 1,
     })
+  ).toBe(true);
+});
+
+test("spy should accept zod schemas as arguments", () => {
+  const mock = mockFunction((x: number, y: string) => {});
+  const spy = spyMockedFunction(mock);
+
+  expect(spy.zod.wasCalledWith(z.number(), z.string())).toBe(false);
+  expect(spy.zod.wasCalledOnceWith(z.number(), z.string())).toBe(false);
+  expect(spy.zod.wasNeverCalledWith(z.number(), z.string())).toBe(true);
+  expect(
+    spy.zod.wasCalledNTimesWith({
+      args: [z.number(), z.string()],
+      howMuch: 1,
+    })
+  ).toBe(false);
+
+  mock(1, "hello");
+
+  expect(spy.zod.wasCalledWith(z.number(), z.string())).toBe(true);
+  expect(spy.zod.wasCalledOnceWith(z.number(), z.string())).toBe(true);
+  expect(spy.zod.wasNeverCalledWith(z.number(), z.string())).toBe(false);
+  expect(
+    spy.zod.wasCalledNTimesWith({
+      args: [z.number(), z.string()],
+      howMuch: 1,
+    })
+  ).toBe(true);
+
+  mock(1, "hello");
+
+  expect(
+    spy.zod.wasCalledNTimesWith({ args: [z.number(), z.string()], howMuch: 1 })
+  ).toBe(false);
+  expect(
+    spy.zod.wasCalledNTimesWith({ args: [z.number(), z.string()], howMuch: 2 })
   ).toBe(true);
 });
