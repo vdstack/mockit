@@ -299,20 +299,6 @@ export type NewBehaviourParam<T extends (...args) => any> =
  * - DONE: check both actual & expected args for the zod based assertions (in order !)
  */
 
-const mock = mockFunction((x: number, y: 2) => 3);
-
-mock(1, 2);
-
-const original = function add(x: number, y: number) {
-  return x + y;
-};
-
-const spy = spyMockedFunction(mockFunction(original));
-
-const mock2 = mockFunction((x: number, y: 2) => 3, {
-  defaultBehaviour: { kind: Behaviours.Preserve },
-});
-
 function compareArgsWithZodSchemas(
   actual: Array<any>,
   expected: Array<ZodSchema | any>
@@ -632,5 +618,3 @@ export function when<TFunc extends (...args: any[]) => any>(
     },
   };
 }
-
-when(mockFunction(original)).isCalledWith(1, 2).thenReturn(3);
