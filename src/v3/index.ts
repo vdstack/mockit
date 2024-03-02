@@ -31,7 +31,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
 
   return new Proxy(original, {
-    apply: (original, _thisArg, ...callArgs) => {
+    apply: (original, _thisArg, callArgs) => {
       // What is thisArg ?
       calls.push({
         args: callArgs as unknown as Parameters<T>,
@@ -368,6 +368,12 @@ export function when<TFunc extends (...args: any[]) => any>(
           callback,
         });
       },
+      thenCallUnsafe: (callback: (...args: any[]) => any) => {
+        Reflect.set(mockedFunction, "defaultBehaviour", {
+          kind: Behaviours.Call,
+          callback,
+        });
+      },
       thenThrow: (error: any) => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Throw,
@@ -382,7 +388,7 @@ export function when<TFunc extends (...args: any[]) => any>(
           returnedFunction,
         });
       },
-      thenResolve: (resolvedValue: any) => {
+      thenResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Resolve,
           resolvedValue,
@@ -428,6 +434,15 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
+        thenReturnUnsafe: (value: any) => {
+          Reflect.set(mockedFunction, "newCustomBehaviour", {
+            args,
+            behaviour: {
+              kind: Behaviours.Return,
+              returnedValue: value,
+            },
+          });
+        },
         thenPreserve: () => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
@@ -465,7 +480,7 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenResolve: (resolvedValue: ReturnType<TFunc>) => {
+        thenResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
             behaviour: {
