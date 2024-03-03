@@ -28,6 +28,11 @@ export function mockFunction<T extends (...args: any[]) => any>(
     args: any[];
     behaviour: NewBehaviourParam<T>;
   }> = [];
+
+  const zodBehaviours: Array<{
+    args: (any | z.ZodType)[];
+    behaviour: NewBehaviourParam<T>;
+  }> = [];
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
 
   return new Proxy(original, {
@@ -65,6 +70,40 @@ export function mockFunction<T extends (...args: any[]) => any>(
             return Promise.reject(
               // @ts-expect-error
               customBehaviour.behaviour.rejectedFunction(...callArgs)
+            );
+          case Behaviours.Preserve:
+            return original(...callArgs);
+        }
+      }
+
+      const zodBehaviour = zodBehaviours.find((behaviour) => {
+        return compareArgsWithZodSchemas(callArgs, behaviour.args);
+      });
+
+      if (zodBehaviour) {
+        switch (zodBehaviour.behaviour.kind) {
+          case Behaviours.Throw:
+            throw zodBehaviour.behaviour.error;
+          case Behaviours.Call:
+            return zodBehaviour.behaviour.callback(...callArgs);
+          case Behaviours.Return:
+            return zodBehaviour.behaviour.returnedValue;
+          case Behaviours.Resolve:
+            return Promise.resolve(zodBehaviour.behaviour.resolvedValue);
+          case Behaviours.Reject:
+            return Promise.reject(zodBehaviour.behaviour.rejectedValue);
+          case Behaviours.ReturnResultOf:
+            // @ts-expect-error thank the proxy for that one
+            return zodBehaviour.behaviour.returnedFunction(...callArgs);
+          case Behaviours.ResolveResultOf:
+            return Promise.resolve(
+              // @ts-expect-error
+              zodBehaviour.behaviour.resolvedFunction(...callArgs)
+            );
+          case Behaviours.RejectResultOf:
+            return Promise.reject(
+              // @ts-expect-error
+              zodBehaviour.behaviour.rejectedFunction(...callArgs)
             );
           case Behaviours.Preserve:
             return original(...callArgs);
@@ -118,6 +157,16 @@ export function mockFunction<T extends (...args: any[]) => any>(
         customBehaviours.push(
           value as {
             args: any[];
+            behaviour: NewBehaviourParam<T>;
+          }
+        );
+        return true;
+      }
+
+      if (prop === "newZodBehaviour") {
+        zodBehaviours.push(
+          value as {
+            args: (any | z.ZodType)[];
             behaviour: NewBehaviourParam<T>;
           }
         );
@@ -634,6 +683,107 @@ export function when<TFunc extends (...args: any[]) => any>(
         },
       };
     },
+    zod: {
+      isCalledWith: (...args: AllowZodSchemas<Parameters<TFunc>>) => {
+        return {
+          thenReturn: (value: ReturnType<TFunc>) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Return,
+                returnedValue: value,
+              },
+            });
+          },
+          thenPreserve: () => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Preserve,
+              },
+            });
+          },
+          thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Call,
+                callback,
+              },
+            });
+          },
+          thenThrow: (error: any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Throw,
+                error,
+              },
+            });
+          },
+          thenReturnResultOf: (
+            returnedFunction: (...args: Parameters<TFunc>) => any
+          ) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.ReturnResultOf,
+                returnedFunction,
+              },
+            });
+          },
+          thenResolve: (resolvedValue: ReturnType<TFunc>) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Resolve,
+                resolvedValue,
+              },
+            });
+          },
+          thenResolveUnsafe: (resolvedValue: any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Resolve,
+                resolvedValue,
+              },
+            });
+          },
+          thenResolveResultOf: (
+            resolvedFunction: (...args: Parameters<TFunc>) => any
+          ) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.ResolveResultOf,
+                resolvedFunction,
+              },
+            });
+          },
+          thenReject: (rejectedValue: any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Reject,
+                rejectedValue,
+              },
+            });
+          },
+          thenRejectResultOf: (
+            rejectedFunction: (...args: Parameters<TFunc>) => any
+          ) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.RejectResultOf,
+                rejectedFunction,
+              },
+            });
+          },
+        };
+      },
+    },
   };
 }
 
@@ -734,7 +884,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       },
     },
     zod: {
-      wasCalledOnceWith(...args: ZodifyTuple<Parameters<TFunc>>) {
+      wasCalledOnceWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledOnceWith(...args)) {
           throw new Error(
@@ -742,13 +892,13 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
           );
         }
       },
-      wasNeverCalledWith(...args: ZodifyTuple<Parameters<TFunc>>) {
+      wasNeverCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasNeverCalledWith(...args)) {
           throw new Error(`Function was called with parameters ${args}`);
         }
       },
-      wasCalledWith(...args: ZodifyTuple<Parameters<TFunc>>) {
+      wasCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledWith(...args)) {
           throw new Error(`Function was not called with parameters ${args}`);
@@ -759,7 +909,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
         howMuch,
       }: {
         howMuch: number;
-        args: ZodifyTuple<Parameters<TFunc>>;
+        args: AllowZodSchemas<Parameters<TFunc>>;
       }) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledNTimesWith({ args, howMuch })) {
@@ -772,13 +922,15 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
   };
 }
 
-type ZodifyTuple<Tuple extends any[]> = [
+/**
+ * This is a helper type that will allow, for each element of a tuple,
+ * to provide either the expected element, or a zod schema.
+ * This is useful for the zod based assertions, because it allows us to
+ * maintain the type-safety of the function (thank to the original function's parameters),
+ * while allowing the user to provide zod schemas for some of the parameters.
+ */
+type AllowZodSchemas<Tuple extends any[]> = [
   ...{
     [Key in keyof Tuple]: Tuple[Key] | z.ZodType;
   }
 ];
-
-// Create the new function type with rest parameters
-type WithZodSchemas<F extends (...args: any[]) => any> = (
-  ...args: ZodifyTuple<Parameters<F>>
-) => ReturnType<F>;
