@@ -651,6 +651,12 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
         throw new Error(`Function was never called.`);
       }
     },
+    wasCalledWith(...args: Parameters<TFunc>) {
+      const spy = spyMockedFunction(mockedFunction);
+      if (!spy.wasCalledWith(...args)) {
+        throw new Error(`Function was not called with parameters ${args}`);
+      }
+    },
     wasCalledOnce() {
       const spy = spyMockedFunction(mockedFunction);
       if (!spy.wasCalledOnce()) {
@@ -728,7 +734,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       },
     },
     zod: {
-      wasCalledOnceWith(...args: Array<ZodSchema | any>) {
+      wasCalledOnceWith(...args: ZodifyTuple<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledOnceWith(...args)) {
           throw new Error(
@@ -736,13 +742,13 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
           );
         }
       },
-      wasNeverCalledWith(...args: Array<ZodSchema | any>) {
+      wasNeverCalledWith(...args: ZodifyTuple<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasNeverCalledWith(...args)) {
           throw new Error(`Function was called with parameters ${args}`);
         }
       },
-      wasCalledWith(...args: Array<ZodSchema | any>) {
+      wasCalledWith(...args: ZodifyTuple<Parameters<TFunc>>) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledWith(...args)) {
           throw new Error(`Function was not called with parameters ${args}`);
@@ -753,7 +759,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
         howMuch,
       }: {
         howMuch: number;
-        args: Array<ZodSchema | any>;
+        args: ZodifyTuple<Parameters<TFunc>>;
       }) {
         const spy = spyMockedFunction(mockedFunction);
         if (!spy.zod.wasCalledNTimesWith({ args, howMuch })) {
@@ -765,3 +771,14 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
     },
   };
 }
+
+type ZodifyTuple<Tuple extends any[]> = [
+  ...{
+    [Key in keyof Tuple]: Tuple[Key] | z.ZodType;
+  }
+];
+
+// Create the new function type with rest parameters
+type WithZodSchemas<F extends (...args: any[]) => any> = (
+  ...args: ZodifyTuple<Parameters<F>>
+) => ReturnType<F>;
