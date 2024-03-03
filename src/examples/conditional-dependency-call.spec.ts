@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { mockFunction, suppose, verify } from "../mockit";
+import { mockFunction, verifyThat } from "../v3";
 
 function registerAdultAccount(...args: any[]) {}
 function registerMinorAccount(...args: any[]) {}
@@ -47,8 +47,6 @@ function createAccount(
 it("should only call minor registration if user is minor", () => {
   const adultRegistrationMock = mockFunction(registerAdultAccount);
   const minorRegistrationMock = mockFunction(registerMinorAccount);
-  suppose(minorRegistrationMock).willBeCalledWith(minorSchema).once();
-  suppose(adultRegistrationMock).willNotBeCalled();
 
   createAccount(
     // real uuid plz
@@ -61,14 +59,13 @@ it("should only call minor registration if user is minor", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verify(minorRegistrationMock, adultRegistrationMock);
+  verifyThat(minorRegistrationMock).zod.wasCalledOnceWith(minorSchema);
+  verifyThat(adultRegistrationMock).wasNeverCalled();
 });
 
 it("should only call adult registration if user is adult", () => {
   const adultRegistrationMock = mockFunction(registerAdultAccount);
   const minorRegistrationMock = mockFunction(registerMinorAccount);
-  suppose(minorRegistrationMock).willNotBeCalled();
-  suppose(adultRegistrationMock).willBeCalledWith(adultSchema).once();
 
   createAccount(
     {
@@ -80,5 +77,6 @@ it("should only call adult registration if user is adult", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verify(adultRegistrationMock, minorRegistrationMock);
+  verifyThat(adultRegistrationMock).zod.wasCalledOnceWith(adultSchema);
+  verifyThat(minorRegistrationMock).wasNeverCalled();
 });
