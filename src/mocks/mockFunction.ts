@@ -58,21 +58,8 @@ export function mockFunction<T extends (...args: any[]) => any>(
             return Promise.resolve(customBehaviour.behaviour.resolvedValue);
           case Behaviours.Reject:
             return Promise.reject(customBehaviour.behaviour.rejectedValue);
-          case Behaviours.ReturnResultOf:
-            // @ts-expect-error thank the proxy for that one (no type-safety provided by native Proxy)
-            return customBehaviour.behaviour.returnedFunction(...callArgs);
-          case Behaviours.ResolveResultOf:
-            return Promise.resolve(
-              // @ts-expect-error same here
-              customBehaviour.behaviour.resolvedFunction(...callArgs)
-            );
-          case Behaviours.RejectResultOf:
-            return Promise.reject(
-              // @ts-expect-error same here
-              customBehaviour.behaviour.rejectedFunction(...callArgs)
-            );
           case Behaviours.Custom:
-            // @ts-expect-error same here
+            // @ts-expect-error thank the proxy for that one (no type-safety provided by native Proxy)
             return customBehaviour.behaviour.customBehaviour(...callArgs);
           case Behaviours.Preserve:
             return original(...callArgs);
@@ -99,23 +86,10 @@ export function mockFunction<T extends (...args: any[]) => any>(
             return Promise.resolve(zodBehaviour.behaviour.resolvedValue);
           case Behaviours.Reject:
             return Promise.reject(zodBehaviour.behaviour.rejectedValue);
-          case Behaviours.ReturnResultOf:
-            // @ts-expect-error thank the proxy for that one
-            return zodBehaviour.behaviour.returnedFunction(...callArgs);
-          case Behaviours.ResolveResultOf:
-            return Promise.resolve(
-              // @ts-expect-error
-              zodBehaviour.behaviour.resolvedFunction(...callArgs)
-            );
-          case Behaviours.RejectResultOf:
-            return Promise.reject(
-              // @ts-expect-error
-              zodBehaviour.behaviour.rejectedFunction(...callArgs)
-            );
           case Behaviours.Preserve:
             return original(...callArgs);
           case Behaviours.Custom:
-            // @ts-expect-error same here
+            // @ts-expect-error thank the proxy for that one (no type-safety provided by native Proxy)
             return customBehaviour.behaviour.customBehaviour(...callArgs);
           default:
             throw new Error(
@@ -135,21 +109,10 @@ export function mockFunction<T extends (...args: any[]) => any>(
           return Promise.resolve(defaultBehaviour.resolvedValue);
         case Behaviours.Reject:
           return Promise.reject(defaultBehaviour.rejectedValue);
-        case Behaviours.ReturnResultOf:
-          // @ts-expect-error
-          return defaultBehaviour.returnedFunction(...callArgs);
-        case Behaviours.ResolveResultOf:
-          return Promise.resolve(
-            // @ts-expect-error
-            defaultBehaviour.resolvedFunction(...callArgs)
-          );
-        case Behaviours.RejectResultOf:
-          // @ts-expect-error
-          return Promise.reject(defaultBehaviour.rejectedFunction(...callArgs));
         case Behaviours.Preserve:
           return original(...callArgs);
         case Behaviours.Custom:
-          // @ts-expect-error
+          // @ts-expect-error thank the proxy for that one (no type-safety provided by native Proxy)
           return defaultBehaviour.customBehaviour(...callArgs);
         default:
           throw new Error(

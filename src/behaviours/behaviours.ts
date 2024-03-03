@@ -4,9 +4,6 @@ export const Behaviours = {
   Return: "return",
   Call: "call",
   Throw: "throw",
-  ReturnResultOf: "returnResultOf",
-  ResolveResultOf: "resolveResultOf",
-  RejectResultOf: "rejectResultOf",
   Custom: "custom",
   Preserve: "preserve",
 } as const;
@@ -23,18 +20,6 @@ export type NewBehaviourParam<T extends (...args) => any> =
   | { kind: typeof Behaviours.Return; returnedValue: any }
   | { kind: typeof Behaviours.Resolve; resolvedValue: any }
   | { kind: typeof Behaviours.Reject; rejectedValue: any }
-  | {
-      kind: typeof Behaviours.ReturnResultOf;
-      returnedFunction: (params: Parameters<T>) => any;
-    }
-  | {
-      kind: typeof Behaviours.ResolveResultOf;
-      resolvedFunction: (params: Parameters<T>) => any;
-    }
-  | {
-      kind: typeof Behaviours.RejectResultOf;
-      rejectedFunction: (params: Parameters<T>) => any;
-    }
   | { kind: typeof Behaviours.Preserve }
   | {
       kind: typeof Behaviours.Custom;

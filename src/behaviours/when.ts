@@ -1,29 +1,6 @@
 import { AllowZodSchemas } from "../types";
 import { Behaviours } from "./behaviours";
 
-/**
- * What is changing
- *
- * - The behaviour is now a discriminated union type based on the Behaviours object as const
- * - new behaviours
- *  - ReturnResultOf
- *  - ResolveResultOf
- *  - RejectResultOf
- *  - Preserve
- *
- * - The defaultBehaviour is separated from the customBehaviours
- * - the system is WAY simpler to read & maintain.
- *
- * - the spies now require a zod schema OR a value, not zod schemas nested in objects.
- * - this is a breaking change, but it's a good one, because it simplifies everything, is way less error prone, and
- * performs way better.
- * - It requires a bit more work from the user, with .refine calls for exact values.
- * - I split the unsafe and zod based calls assertions, because they're less common cases (we usually check for exact values)
- *
- *
- * - DONE: check both actual & expected args for the zod based assertions (in order !)
- */
-
 export function when<TFunc extends (...args: any[]) => any>(
   mockedFunction: TFunc
 ) {
@@ -64,14 +41,6 @@ export function when<TFunc extends (...args: any[]) => any>(
           error,
         });
       },
-      thenReturnResultOf: (
-        returnedFunction: (...args: Parameters<TFunc>) => any
-      ) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.ReturnResultOf,
-          returnedFunction,
-        });
-      },
       thenResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Resolve,
@@ -90,26 +59,10 @@ export function when<TFunc extends (...args: any[]) => any>(
           customBehaviour,
         });
       },
-      thenResolveResultOf: (
-        resolvedFunction: (...args: Parameters<TFunc>) => any
-      ) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.ResolveResultOf,
-          resolvedFunction,
-        });
-      },
       thenReject: (rejectedValue: any) => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Reject,
           rejectedValue,
-        });
-      },
-      thenRejectResultOf: (
-        rejectedFunction: (...args: Parameters<TFunc>) => any
-      ) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.RejectResultOf,
-          rejectedFunction,
         });
       },
     },
@@ -159,17 +112,6 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenReturnResultOf: (
-          returnedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.ReturnResultOf,
-              returnedFunction,
-            },
-          });
-        },
         thenResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
@@ -188,34 +130,12 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenResolveResultOf: (
-          resolvedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.ResolveResultOf,
-              resolvedFunction,
-            },
-          });
-        },
         thenReject: (rejectedValue: any) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
             behaviour: {
               kind: Behaviours.Reject,
               rejectedValue,
-            },
-          });
-        },
-        thenRejectResultOf: (
-          rejectedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.RejectResultOf,
-              rejectedFunction,
             },
           });
         },
@@ -265,17 +185,6 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenReturnResultOf: (
-          returnedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.ReturnResultOf,
-              returnedFunction,
-            },
-          });
-        },
         thenResolve: (resolvedValue: ReturnType<TFunc>) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
@@ -294,34 +203,12 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenResolveResultOf: (
-          resolvedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.ResolveResultOf,
-              resolvedFunction,
-            },
-          });
-        },
         thenReject: (rejectedValue: any) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
             behaviour: {
               kind: Behaviours.Reject,
               rejectedValue,
-            },
-          });
-        },
-        thenRejectResultOf: (
-          rejectedFunction: (...args: Parameters<TFunc>) => any
-        ) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.RejectResultOf,
-              rejectedFunction,
             },
           });
         },
@@ -376,17 +263,6 @@ export function when<TFunc extends (...args: any[]) => any>(
               },
             });
           },
-          thenReturnResultOf: (
-            returnedFunction: (...args: Parameters<TFunc>) => any
-          ) => {
-            Reflect.set(mockedFunction, "newZodBehaviour", {
-              args,
-              behaviour: {
-                kind: Behaviours.ReturnResultOf,
-                returnedFunction,
-              },
-            });
-          },
           thenResolve: (resolvedValue: ReturnType<TFunc>) => {
             Reflect.set(mockedFunction, "newZodBehaviour", {
               args,
@@ -405,34 +281,12 @@ export function when<TFunc extends (...args: any[]) => any>(
               },
             });
           },
-          thenResolveResultOf: (
-            resolvedFunction: (...args: Parameters<TFunc>) => any
-          ) => {
-            Reflect.set(mockedFunction, "newZodBehaviour", {
-              args,
-              behaviour: {
-                kind: Behaviours.ResolveResultOf,
-                resolvedFunction,
-              },
-            });
-          },
           thenReject: (rejectedValue: any) => {
             Reflect.set(mockedFunction, "newZodBehaviour", {
               args,
               behaviour: {
                 kind: Behaviours.Reject,
                 rejectedValue,
-              },
-            });
-          },
-          thenRejectResultOf: (
-            rejectedFunction: (...args: Parameters<TFunc>) => any
-          ) => {
-            Reflect.set(mockedFunction, "newZodBehaviour", {
-              args,
-              behaviour: {
-                kind: Behaviours.RejectResultOf,
-                rejectedFunction,
               },
             });
           },
