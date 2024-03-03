@@ -6,6 +6,10 @@ export {
   mockFunction,
   mockInterface,
   mockType,
+  Reset,
+  resetBehaviour,
+  resetCompletely,
+  resetHistory,
 } from "./mocks";
 
 export { when } from "./behaviours";

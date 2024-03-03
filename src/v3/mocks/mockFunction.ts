@@ -6,10 +6,9 @@ import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
 import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZodSchemas";
 
 /**
- * This is the function mock object, it is taking the place of the function
- * that we want to mock.
- * It is a proxy, so it makes itself look like a function but in reality is
- * a complex object that can catch calls, store and return data.
+ * This is the function mock, it is taking the place of the function that we want to mock.
+ * It is a proxy, so it makes itself look like a function but in reality is a complex object
+ * that can catch calls and store multiple behaviours.
  *
  * It's a central piece of the library, because it is used in all mocks (function, class, abstract)
  */
@@ -170,6 +169,21 @@ export function mockFunction<T extends (...args: any[]) => any>(
             behaviour: NewBehaviourParam<T>;
           }
         );
+        return true;
+      }
+
+      if (prop === "resetBehaviour") {
+        customBehaviours.length = 0;
+        zodBehaviours.length = 0;
+        defaultBehaviour = {
+          kind: Behaviours.Return,
+          returnedValue: undefined,
+        } as NewBehaviourParam<T>;
+        return true;
+      }
+
+      if (prop === "resetHistory") {
+        calls.length = 0;
         return true;
       }
     },

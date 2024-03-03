@@ -1,5 +1,5 @@
+import { AllowZodSchemas } from "../types";
 import { Behaviours } from "./behaviours";
-import { AllowZodSchemas } from "..";
 
 /**
  * What is changing
