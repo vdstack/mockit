@@ -1,8 +1,7 @@
 import { z } from "zod";
 
-import { FunctionMock } from "../../internal/functionMock";
-
 import type { Class, GetClassMethods } from "../types";
+import { mockFunction } from "./mockFunction";
 
 const functionSchema = z.function();
 
@@ -20,7 +19,7 @@ export class ConcreteClassMock<T> {
     );
 
     for (const method of methods) {
-      const fMock = FunctionMock(method as string);
+      const fMock = mockFunction(() => {});
       this[method as string] = fMock;
     }
   }

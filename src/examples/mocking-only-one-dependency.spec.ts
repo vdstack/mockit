@@ -8,7 +8,7 @@
  * In this case, Mockit can help you by mocking only the email service and verifying that it was called correctly.
  */
 
-import { mockInterface, when, verifyThat } from "../..";
+import { mockInterface, when, verifyThat } from "..";
 
 interface UserRepository {
   getUserById(id: number): Promise<{ id: number; email: string; name: string }>;

@@ -1,10 +1,10 @@
-import { FunctionMock } from "../../internal/functionMock";
+import { mockFunction } from "./mockFunction";
 import { AbstractClass } from "../types";
 
 export class AbstractClassMock<T> {
   constructor(propertiesToMock: Array<keyof T>) {
     for (const property of propertiesToMock) {
-      const fMock = FunctionMock(property as string);
+      const fMock = mockFunction(() => {});
       this[property as string] = fMock;
     }
   }
