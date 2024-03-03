@@ -1,27 +1,44 @@
 import {
-  Mockit,
-  mock,
   mockAbstract,
+  mockClass,
   mockFunction,
   mockInterface,
+  mockType,
   Reset,
-  spy,
-  suppose,
-  verify,
-  verifyThat,
-  when,
-} from "./mockit";
+  resetBehaviour,
+  resetCompletely,
+  resetHistory,
+} from "./mocks";
 
 export {
-  Mockit,
-  Reset,
-  mock,
   mockAbstract,
+  mockClass,
   mockFunction,
   mockInterface,
-  spy,
-  suppose,
-  verify,
-  verifyThat,
+  mockType,
+  Reset,
+  resetBehaviour,
+  resetCompletely,
+  resetHistory,
+};
+
+import { when } from "./behaviours";
+export { when };
+
+import { verifyThat, spyMockedFunction } from "./spies";
+export { spyMockedFunction, verifyThat };
+
+export const Mockit = {
+  Reset,
+  resetBehaviour,
+  resetCompletely,
+  resetHistory,
+  mockAbstract,
+  mockClass,
+  mockFunction,
+  mockInterface,
+  mockType,
   when,
+  verifyThat,
+  spyMockedFunction,
 };

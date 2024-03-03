@@ -1,4 +1,4 @@
-import { mockFunction, when, verifyThat, spyMockedFunction } from "../v3";
+import { mockFunction, when, verifyThat, spyMockedFunction } from "../..";
 
 function log(_: string): void {
   // ... logs something
