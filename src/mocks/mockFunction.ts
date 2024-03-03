@@ -45,6 +45,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
       const customBehaviour = customBehaviours.find(
         (behaviour) => hasher.hash(behaviour.args) === hasher.hash(callArgs)
       );
+
       if (customBehaviour) {
         switch (customBehaviour.behaviour.kind) {
           case Behaviours.Throw:
@@ -58,20 +59,27 @@ export function mockFunction<T extends (...args: any[]) => any>(
           case Behaviours.Reject:
             return Promise.reject(customBehaviour.behaviour.rejectedValue);
           case Behaviours.ReturnResultOf:
-            // @ts-expect-error thank the proxy for that one
+            // @ts-expect-error thank the proxy for that one (no type-safety provided by native Proxy)
             return customBehaviour.behaviour.returnedFunction(...callArgs);
           case Behaviours.ResolveResultOf:
             return Promise.resolve(
-              // @ts-expect-error
+              // @ts-expect-error same here
               customBehaviour.behaviour.resolvedFunction(...callArgs)
             );
           case Behaviours.RejectResultOf:
             return Promise.reject(
-              // @ts-expect-error
+              // @ts-expect-error same here
               customBehaviour.behaviour.rejectedFunction(...callArgs)
             );
+          case Behaviours.Custom:
+            // @ts-expect-error same here
+            return customBehaviour.behaviour.customBehaviour(...callArgs);
           case Behaviours.Preserve:
             return original(...callArgs);
+          default:
+            throw new Error(
+              "Invalid behaviour. This should not happen. Please open an issue on the GitHub repository."
+            );
         }
       }
 
@@ -106,6 +114,13 @@ export function mockFunction<T extends (...args: any[]) => any>(
             );
           case Behaviours.Preserve:
             return original(...callArgs);
+          case Behaviours.Custom:
+            // @ts-expect-error same here
+            return customBehaviour.behaviour.customBehaviour(...callArgs);
+          default:
+            throw new Error(
+              "Invalid behaviour. This should not happen. Please open an issue on the GitHub repository."
+            );
         }
       }
 
@@ -133,6 +148,13 @@ export function mockFunction<T extends (...args: any[]) => any>(
           return Promise.reject(defaultBehaviour.rejectedFunction(...callArgs));
         case Behaviours.Preserve:
           return original(...callArgs);
+        case Behaviours.Custom:
+          // @ts-expect-error
+          return defaultBehaviour.customBehaviour(...callArgs);
+        default:
+          throw new Error(
+            "Invalid behaviour. This should not happen. Please open an issue on the GitHub repository."
+          );
       }
     },
     get: (target, prop, receiver) => {

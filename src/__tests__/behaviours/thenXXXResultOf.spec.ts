@@ -4,77 +4,38 @@ async function getUserByID(id: number): Promise<Record<string, string>> {
   return { id: "1", name: "John Doe" };
 }
 
-it("thenResolveResultOf should resolve the result of a function", async () => {
+test("thenBehaveLike should plug custom behaviour", () => {
   const mock = mockFunction(getUserByID);
-  expect(await mock(1)).toBe(undefined);
-  when(mock).isCalled.thenResolveResultOf(() => ({
-    id: "2",
-    name: "Jane Doe",
-  }));
-  expect(await mock(1)).toEqual({ id: "2", name: "Jane Doe" });
-});
-
-it("thenRejectResultOf should reject the result of a function", async () => {
-  const mock = mockFunction(getUserByID);
-  when(mock).isCalled.thenRejectResultOf(() => new Error("User not found"));
-  await expect(mock(1)).rejects.toThrow("User not found");
-});
-
-it("thenResolveResultOf should resolve the result of a function", async () => {
-  const mock = mockFunction(getUserByID);
-  expect(await mock(1)).toBe(undefined);
-  when(mock).isCalled.thenResolveResultOf(() => ({
-    id: "2",
-    name: "Jane Doe",
-  }));
-  expect(await mock(1)).toEqual({ id: "2", name: "Jane Doe" });
-});
-
-it("thenReturnResultOf should combine default and custom behaviours", () => {
-  const mock = mockFunction((_x: number) => {});
-  when(mock).isCalled.thenReturnResultOf((x: number) => {
-    if (x === 1) {
-      return {
-        id: "2",
-        name: "Jane Doe",
-      };
+  let callsCount = 0;
+  when(mock).isCalled.thenBehaveLike((id) => {
+    callsCount++;
+    if (callsCount === 4) {
+      throw new Error("User not found");
     }
 
-    return {
-      id: "3",
-      name: "Nabu",
-    };
+    return { id: id.toString(), name: "Nabu" };
   });
 
-  when(mock)
-    .isCalledWith(2)
-    .thenReturnResultOf(() => ({
-      id: "4",
-      name: "Victor",
-    }));
-
-  expect(mock(1)).toEqual({ id: "2", name: "Jane Doe" });
-  expect(mock(2)).toEqual({ id: "4", name: "Victor" });
+  expect(mock(1)).toEqual({ id: "1", name: "Nabu" });
+  expect(mock(2)).toEqual({ id: "2", name: "Nabu" });
   expect(mock(3)).toEqual({ id: "3", name: "Nabu" });
+  expect(() => mock(4)).toThrow("User not found");
 });
 
-test("thenRejectResultOf should combine default and custom behaviours", async () => {
+test("thenBehaviour should plug async custom behaviour", async () => {
   const mock = mockFunction(getUserByID);
-  when(mock).isCalled.thenRejectResultOf(() => new Error("User not found"));
-  when(mock)
-    .isCalledWith(2)
-    .thenRejectResultOf(() => new Error("Victor"));
+  let callsCount = 0;
+  when(mock).isCalled.thenBehaveLike(async (id) => {
+    callsCount++;
+    if (callsCount === 4) {
+      throw new Error("User not found");
+    }
 
-  await expect(mock(1)).rejects.toThrow("User not found");
-  await expect(mock(2)).rejects.toThrow("Victor");
-});
+    return { id: id.toString(), name: "Nabu" };
+  });
 
-test("thenResolveResultOf should resolve the result of a function", async () => {
-  const mock = mockFunction(getUserByID);
-  expect(await mock(1)).toBe(undefined);
-  when(mock).isCalled.thenResolveResultOf(() => ({
-    id: "2",
-    name: "Jane Doe",
-  }));
-  expect(await mock(1)).toEqual({ id: "2", name: "Jane Doe" });
+  expect(await mock(1)).toEqual({ id: "1", name: "Nabu" });
+  expect(await mock(2)).toEqual({ id: "2", name: "Nabu" });
+  expect(await mock(3)).toEqual({ id: "3", name: "Nabu" });
+  await expect(mock(4)).rejects.toThrow("User not found");
 });

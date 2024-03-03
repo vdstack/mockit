@@ -84,6 +84,12 @@ export function when<TFunc extends (...args: any[]) => any>(
           resolvedValue,
         });
       },
+      thenBehaveLike(customBehaviour: (...args: Parameters<TFunc>) => any) {
+        Reflect.set(mockedFunction, "defaultBehaviour", {
+          kind: Behaviours.Custom,
+          customBehaviour,
+        });
+      },
       thenResolveResultOf: (
         resolvedFunction: (...args: Parameters<TFunc>) => any
       ) => {
@@ -234,6 +240,13 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
+        thenBehaveLike(customBehaviour: (...args: Parameters<TFunc>) => any) {
+          Reflect.set(mockedFunction, "newCustomBehaviour", {
+            kind: Behaviours.Custom,
+            args,
+            customBehaviour,
+          });
+        },
         thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
@@ -332,6 +345,17 @@ export function when<TFunc extends (...args: any[]) => any>(
               behaviour: {
                 kind: Behaviours.Preserve,
               },
+            });
+          },
+          thenBehaveLike(
+            customBehaviour: (
+              ...args: AllowZodSchemas<Parameters<TFunc>>
+            ) => any
+          ) {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              kind: Behaviours.Custom,
+              args,
+              customBehaviour,
             });
           },
           thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
