@@ -25,8 +25,8 @@ export {
 import { when } from "./behaviours";
 export { when };
 
-import { verifyThat, spyMockedFunction } from "./spies";
-export { spyMockedFunction, verifyThat };
+import { verifyThat, getMockHistory } from "./spies";
+export { getMockHistory, verifyThat };
 
 export const Mockit = {
   Reset,
@@ -40,5 +40,5 @@ export const Mockit = {
   mockType,
   when,
   verifyThat,
-  spyMockedFunction,
+  getMockHistory,
 };

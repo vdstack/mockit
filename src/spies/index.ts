@@ -1,2 +1,2 @@
 export { verifyThat } from "./verifyThat";
-export { spyMockedFunction } from "./mockedFunction";
+export { getMockHistory } from "./getMockHistory";

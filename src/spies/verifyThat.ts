@@ -1,4 +1,4 @@
-import { spyMockedFunction } from "./mockedFunction";
+import { getMockHistory } from "./getMockHistory";
 
 import type { AllowZodSchemas } from "../types";
 
@@ -9,36 +9,32 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
     throw new Error("This is not a mockit mock");
   }
 
+  const mockHistory = getMockHistory(mockedFunction);
   return {
     wasCalled() {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalled()) {
+      if (!mockHistory.wasCalled()) {
         throw new Error(`Function was never called.`);
       }
     },
     wasCalledWith(...args: Parameters<TFunc>) {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalledWith(...args)) {
+      if (!mockHistory.wasCalledWith(...args)) {
         throw new Error(`Function was not called with parameters ${args}`);
       }
     },
     wasCalledOnce() {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalledOnce()) {
+      if (!mockHistory.wasCalledOnce()) {
         throw new Error(`Function was not called exactly once.`);
       }
     },
     wasCalledOnceWith(...args: Parameters<TFunc>) {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalledOnceWith(...args)) {
+      if (!mockHistory.wasCalledOnceWith(...args)) {
         throw new Error(
           `Function was not called exactly once with parameters ${args}`
         );
       }
     },
     wasCalledNTimes(howMuch: number) {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalledNTimes(howMuch)) {
+      if (!mockHistory.wasCalledNTimes(howMuch)) {
         throw new Error(`Function was not called exactly ${howMuch} times.`);
       }
     },
@@ -49,49 +45,42 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       howMuch: number;
       args: Parameters<TFunc>;
     }) {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasCalledNTimesWith({ args, howMuch })) {
+      if (!mockHistory.wasCalledNTimesWith({ args, howMuch })) {
         throw new Error(
           `Function was not called exactly ${howMuch} times with parameters ${args}`
         );
       }
     },
     wasNeverCalled() {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasNeverCalled()) {
+      if (!mockHistory.wasNeverCalled()) {
         throw new Error(`Function was called.`);
       }
     },
     wasNeverCalledWith(...args: Parameters<TFunc>) {
-      const spy = spyMockedFunction(mockedFunction);
-      if (!spy.wasNeverCalledWith(...args)) {
+      if (!mockHistory.wasNeverCalledWith(...args)) {
         throw new Error(`Function was called with parameters ${args}`);
       }
     },
     unsafe: {
       wasCalledOnceWith(...args: any[]) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.unsafe.wasCalledOnceWith(...args)) {
+        if (!mockHistory.unsafe.wasCalledOnceWith(...args)) {
           throw new Error(
             `Function was not called exactly once with parameters ${args}`
           );
         }
       },
       wasNeverCalledWith(...args: any[]) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.unsafe.wasNeverCalledWith(...args)) {
+        if (!mockHistory.unsafe.wasNeverCalledWith(...args)) {
           throw new Error(`Function was called with parameters ${args}`);
         }
       },
       wasCalledWith(...args: any[]) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.unsafe.wasCalledWith(...args)) {
+        if (!mockHistory.unsafe.wasCalledWith(...args)) {
           throw new Error(`Function was not called with parameters ${args}`);
         }
       },
       wasCalledNTimesWith({ args, howMuch }: { howMuch: number; args: any[] }) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.unsafe.wasCalledNTimesWith({ args, howMuch })) {
+        if (!mockHistory.unsafe.wasCalledNTimesWith({ args, howMuch })) {
           throw new Error(
             `Function was not called exactly ${howMuch} times with parameters ${args}`
           );
@@ -100,22 +89,19 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
     },
     zod: {
       wasCalledOnceWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.zod.wasCalledOnceWith(...args)) {
+        if (!mockHistory.zod.wasCalledOnceWith(...args)) {
           throw new Error(
             `Function was not called exactly once with parameters ${args}`
           );
         }
       },
       wasNeverCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.zod.wasNeverCalledWith(...args)) {
+        if (!mockHistory.zod.wasNeverCalledWith(...args)) {
           throw new Error(`Function was called with parameters ${args}`);
         }
       },
       wasCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.zod.wasCalledWith(...args)) {
+        if (!mockHistory.zod.wasCalledWith(...args)) {
           throw new Error(`Function was not called with parameters ${args}`);
         }
       },
@@ -126,8 +112,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
         howMuch: number;
         args: AllowZodSchemas<Parameters<TFunc>>;
       }) {
-        const spy = spyMockedFunction(mockedFunction);
-        if (!spy.zod.wasCalledNTimesWith({ args, howMuch })) {
+        if (!mockHistory.zod.wasCalledNTimesWith({ args, howMuch })) {
           throw new Error(
             `Function was not called exactly ${howMuch} times with parameters ${args}`
           );

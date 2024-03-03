@@ -6,7 +6,7 @@ import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZod
 
 // This spies the mocked functions only !
 
-export function spyMockedFunction<T extends (...args: any[]) => any>(
+export function getMockHistory<T extends (...args: any[]) => any>(
   mockedFunction: T
 ): {
   getCalls: () => Call<T>[];
