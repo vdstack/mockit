@@ -25,7 +25,7 @@ export {
 import { when } from "./behaviours";
 export { when };
 
-import { verifyThat, getMockHistory } from "./spies";
+import { verifyThat, getMockHistory } from "./assertions";
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
