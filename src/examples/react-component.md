@@ -27,7 +27,7 @@ Now here are the tests:
 // src\examples\CountThenTrigger.test.tsx
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { mockFunction, suppose, verify } from "@vdstack/mockit";
+import { mockFunction, verifyThat } from "@vdstack/mockit";
 
 import { CountThenTrigger } from "./CountThenTrigger";
 
@@ -35,20 +35,16 @@ test("it should not trigger the onClick function until the counter reaches 5", (
   const onClick = mockFunction((arg: string) => {});
   const { getByRole } = render(<CountThenTrigger onClick={onClick} />);
 
-  suppose(onClick).willNotBeCalled();
-
   Array.from({ length: 5 }).forEach(() => {
     userEvent.click(getByRole("button", { name: "Increment" }));
   });
 
-  verify(onClick);
+  verifyThat(onClick).wasNotCalled();
 });
 
 test("it should trigger the onClick function when the counter reaches 5", () => {
   const onClick = mockFunction((arg: string) => {});
   const { getByRole } = render(<CountThenTrigger onClick={onClick} />);
-
-  suppose(onClick).willBeCalledWith("Hello world!").once();
 
   Array.from({ length: 5 }).forEach(() => {
     userEvent.click(getByRole("button", { name: "Increment" }));
@@ -57,6 +53,6 @@ test("it should trigger the onClick function when the counter reaches 5", () => 
   // The button should now be replaced with a button that triggers the onClick function
   userEvent.click(getByRole("button", { name: "Trigger" }));
 
-  verify(onClick);
+  verifyThat(onClick).wasCalledOnceWith("Hello world!");
 });
 ```

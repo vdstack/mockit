@@ -1,4 +1,4 @@
-import { Reset, mockFunction, verifyThat, when } from "../../mockit";
+import { Reset, mockFunction, verifyThat, when } from "../..";
 
 /**
  * This example comes from Clean Code Video series by Robert C. Martin
