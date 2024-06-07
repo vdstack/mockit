@@ -18,9 +18,10 @@ when(mockedFunc).isCalled.thenReturn(2);
 when(mockedFunc).isCalledWith("Victor").thenReturn(42);
 
 mockedFunc(); // 2
+mockedFunc("Victor"); // 42
 ```
 
-You can then verify how the mock was called.
+You can also verify how the mock was called.
 
 ```ts
 const mockedFunc = mockFunction(original);
@@ -47,3 +48,69 @@ mockedFunc("hello", "world");
 getMockHistory(mockedFunc).getCalls(); // [{ args: ["hello", "world"], date: a Date }]
 ```
 
+Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc({ name: "Victor", age: 42 }, "yoo");
+
+verifyThat(mockedFunc).zod.wasCalledOnceWith(
+  z.object({
+    name: z.string(),
+    age: z.number().positive().int(),
+  }),
+  "yoo"
+);
+```
+
+Feel free to contribute :)
+
+- [Mocks](#mocks)
+  - [Different types of mocks](#different-types-of-mocks)
+    - [Function](#function)
+    - [Class](#class)
+    - [Interfaces and types](#interfaces-and-types)
+    - [Abstract classes](#abstract-classes)
+  - [Default behaviour](#default-behaviour)
+  - [Custom behaviour](#custom-behaviour)
+
+
+# Mocks
+
+## Different types of mocks
+
+You can mock functions, classes, abstract classes, interfaces and types. Functions mocks are the base of the library.
+Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
+
+For example, mocking a class is equivalent to mocking all its public functions.
+
+```ts
+class MyClass {
+  public myFunction() {
+    /**/
+  }
+
+    private myPrivateFunction() {
+        /**/
+    }
+}
+
+const mockedClass = mockClass(MyClass);
+```
+
+### Function
+ Everything is built on top of them: classes, abstract classes, interfaces and types public functions are mocked functions.
+
+```ts
+function hello() {
+  /**/
+}
+
+const mockedFunc = mockFunction(hello);
+```
+
+
+
+### Class
+
+```ts
