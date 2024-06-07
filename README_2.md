@@ -75,7 +75,7 @@ Feel free to contribute :)
   - [Custom behaviour](#custom-behaviour)
 
 
-# Mocks
+# mockFunction
 You can mock functions, classes, abstract classes, interfaces and types. Functions mocks are the base of the library.
 Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
 
@@ -84,7 +84,6 @@ For example, mocking a class is equivalent to mocking all its public functions.
 
 Understanding how to handle function mocks in Mockit will unlock any other type of mock.
 
-## mockFunction
 `mockFunction(original: Function): Function` will provide a fake version of the original function, that complies with its signature.
 Deterring the original function's signature will also deter the mock's signature. This is a good thing: it will help you identify quickly that tests are broken.
 
@@ -96,10 +95,10 @@ function hello() {
 const mockedFunc = mockFunction(hello);
 ```
 
-## when
+# when
 You can control the mock's behaviour using the `when` API. It provides a semantic way to define the mock's behaviour. You get a wide range of behaviour available to you, from returning a value, to throwing an error, to calling the original function.
 
-### Behaviours control
+## Behaviours control
 There are three main ways to control the mock's behaviour:
 - `when(mockedFunc).isCalled` will setup the default behaviour of the mock.
 - `when(mockedFunc).isCalledWith(...args: arg[])` will setup the mock to return a value when called with specific arguments.
@@ -119,6 +118,7 @@ mockedFunc("Victor"); // 42
 mockedFunc({ name: "Victor" }); // 66
 ```
 
+## Behaviours
 ### thenReturn
 `when(mockedFunc).isCalled.thenReturn(value: any): When` will make the mock return the value passed as an argument when it is called.
 
@@ -195,7 +195,6 @@ mockedFunc(); // 2
 mockedFunc(); // throws Error("yoo")
 ```
 
-
 ## unsafe alternatives
 If you don't care about the type of the returned value (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can use the `unsafe` alternatives: `unsafe.thenResolve` and `unsafe.thenReturn`.
 
@@ -204,6 +203,7 @@ function takeNumber(x: Number) {
   return x;
 }
 const mockedFunc = mockFunction(takeNumber);
+
 when(mockedFunc)
     .isCalledWith("Victor") // compiler will complain
     .thenReturn(42);
@@ -213,17 +213,116 @@ when(mockedFunc).unsafe
     .thenReturn(42);
 ```
 
+## zod integration
+Mockit provides a powerful way to check if your mocked functions have been called with arguments matching a validation schema. This is especially useful when you want to check the nature of the arguments passed to your mocks, but don't know the exact value of them (this can happen when your code is generating them midway).
+
+```ts
+when(mockedFunc).isCalledWith(
+  z.object({
+    name: z.string(),
+    age: z.number().positive().int(),
+    id: z.string().uuid(),
+    date: z.date(),
+  })
+).thenReturn(42);
+
+mockedFunc({
+  name: "Victor",
+  age: 42,
+  id: randomUUID(),
+  date: new Date(),
+}); // 42
+```
+
+You can still pass exact values instead of zod schemas, which are also type checked.
+
+Limitations: you cannot pass partial schemas, only complete schemas.
+But, you can still pass exact values to the zod schema with the following trick:
+
+```ts
+z.object({
+    name: z.string().refine((name) => name === "Victor"),
+    age: z.number().positive().int().refine((age) => age === 42)
+    id: z.string().uuid(),
+    date: z.date(),
+})
+
+// this execute the mock's behaviour if the arguments match the exact value of the name and age, and the shape of the id and date.
+```
 
 
-## verifyThat: verify the mock has been called correctly
+# verifyThat
 You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify the mock's behaviour. 
 It couples your test code with the module under test implementation though, so use it carefully, when it makes sense to verify a behaviour that cannot be tested by reading the module's returned value (for example, when testing side-effects).
 It can also be useful to test that a dependency was NOT called in a specific branch of your code.
 
-### Verifications
-There are three main ways to verify the mock's behaviour:
-
+## Verifications
 You get a wide range of verifications available to you, from checking the number of times the mock was called, to checking the arguments passed to it.
 
 ![image (3)](https://github.com/vdstack/mockit/assets/6061078/29486252-be82-4124-8c0c-efc910a45f26)
 
+### wasCalled
+`verifyThat(mockedFunc).wasCalled()` will assert that the mock was called at least once.
+
+### wasCalledWith
+`verifyThat(mockedFunc).wasCalledWith(...args: any[])` will assert that the mock was called at least once with the specified arguments. These arguments are type-checked.
+
+### wasCalledOnce
+`verifyThat(mockedFunc).wasCalled()` will assert that the mock was called exactly once.
+
+### wasCalledOnceWith
+`verifyThat(mockedFunc).wasCalledOnceWith(...args: any[])` will assert that the mock was called exactly once with the specified arguments. These arguments are type-checked.
+
+### wasCalledNTimes
+`verifyThat(mockedFunc).wasCalledNTimes(n: number)` will assert that the mock was called exactly `n` times.
+
+### wasCalledNTimesWith
+`verifyThat(mockedFunc).wasCalledNTimesWith(n: number, ...args: any[])` will assert that the mock was called exactly `n` times with the specified arguments. These arguments are type-checked.
+
+### wasNeverCalled
+`verifyThat(mockedFunc).wasNeverCalled()` will assert that the mock was never called.
+
+### wasNeverCalledWith
+`verifyThat(mockedFunc).wasNeverCalledWith(...args: any[])` will assert that the mock was never called with the specified arguments. These arguments are type-checked.
+
+## unsafe alternatives
+If you don't care about the type of the arguments passed to the mock (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can use the `unsafe` alternatives: `unsafe.wasCalledWith`, `unsafe.wasCalledOnceWith`, `unsafe.wasCalledNTimesWith`, `unsafe.wasNeverCalledWith`.
+
+```ts
+const mockedFunc = mockFunction(original);
+mockedFunc("hello", "world");
+
+verifyThat(mockedFunc).wasNeverCalledWith("something else"); // compiler will complain
+verifyThat(mockedFunc).unsafe.wasNeverCalledWith("something else"); // compiler will not complain
+```
+
+## zod integration
+Mockit provides a powerful way to check if your mocked functions have been called with arguments matching a validation schema. This is especially useful when you want to check the nature of the arguments passed to your mocks, but don't know the exact value of them (this can happen when your code is generating them midway).
+
+```ts
+verifyThat(mockedFunc).zod.wasCalledOnceWith(
+  z.object({
+    name: z.string(),
+    age: z.number().positive().int(),
+    id: z.string().uuid(),
+    date: z.date(),
+  }),
+"yoo"
+);
+```
+
+You can still pass exact values instead of zod schemas, which are also type checked.
+
+Limitations: you cannot pass partial schemas, only complete schemas.
+But, you can still pass exact values to the zod schema with the following trick:
+
+```ts
+z.object({
+    name: z.string().refine((name) => name === "Victor"),
+    age: z.number().positive().int().refine((age) => age === 42)
+    id: z.string().uuid(),
+    date: z.date(),
+})
+
+// this will check for the exact value of the name and age, and the shape of the id and date.
+```
