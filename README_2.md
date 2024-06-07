@@ -224,3 +224,6 @@ It can also be useful to test that a dependency was NOT called in a specific bra
 There are three main ways to verify the mock's behaviour:
 
 You get a wide range of verifications available to you, from checking the number of times the mock was called, to checking the arguments passed to it.
+
+![image (3)](https://github.com/vdstack/mockit/assets/6061078/29486252-be82-4124-8c0c-efc910a45f26)
+
