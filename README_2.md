@@ -83,17 +83,9 @@ You can mock functions, classes, abstract classes, interfaces and types. Functio
 Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
 
 For example, mocking a class is equivalent to mocking all its public functions.
+![image (2)](https://github.com/vdstack/mockit/assets/6061078/41a4da91-00ee-4a6c-a0f5-115386cb760e)
 
-```ts
-class MyClass {
-  public myFunction() {
-    /**/
-  }
-
-    private myPrivateFunction() {
-        /**/
-    }
-}
+Understanding how to handle function mocks in Mockit will unlock any other type of mock.
 
 const mockedClass = mockClass(MyClass);
 ```
