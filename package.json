@@ -1,6 +1,6 @@
 {
   "name": "@vdstack/mockit",
-  "version": "2.0.1",
+  "version": "3.0.0-beta.1",
   "description": "Behaviour mocking library for TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -20,16 +20,16 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@changesets/cli": "^2.26.0",
-    "@types/jest": "^29.2.5",
-    "@types/node": "^18.11.18",
-    "jest": "^29.0.3",
-    "prettier": "^2.7.1",
-    "ts-jest": "^29.0.1",
-    "tslib": "^2.4.0",
-    "tsup": "^6.5.0",
-    "typescript": "^4.9.0",
-    "zod": "^3.21.4"
+    "@changesets/cli": "^2.27.1",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^18.19.21",
+    "jest": "^29.7.0",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.2",
+    "tslib": "^2.6.2",
+    "tsup": "^6.7.0",
+    "typescript": "^4.9.5",
+    "zod": "^3.22.4"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"

@@ -1,4 +1,4 @@
-import { mockFunction, suppose, verify, when } from "..";
+import { mockFunction, when, verifyThat } from "../";
 
 function log(_: string): void {
   // ... logs something
@@ -33,12 +33,10 @@ it("should log the error message if broadcast failed", () => {
 
   when(broadcastMock).isCalled.thenThrow("Error while broadcasting");
 
-  suppose(logMock).willBeCalledWith(`Sending message ${MESSAGE}`);
-  suppose(logMock).willBeCalledWith(`Error while sending message ${MESSAGE}`);
-
   sendMessage(MESSAGE, { logger: logMock, broadcaster: broadcastMock });
 
-  verify(logMock);
+  verifyThat(logMock).wasCalledWith(`Sending message "${MESSAGE}"`);
+  verifyThat(logMock).wasCalledWith(`Error while sending message "${MESSAGE}"`);
 });
 
 it("should log the success message if broadcast succeeded", () => {
@@ -48,10 +46,8 @@ it("should log the success message if broadcast succeeded", () => {
 
   when(broadcastMock).isCalled.thenReturn(undefined);
 
-  suppose(logMock).willBeCalledWith(`Sending message ${MESSAGE}`);
-  suppose(logMock).willBeCalledWith(`Message ${MESSAGE} sent`);
-
   sendMessage(MESSAGE, { logger: logMock, broadcaster: broadcastMock });
 
-  verify(logMock);
+  verifyThat(logMock).wasCalledWith(`Sending message "${MESSAGE}"`);
+  verifyThat(logMock).wasCalledWith(`Message "${MESSAGE}" sent`);
 });

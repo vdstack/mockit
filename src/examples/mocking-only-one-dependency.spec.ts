@@ -8,7 +8,7 @@
  * In this case, Mockit can help you by mocking only the email service and verifying that it was called correctly.
  */
 
-import { mockInterface, suppose, verify, when } from "../mockit";
+import { mockInterface, when, verifyThat } from "..";
 
 interface UserRepository {
   getUserById(id: number): Promise<{ id: number; email: string; name: string }>;
@@ -66,12 +66,6 @@ test("it should send an email if the user exists and the mail ID", async () => {
   // We configure the mock to return a fake email ID that we will check as a return value.
   when(emailService.sendEmail).isCalled.thenResolve({ emailID: 1 });
 
-  // We setup an supposition to later verify that the email service was called with the correct arguments.
-  suppose(emailService.sendEmail).willBeCalledWith(
-    [user.email],
-    `Welcome ${user.name}!`
-  );
-
   const userRepository = new DBUserRepository([
     {
       email: "user@gmail.com",
@@ -88,6 +82,9 @@ test("it should send an email if the user exists and the mail ID", async () => {
   // We check that the sendWelcomeEmail function returns the email ID provided by the emailService as expected.
   expect(emailID).toBe(1);
 
-  // We verify the supposition. It will throw if the supposition fails.
-  verify(emailService);
+  // We verify that the email service was called with the correct arguments.
+  verifyThat(emailService.sendEmail).wasCalledWith(
+    [user.email],
+    `Welcome ${user.name}!`
+  );
 });
