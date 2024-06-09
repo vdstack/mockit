@@ -4,15 +4,15 @@ Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/ar
 
 Mockit API can mock any dependency:
 
-- functions: `mockFunction(originalFunction)`
-- classes: `mockClass(originalClass)`
-- Types and interfaces: `mockType<Type>(...(keyof Type)[])`
-- Abstract classes: `mockAbstractClass(abstractClass, functionsToMock)`
+- functions: `Mock(originalFunction)`
+- classes: `Mock(originalClass)`
+- Abstract classes: `Mock(abstractClass)`
+- Types and interfaces: `Mock<Type>()` or `Mock<Interface>()`
 
 It provides a semantic API that is easy to use, as well as complete type-safety, which helps a LOT when writing tests, as it provides auto-completion and type-checking alerting you of any invalid test setup.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenReturn(2);
 when(mockedFunc).isCalledWith("Victor").thenReturn(42);
 
@@ -23,7 +23,7 @@ mockedFunc("Victor"); // 42
 You can also verify how the mock was called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 mockedFunc("hello", "world");
 
 // All these assertions are valid.
@@ -41,7 +41,7 @@ They are agnostic of the test runner and assertion library you use.
 You can access more under-the-hood features like reading the history of calls.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 mockedFunc("hello", "world");
 
 getMockHistory(mockedFunc).getCalls(); // [{ args: ["hello", "world"], date: a Date }]
@@ -50,7 +50,7 @@ getMockHistory(mockedFunc).getCalls(); // [{ args: ["hello", "world"], date: a D
 Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 mockedFunc({ name: "Victor", age: 42 }, "yoo");
 
 verifyThat(mockedFunc).zod.wasCalledOnceWith(
@@ -64,7 +64,7 @@ verifyThat(mockedFunc).zod.wasCalledOnceWith(
 
 Feel free to contribute :)
 
-- [mockFunction](#mockFunction)
+- [Mock](#mockFunction)
 - [when](#when)
   - [Behaviours control](#Behaviours-control)
   - [Behaviours](#Behaviours)
@@ -92,7 +92,58 @@ Feel free to contribute :)
 
 # mockFunction
 
-You can mock functions, classes, abstract classes, interfaces and types. Functions mocks are the base of the library.
+You can mock functions, classes, abstract classes, interfaces and types with the same function `Mock`.
+
+### Functions
+
+```ts
+function hello() {
+  return "hello";
+}
+
+const mockedFunc = Mock(hello);
+```
+
+### Classes
+
+```ts
+class Hello {
+  sayHello() {
+    return "hello";
+  }
+}
+
+const mockedClass = Mock(Hello);
+```
+
+### Abstract classes
+
+```ts
+abstract class Hello {
+  abstract sayHello(): string;
+}
+
+const mockedAbstractClass = Mock(Hello);
+```
+
+### Types and interfaces
+
+```ts
+interface HelloInterface {
+  sayHello(): string;
+}
+
+type HelloType = {
+  sayHello(): string;
+};
+
+const mockedInterface = Mock<HelloInterface>();
+const mockedType = Mock<HelloType>();
+```
+
+## Interacting with the mocks
+
+Functions mocks are the base of the library.
 Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
 
 For example, mocking a class is equivalent to mocking all its public functions.
@@ -432,5 +483,5 @@ when(mockedType.sayHi).isCalled.thenReturn("hi");
 
 ### TODO
 
-- [ ] Accept any mock in the Reset API (easy to implement now that mocks are proxies)
+- [x] Accept any mock in the Reset API (easy to implement now that mocks are proxies)
 - [ ] Document the Reset API
