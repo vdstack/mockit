@@ -161,7 +161,7 @@ Functions mocks are the base of the library.
 Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
 
 For example, mocking a class is equivalent to mocking all of its public functions.
-![Capture d'écran 2024-06-09 151310](https://github.com/vdstack/mockit/assets/6061078/b007fc0f-6248-4e16-83b0-012bd03ceeff)
+![Capture d'écran 2024-06-09 153630](https://github.com/vdstack/mockit/assets/6061078/3110cf6e-678c-4896-bd4d-8bcd4e288138)
 
 Understanding how to handle function mocks in Mockit will unlock any other type of mock.
 
