@@ -30,19 +30,23 @@ export function mockType<T>(): T {
 
 export function Mock<T>(_param: Class<T> | AbstractClass<T> | T): T {
   if (typeof _param === "function") {
-    console.log(_param);
     try {
       // Issue in JS is that both functions & classes have "function" as typeof
       // To differentiate, we leverage the classes cannot be called as functions.
       // This is a hacky way to differentiate between the two. But it works.
       // @ts-expect-error Note that you can actually instanciate functions in JS, like a class. Strange but true.
-      new _param();
-      return Mock(_param) as T;
-    } catch (err) {
+      _param();
       // @ts-expect-error
       return mockFunction(_param) as T;
+    } catch (err) {
+      // You should be here if the function call failed, hence implying that it's a class
+      return ProxyMockBase<T>();
     }
   }
+  return ProxyMockBase<T>();
+}
+
+function ProxyMockBase<T>(): T {
   return new Proxy({} as any, {
     get(target, prop, receiver) {
       if (prop === "isMockitMock") {
