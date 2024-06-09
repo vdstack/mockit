@@ -7,6 +7,7 @@ Mockit API can mock any dependency:
 - functions: `Mock(originalFunction)`
 - classes: `Mock(originalClass)`
 - Abstract classes: `Mock(abstractClass)`
+- Object modules: `Mock(originalObject)`
 - Types and interfaces: `Mock<Type>()` or `Mock<Interface>()`
 
 It provides a semantic API that is easy to use, as well as complete type-safety, which helps a LOT when writing tests, as it provides auto-completion and type-checking alerting you of any invalid test setup.
@@ -90,9 +91,9 @@ Feel free to contribute :)
   - [unsafe alternatives](#unsafe-alternatives-1)
   - [zod integration](#zod-integration-1)
 
-# mockFunction
+# Mock
 
-You can mock functions, classes, abstract classes, interfaces and types with the same function `Mock`.
+You can mock functions, classes, abstract classes, objects, interfaces and types with the same function `Mock`.
 
 ### Functions
 
@@ -141,26 +142,28 @@ const mockedInterface = Mock<HelloInterface>();
 const mockedType = Mock<HelloType>();
 ```
 
+### Object modules
+
+```ts
+// Useful for mocking npm modules !
+const userRepository = {
+  getUser: (id: string) => {
+    return { id, name: "Victor" };
+  },
+};
+
+const mockedObject = Mock(userRepository);
+```
+
 ## Interacting with the mocks
 
 Functions mocks are the base of the library.
 Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
 
-For example, mocking a class is equivalent to mocking all its public functions.
+For example, mocking a class is equivalent to mocking all of its public functions.
 ![Capture d'écran 2024-06-09 151310](https://github.com/vdstack/mockit/assets/6061078/b007fc0f-6248-4e16-83b0-012bd03ceeff)
 
 Understanding how to handle function mocks in Mockit will unlock any other type of mock.
-
-`mockFunction(original: Function): Function` will provide a fake version of the original function, that complies with its signature.
-Deterring the original function's signature will also deter the mock's signature. This is a good thing: it will help you identify quickly that tests are broken.
-
-```ts
-function hello() {
-  /**/
-}
-
-const mockedFunc = mockFunction(hello);
-```
 
 # when
 
