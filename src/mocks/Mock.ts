@@ -10,18 +10,13 @@ import { resetBehaviour, resetHistory } from "./mockFunction.reset";
  */
 export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
-    try {
-      // Issue in JS is that both functions & classes have "function" as typeof
-      // To differentiate, we leverage the classes cannot be called as functions.
-      // This is a hacky way to differentiate between the two. But it works.
-      // @ts-expect-error Note that you can actually instanciate functions in JS, like a class. Strange but true.
-      _param();
-      // @ts-expect-error
-      return mockFunction(_param) as T;
-    } catch (err) {
-      // You should be here if the function call failed, hence implying that it's a class
+    // Issue in JS is that both functions & classes have "function" as typeof
+    if (isClass(_param)) {
       return ProxyMockBase<T>();
     }
+
+    // @ts-expect-error
+    return mockFunction(_param) as T;
   }
   return ProxyMockBase<T>();
 }
@@ -71,4 +66,34 @@ function ProxyMockBase<T>(): T {
       },
     }
   ) as T;
+}
+
+// Source: https://stackoverflow.com/questions/30758961/how-to-check-if-a-variable-is-an-es6-class-declaration
+// is "class" or "function"?
+function isClass(obj: Function) {
+  // if not a function, return false.
+  if (typeof obj !== "function") return false;
+
+  // ⭐ is a function, has a `prototype`, and can't be deleted!
+
+  // ⭐ although a function's prototype is writable (can be reassigned),
+  //   it's not configurable (can't update property flags), so it
+  //   will remain writable.
+  //
+  // ⭐ a class's prototype is non-writable.
+  //
+  // Table: property flags of function/class prototype
+  // ---------------------------------
+  //   prototype  write  enum  config
+  // ---------------------------------
+  //   function     v      .      .
+  //   class        .      .      .
+  // ---------------------------------
+  const descriptor = Object.getOwnPropertyDescriptor(obj, "prototype");
+
+  // ❗functions like `Promise.resolve` do have NO `prototype`.
+  //   (I have no idea why this is happening, sorry.)
+  if (!descriptor) return false;
+
+  return !descriptor.writable;
 }
