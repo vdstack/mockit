@@ -65,7 +65,7 @@ verifyThat(mockedFunc).zod.wasCalledOnceWith(
 
 Feel free to contribute :)
 
-- [Mock](#mockFunction)
+- [Mock](#Mock)
 - [when](#when)
   - [Behaviours control](#Behaviours-control)
   - [Behaviours](#Behaviours)
@@ -167,80 +167,86 @@ Understanding how to handle function mocks in Mockit will unlock any other type 
 
 # when
 
-You can control the mock's behaviour using the `when` API. It provides a semantic way to define the mock's behaviour. You get a wide range of behaviour available to you, from returning a value, to throwing an error, to calling the original function.
+You can control the mocked functions behaviour using the `when` API. It provides a semantic way to define the mock's behaviour. You get a wide range of behaviour available to you, from returning a value, to throwing an error, to calling the original function, etc...
 
 ## Behaviours control
 
 There are three main ways to control the mock's behaviour:
 
-- `when(mockedFunc).isCalled` will setup the default behaviour of the mock.
+- `when(mockedFunc).isCalled` will setup the default behaviour of the mock. If no behaviour is configured, the mock will return `undefined` by default.
 - `when(mockedFunc).isCalledWith(...args: arg[])` will setup the mock to return a value when called with specific arguments.
-- `when(mockedFunc).isCalledWith(...(ZodSchema | arg)[])` will setup the mock to return a value when called with arguments that match the zod schema.
+- `when(mockedFunc).unsafe.isCalledWith(...args: any[])` will setup the mock to return a value when called with specific arguments, but without type-checking the arguments. This is useful for quick mocking but will not assist you in writing correct tests.
+- `when(mockedFunc).zod.isCalledWith(...(ZodSchema | arg)[])` will setup the mock to return a value when called with arguments that matches the privded zod schemas.
 
-You can also setup the mock to return different values depending on the arguments passed to it.
 You can also use a zod schema when you don't know the exact value of parameters (this can happen when your code is generating them midway) but want to control the mock when the arguments match a certain shape (like a date, a uuid or an object shape).
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenReturn(2);
 when(mockedFunc).isCalledWith("Victor").thenReturn(42);
+when(mockedFunc).isCalledWith("Nick").thenReturn(15);
+
 when(mockedFunc)
   .isCalledWith(z.object({ name: z.string() }))
   .thenReturn(66);
 
 mockedFunc(); // 2
 mockedFunc("Victor"); // 42
-mockedFunc({ name: "Victor" }); // 66
+mockedFunc("Nick"); // 15
+mockedFunc({ name: "Helen" }); // 66
+mockedFunc({ name: "Charles" }); // 66
 ```
 
 ## Behaviours
 
+This section lists all the behaviours you can setup with the `when` API's `isCalled`, `isCalledWith`, `unsafe.isCalledWith` and `zod.isCalledWith` methods.
+
 ### thenReturn
 
-`when(mockedFunc).isCalled.thenReturn(value: any): When` will make the mock return the value passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenReturn(value: any)` will make the mock return the value passed as an argument when it is called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenReturn(2);
 mockedFunc(); // 2
 ```
 
 ### thenThrow
 
-`when(mockedFunc).isCalled.thenThrow(error: Error): When` will make the mock throw the error passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenThrow(error: Error)` will make the mock throw the error passed as an argument when it is called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenThrow(new Error("yoo"));
 mockedFunc(); // throws Error("yoo")
 ```
 
 ### thenResolve
 
-`when(mockedFunc).isCalled.thenResolve(value: any): When` will make the mock return a resolved promise with the value passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenResolve(value: any)` will make the mock return a resolved promise with the value passed as an argument when it is called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenResolve(2);
 mockedFunc(); // Promise.resolves(2)
 ```
 
 ### thenReject
 
-`when(mockedFunc).isCalled.thenReject(error: Error): When` will make the mock return a rejected promise with the error passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenReject(error: Error)` will make the mock return a rejected promise with the error passed as an argument when it is called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenReject(new Error("yoo"));
 mockedFunc(); // Promise.rejects(Error("yoo"))
 ```
 
 ### thenCall
 
-`when(mockedFunc).isCalled.thenCall((...args: any[]) => void): When` will make the mock call the function passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenCall((...args: any[]) => void)` will make the mock call the function passed as an argument when it is called.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenCall((...args) => {
   console.log(args);
 });
@@ -249,21 +255,24 @@ mockedFunc("hiii"); // logs ["hiii"]
 
 ### thenPreserve
 
-`when(mockedFunc).isCalled.thenPreserve(): When` will keep the original function's behaviour when it is called, but will register the call history so that you can verify it later.
+`when(mockedFunc).isCalled.thenPreserve()` will keep the original function's behaviour when it is called, but will register the call history so that you can verify it later.
 
 ```ts
-const mockedFunc = mockFunction(original);
+function double(x: number) {
+  return x * 2;
+}
+const mockedFunc = Mock(double);
 when(mockedFunc).isCalled.thenPreserve();
-mockedFunc(); // original function is called
+mockedFunc(4); // 8 : the original function behaviour is preserved
 ```
 
 ### thenBehaveLike
 
-`when(mockedFunc).isCalled.thenBehaveLike(original: Function): When` provides a way to fully control the behaviour of the mock. This is especially useful for complex scenarios, like returning once, then throwing, then returning again.
+`when(mockedFunc).isCalled.thenBehaveLike(original: Function)` provides a way to fully control the behaviour of the mock. This is especially useful for complex scenarios, like returning once, then throwing, then returning again. Sky is the limit here.
 
 ```ts
 let callsCount = 0;
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenBehaveLike(() => {
   if (callsCount === 1) {
     callsCount++;
@@ -286,7 +295,7 @@ If you don't care about the type of the returned value (which is not recommended
 function takeNumber(x: Number) {
   return x;
 }
-const mockedFunc = mockFunction(takeNumber);
+const mockedFunc = Mock(takeNumber);
 
 when(mockedFunc)
   .isCalledWith("Victor") // compiler will complain
@@ -339,7 +348,7 @@ z.object({
 
 # verifyThat
 
-You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify the mock's behaviour.
+You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify a function mock behaviour.
 It couples your test code with the module under test implementation though, so use it carefully, when it makes sense to verify a behaviour that cannot be tested by reading the module's returned value (for example, when testing side-effects).
 It can also be useful to test that a dependency was NOT called in a specific branch of your code.
 
@@ -386,7 +395,7 @@ You get a wide range of verifications available to you, from checking the number
 If you don't care about the type of the arguments passed to the mock (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can use the `unsafe` alternatives: `unsafe.wasCalledWith`, `unsafe.wasCalledOnceWith`, `unsafe.wasCalledNTimesWith`, `unsafe.wasNeverCalledWith`.
 
 ```ts
-const mockedFunc = mockFunction(original);
+const mockedFunc = Mock(original);
 mockedFunc("hello", "world");
 
 verifyThat(mockedFunc).wasNeverCalledWith("something else"); // compiler will complain
@@ -425,9 +434,11 @@ z.object({
 // this will check for the exact value of the name and age, and the shape of the id and date.
 ```
 
-# mockClass
+# Examples
 
-You can mock classes using the `mockClass` API. It provides a semantic way to mock classes. It is built on top of the `mockFunction` API, by replacing the class' public functions with mocks generated by `mockFunction`.
+All he other structures (classes, abstract classes, interfaces, types) are built on top of function mocks. This means that the same API is available for all their functions.
+
+# Class
 
 ```ts
 class Hello {
@@ -436,7 +447,9 @@ class Hello {
   }
 }
 
-const mockedClass = mockClass(Hello);
+const mockedClass = Mock(Hello);
+
+// You're still manipulating functions
 when(mockedClass.sayHello).isCalled.thenReturn("hello");
 when(mockedClass.sayHello).isCalledWith("Victor").thenReturn("hello victor");
 
@@ -446,39 +459,30 @@ mockedClass.sayHello("Victor"); // "hello victor"
 
 # mockAbstractClass
 
-Abstract classes have two roles: they can be used as interfaces, or they can be used as base classes for other classes. Don't forget this one thing: your tests run in JavaScript, not in Typescript. This means that the class you are testing is not the class you wrote in Typescript, but the class that was transpiled to JavaScript.
-And what happens at build time ? The abstract methods are removed from the class, as they are considered type signatures.
-
-This is why we require you to pass a list of the abstract class' functions to mock, so that we can mock mock.
-
 ```ts
 abstract class Hello {
   abstract sayHello(): string;
   abstract sayHi(): string;
 }
 
-const mockedClass = mockAbstractClass(Hello, ["sayHello"]);
-// sayHello is mocked, sayHi is not.
+const mockedClass = mockAbstractClass(Hello);
 
 when(mockedClass.sayHello).isCalled.thenReturn("hello");
+when(mockedClass.sayHi).isCalled.thenReturn("hi");
 ```
 
 # mockType & mockInterface
 
-You can mock types and interfaces using the `mockType` API. It provides a semantic way to mock types and interfaces.
-Any type or interface can be mocked (it also works with classes & abstract classes, as they are types too).
-For the same reasons as abstract classes, you need to pass a list of the type's functions to mock.
-The main difference with `mockAbstractClass` is that you need to pass the type as a generic parameter.
+You can mock types and interfaces using the `mockType` API.
+The main difference with `mockAbstractClass` is that you need to pass the type as a generic parameter (since types disappear at runtime).
 
 ```ts
 interface Hello {
   sayHello(): string;
   sayHi(): string;
-  sayBye(): string;
 }
 
-const mockedType = mockType<Hello>("sayHello", "sayHi");
-// sayHello and sayHi are mocked, sayBye is not.
+const mockedType = mockType<Hello>();
 
 when(mockedType.sayHello).isCalled.thenReturn("hello");
 when(mockedType.sayHi).isCalled.thenReturn("hi");
