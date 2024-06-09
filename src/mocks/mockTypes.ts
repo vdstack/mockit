@@ -28,7 +28,7 @@ export function mockType<T>(): T {
   }) as T;
 }
 
-export function Mock<T>(_param: Class<T> | AbstractClass<T> | T): T {
+export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
     try {
       // Issue in JS is that both functions & classes have "function" as typeof
