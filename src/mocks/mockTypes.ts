@@ -46,24 +46,30 @@ export function Mock<T>(_param: Class<T> | AbstractClass<T> | T): T {
   return ProxyMockBase<T>();
 }
 
-function ProxyMockBase<T>(): T {
-  return new Proxy({} as any, {
-    get(target, prop, receiver) {
-      if (prop === "isMockitMock") {
-        // Useful to reset a whole mock instead of just a function
-        // Will be used in the future
-        return true;
-      }
+export function ProxyMockBase<T>(): T {
+  return new Proxy(
+    {
+      // Here we could store public properties of mock structure eventually
+      // (visible stuff in console.log for example)
+    } as any,
+    {
+      get(target, prop, receiver) {
+        if (prop === "isMockitMock") {
+          // Useful to reset a whole mock instead of just a function
+          // Will be used in the future
+          return true;
+        }
 
-      if (prop in target) {
-        return Reflect.get(target, prop, receiver);
-      }
+        if (prop in target) {
+          return Reflect.get(target, prop, receiver);
+        }
 
-      if (typeof prop === "string") {
-        const mockedFunction = mockFunction(() => {});
-        Reflect.set(target, prop, mockedFunction, receiver);
-        return mockedFunction;
-      }
-    },
-  }) as T;
+        if (typeof prop === "string") {
+          const mockedFunction = mockFunction(() => {});
+          Reflect.set(target, prop, mockedFunction, receiver);
+          return mockedFunction;
+        }
+      },
+    }
+  ) as T;
 }

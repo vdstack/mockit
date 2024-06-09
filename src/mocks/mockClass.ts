@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import type { Class, GetClassMethods } from "../types";
 import { mockFunction } from "./mockFunction";
+import { ProxyMockBase } from "./mockTypes";
 
 const functionSchema = z.function();
 
@@ -26,5 +27,6 @@ export class ConcreteClassMock<T> {
 }
 
 export function mockClass<T>(_original: Class<T>): T {
-  return new ConcreteClassMock<T>(_original) as T;
+  // return new ConcreteClassMock<T>(_original) as T;
+  return ProxyMockBase<T>() as T;
 }
