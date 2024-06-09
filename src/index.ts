@@ -1,29 +1,11 @@
-import {
-  mockAbstract,
-  mockClass,
-  mockFunction,
-  mockInterface,
-  mockType,
-  Reset,
-  resetBehaviour,
-  resetCompletely,
-  resetHistory,
-} from "./mocks";
+import { Reset, resetBehaviour, resetCompletely, resetHistory } from "./mocks";
 
-export {
-  mockAbstract,
-  mockClass,
-  mockFunction,
-  mockInterface,
-  mockType,
-  Reset,
-  resetBehaviour,
-  resetCompletely,
-  resetHistory,
-};
+export { Mock, Reset, resetBehaviour, resetCompletely, resetHistory };
 
 import { when } from "./behaviours";
 export { when };
+
+import { Mock } from "./mocks/Mock";
 
 import { verifyThat, getMockHistory } from "./assertions";
 export { getMockHistory, verifyThat };
@@ -33,11 +15,7 @@ export const Mockit = {
   resetBehaviour,
   resetCompletely,
   resetHistory,
-  mockAbstract,
-  mockClass,
-  mockFunction,
-  mockInterface,
-  mockType,
+  Mock,
   when,
   verifyThat,
   getMockHistory,

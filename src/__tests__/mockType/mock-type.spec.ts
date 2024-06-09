@@ -1,7 +1,6 @@
 import { getMockHistory, verifyThat } from "../../assertions";
 import { when } from "../../behaviours";
-import { mockInterface, mockType } from "../../mocks";
-import { Mock } from "../../mocks/mockTypes";
+import { Mock } from "../..";
 
 type User = {
   name: string;
@@ -13,9 +12,9 @@ type UserRepository = {
   saveUser: (user: User) => void;
 };
 
-describe("mockType", () => {
+describe("Mock", () => {
   it("should mock the type and automatically mock the functions when you set them up", () => {
-    const mock = mockType<UserRepository>();
+    const mock = Mock<UserRepository>();
     when(mock.getUser)
       .isCalledWith("Victor")
       .thenReturn({ name: "Victor", age: 22 });
@@ -27,20 +26,20 @@ describe("mockType", () => {
   });
 
   it("If no setup was done, it should return undefined", () => {
-    const mock = mockType<UserRepository>();
+    const mock = Mock<UserRepository>();
     const user = mock.getUser("Victor");
 
     expect(user).toBeUndefined();
   });
 
-  it("should be equivalent for mockInterface", () => {
-    const mock = mockType<UserRepository>();
-    const mockI = mockInterface<UserRepository>();
+  it("should be equivalent for Mock", () => {
+    const mockT = Mock<UserRepository>();
+    const mockI = Mock<UserRepository>();
 
-    expect(mock.getUser("Victor")).toBeUndefined();
+    expect(mockT.getUser("Victor")).toBeUndefined();
     expect(mockI.getUser("Victor")).toBeUndefined();
 
-    when(mock.getUser)
+    when(mockT.getUser)
       .isCalledWith("Victor")
       .thenReturn({ name: "Victor", age: 22 });
 
@@ -48,10 +47,10 @@ describe("mockType", () => {
       .isCalledWith("Victor")
       .thenReturn({ name: "Victor", age: 22 });
 
-    const user = mock.getUser("Victor");
+    const user = mockT.getUser("Victor");
     const userI = mockI.getUser("Victor");
 
-    verifyThat(mock.getUser).wasCalledWith("Victor");
+    verifyThat(mockT.getUser).wasCalledWith("Victor");
     verifyThat(mockI.getUser).wasCalledWith("Victor");
 
     expect(user).toEqual(userI);
@@ -93,8 +92,8 @@ test("MOCK should work", () => {
   });
 
   const objectRepository = {
-    getUser: (name: string) => ({ name: "Victor", age: 22 }),
-    saveUser: (user: User) => {
+    getUser: (_name: string) => ({ name: "Victor", age: 22 }),
+    saveUser: (_user: User) => {
       // Do nothing
     },
   };

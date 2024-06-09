@@ -1,4 +1,4 @@
-import { mockFunction, when } from "../..";
+import { Mock, when } from "../..";
 
 let counter = 0;
 function increaseCounter(by: number) {
@@ -12,7 +12,7 @@ function multiplyCounter(by: number) {
 describe("thenCall", () => {
   it("should execute the provided function", () => {
     counter = 0;
-    const mock = mockFunction((a: number) => {});
+    const mock = Mock((a: number) => {});
     when(mock).isCalled.thenCall(increaseCounter);
     mock(1);
 
@@ -24,7 +24,7 @@ describe("thenCall", () => {
 
   it("should combine default and custom behaviours", () => {
     counter = 0;
-    const mock = mockFunction((a: number) => {});
+    const mock = Mock((a: number) => {});
     when(mock).isCalled.thenCall(increaseCounter);
     when(mock).isCalledWith(2).thenCall(multiplyCounter);
     when(mock)

@@ -1,33 +1,12 @@
-import { CommonSpawnOptions } from "child_process";
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 
-export function mockInterface<T>(...functionsToMock: Array<keyof T | void>): T {
-  return mockType<T>() as T;
-}
-
-export function mockType<T>(): T {
-  return new Proxy({} as any, {
-    get(target, prop, receiver) {
-      if (prop === "isMockitMock") {
-        // Useful to reset a whole mock instead of just a function
-        // Will be used in the future
-        return true;
-      }
-
-      if (prop in target) {
-        return Reflect.get(target, prop, receiver);
-      }
-
-      if (typeof prop === "string") {
-        const mockedFunction = mockFunction(() => {});
-        Reflect.set(target, prop, mockedFunction, receiver);
-        return mockedFunction;
-      }
-    },
-  }) as T;
-}
-
+/**
+ * This function is used to create a mock of a class, abstract class or function.
+ * You can also pass an interface / type in generic to create a mock of it.
+ * @param _param anything that can be mocked: class, abstract class or function
+ * @returns a mock of the provided parameter
+ */
 export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
     try {
@@ -46,7 +25,7 @@ export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   return ProxyMockBase<T>();
 }
 
-export function ProxyMockBase<T>(): T {
+function ProxyMockBase<T>(): T {
   return new Proxy(
     {
       // Here we could store public properties of mock structure eventually
@@ -68,6 +47,35 @@ export function ProxyMockBase<T>(): T {
           const mockedFunction = mockFunction(() => {});
           Reflect.set(target, prop, mockedFunction, receiver);
           return mockedFunction;
+        }
+      },
+      set(target, prop, _value, _receiver) {
+        if (prop === "resetBehaviour") {
+          for (const key in target) {
+            if (Reflect.get(target[key], "isMockitMock")) {
+              Reflect.set(target[key], "resetBehaviour", []);
+              return true;
+            }
+          }
+        }
+
+        if (prop === "resetHistory") {
+          for (const key in target) {
+            if (Reflect.get(target[key], "isMockitMock")) {
+              Reflect.set(target[key], "resetHistory", []);
+              return true;
+            }
+          }
+        }
+
+        if (prop === "resetCompletely") {
+          for (const key in target) {
+            if (Reflect.get(target[key], "isMockitMock")) {
+              Reflect.set(target[key], "resetBehaviour", []);
+              Reflect.set(target[key], "resetHistory", []);
+              return true;
+            }
+          }
         }
       },
     }

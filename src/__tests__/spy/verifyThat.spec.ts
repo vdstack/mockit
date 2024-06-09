@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { mockFunction, verifyThat } from "../..";
+import { Mock, verifyThat } from "../..";
 
 function hellaw(...args: any[]) {
   return args;
@@ -10,7 +10,7 @@ function typedHello(x: number, y: string, z: boolean) {
 }
 
 test("verifyThat should assert if a function was called once", () => {
-  const mock = mockFunction(hellaw);
+  const mock = Mock(hellaw);
   verifyThat(mock).wasNeverCalled();
   verifyThat(mock).wasCalledNTimes(0);
 
@@ -22,7 +22,7 @@ test("verifyThat should assert if a function was called once", () => {
 });
 
 test("verifyThat should assert if a function was called with specific arguments", () => {
-  const mock = mockFunction(hellaw);
+  const mock = Mock(hellaw);
   verifyThat(mock).wasNeverCalledWith(1, 2, 3);
   verifyThat(mock).wasCalledNTimesWith({ args: [1, 2, 3], howMuch: 0 });
 
@@ -35,7 +35,7 @@ test("verifyThat should assert if a function was called with specific arguments"
 });
 
 test("verifyThat should assert if a function was called with data matching zod schemas", () => {
-  const mock = mockFunction(hellaw);
+  const mock = Mock(hellaw);
   verifyThat(mock).zod.wasNeverCalledWith(z.number(), z.string());
   verifyThat(mock).zod.wasCalledNTimesWith({
     args: [z.number(), z.string()],
@@ -53,7 +53,7 @@ test("verifyThat should assert if a function was called with data matching zod s
 });
 
 test("verifyThat should assert if a function was called with a combination of zod schemas and regular arguments", () => {
-  const mock = mockFunction(typedHello);
+  const mock = Mock(typedHello);
   verifyThat(mock).zod.wasNeverCalledWith(1, z.string(), false);
   verifyThat(mock).zod.wasCalledNTimesWith({
     args: [1, z.string(), false],

@@ -1,15 +1,15 @@
-import { mockFunction, when } from "../..";
+import { Mock, when } from "../..";
 
 describe("thenThrow", () => {
   it("should throw anything you provide", () => {
-    const mock = mockFunction(() => {});
+    const mock = Mock(() => {});
     when(mock).isCalled.thenThrow("Error");
 
     expect(() => mock()).toThrow("Error");
   });
 
   it("should combine default and custom behaviours", () => {
-    const mock = mockFunction((...args: any[]) => {});
+    const mock = Mock((...args: any[]) => {});
     when(mock).isCalled.thenThrow("Error");
     when(mock).isCalledWith(2).thenThrow("Victor");
 

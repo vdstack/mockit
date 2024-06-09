@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Reset, mockFunction, when, verifyThat } from "../..";
+import { Reset, Mock, when, verifyThat } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
 }
 
 test("resetCompletely should reset all behaviours and history", () => {
-  const mockAdd = mockFunction(add);
+  const mockAdd = Mock(add);
 
   // default
   when(mockAdd).isCalled.thenReturn(999);

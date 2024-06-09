@@ -1,11 +1,11 @@
-import { mockFunction, when } from "../..";
+import { Mock, when } from "../..";
 
 async function getUserByID(id: number): Promise<Record<string, string>> {
   return { id: "1", name: "John Doe" };
 }
 
 test("thenBehaveLike should plug custom behaviour", () => {
-  const mock = mockFunction(getUserByID);
+  const mock = Mock(getUserByID);
   let callsCount = 0;
   when(mock).isCalled.thenBehaveLike((id) => {
     callsCount++;
@@ -23,7 +23,7 @@ test("thenBehaveLike should plug custom behaviour", () => {
 });
 
 test("thenBehaviour should plug async custom behaviour", async () => {
-  const mock = mockFunction(getUserByID);
+  const mock = Mock(getUserByID);
   let callsCount = 0;
   when(mock).isCalled.thenBehaveLike(async (id) => {
     callsCount++;

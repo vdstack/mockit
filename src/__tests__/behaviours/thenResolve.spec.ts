@@ -1,4 +1,4 @@
-import { mockFunction, when } from "../..";
+import { Mock, when } from "../..";
 
 async function hellaw(...args: any[]) {
   return 42;
@@ -6,7 +6,7 @@ async function hellaw(...args: any[]) {
 
 describe("thenResolve", () => {
   it("should resolve type-safe value", async () => {
-    const mock = mockFunction(hellaw);
+    const mock = Mock(hellaw);
 
     expect(await mock()).toBe(undefined);
     when(mock).isCalled.thenResolve(999);
@@ -14,7 +14,7 @@ describe("thenResolve", () => {
   });
 
   it("should combine default and custom behaviours", async () => {
-    const mock = mockFunction(hellaw);
+    const mock = Mock(hellaw);
     when(mock).isCalled.thenResolve(999);
     when(mock).isCalledWith(2).thenResolve(777);
 

@@ -10,7 +10,7 @@
  * For example:
  * function hello(x: number, y: string) {}
  *
- * const mock = mockFunction(hello);
+ * const mock = Mock(hello);
  *
  * when(mock).calledWith(1, "hello").thenReturn("world");
  * when(mock).calledWith(z.number(), z.string()).thenReturn("zod");
@@ -21,12 +21,12 @@
  * suggestions.
  */
 
-import { mockFunction, when } from "../..";
+import { Mock, when } from "../..";
 
 import { z } from "zod";
 
 test("mock should accept zod schemas as arguments", () => {
-  const mock = mockFunction((x: number, y: string) => {
+  const mock = Mock((x: number, y: string) => {
     return y;
   });
 
@@ -46,7 +46,7 @@ test("complex zod schema", () => {
     return x;
   }
 
-  const mock = mockFunction(toTest);
+  const mock = Mock(toTest);
 
   when(mock)
     .zod.isCalledWith(

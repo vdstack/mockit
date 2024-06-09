@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Reset, mockFunction, when } from "../..";
+import { Reset, Mock, when } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
 }
 
 test("resetBehaviour should reset all behaviours", () => {
-  const mockAdd = mockFunction(add);
+  const mockAdd = Mock(add);
 
   // default
   when(mockAdd).isCalled.thenReturn(999);
