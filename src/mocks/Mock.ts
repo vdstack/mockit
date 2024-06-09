@@ -1,5 +1,6 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
+import { resetBehaviour, resetHistory } from "./mockFunction.reset";
 
 /**
  * This function is used to create a mock of a class, abstract class or function.
@@ -53,29 +54,19 @@ function ProxyMockBase<T>(): T {
         if (prop === "resetBehaviour") {
           for (const key in target) {
             if (Reflect.get(target[key], "isMockitMock")) {
-              Reflect.set(target[key], "resetBehaviour", []);
-              return true;
+              resetBehaviour(target[key]);
             }
           }
+          return true;
         }
 
         if (prop === "resetHistory") {
           for (const key in target) {
             if (Reflect.get(target[key], "isMockitMock")) {
-              Reflect.set(target[key], "resetHistory", []);
-              return true;
+              resetHistory(target[key]);
             }
           }
-        }
-
-        if (prop === "resetCompletely") {
-          for (const key in target) {
-            if (Reflect.get(target[key], "isMockitMock")) {
-              Reflect.set(target[key], "resetBehaviour", []);
-              Reflect.set(target[key], "resetHistory", []);
-              return true;
-            }
-          }
+          return true;
         }
       },
     }
