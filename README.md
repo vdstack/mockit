@@ -432,5 +432,5 @@ when(mockedType.sayHi).isCalled.thenReturn("hi");
 
 ### TODO
 
-- [ ] Accept any mock in the Reset API
+- [ ] Accept any mock in the Reset API (easy to implement now that mocks are proxies)
 - [ ] Document the Reset API
