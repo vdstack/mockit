@@ -28,7 +28,7 @@ describe("thenCall", () => {
     when(mock).isCalled.thenCall(increaseCounter);
     when(mock).isCalledWith(2).thenCall(multiplyCounter);
     when(mock)
-      .isCalledWithUnsafe("Victor")
+      .unsafe.isCalledWith("Victor")
       .thenCall(() => {
         counter = -5;
       });
