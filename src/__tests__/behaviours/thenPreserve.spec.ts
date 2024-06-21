@@ -17,7 +17,7 @@ describe("thenPreserve", () => {
     when(mock).isCalled.thenPreserve();
     when(mock)
       .isCalledWith(2)
-      .thenCall(() => "Victor");
+      .unsafe.thenReturn("Victor");
 
     expect(mock()).toBe("hello world");
     expect(mock(2)).toBe("Victor");

@@ -32,7 +32,7 @@ test("mock should accept zod schemas as arguments", () => {
 
   when(mock).zod.isCalledWith(1, z.string()).thenReturn("world");
   when(mock).zod.isCalledWith(z.number(), "hello").thenReturn("zod");
-  when(mock).isCalled.thenReturnUnsafe("default");
+  when(mock).isCalled.unsafe.thenReturn("default");
 
   expect(mock(1, "hello")).toBe("world");
   expect(mock(2, "hello")).toBe("zod");

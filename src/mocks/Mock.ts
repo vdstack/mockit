@@ -12,21 +12,20 @@ export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
     // Issue in JS is that both functions & classes have "function" as typeof
     if (isClass(_param)) {
-      return ProxyMockBase<T>();
+      return ProxyMockBase<T>(_param);
     }
 
     // @ts-expect-error
     return mockFunction(_param) as T;
   }
-  return ProxyMockBase<T>();
+  return ProxyMockBase<T>(_param);
 }
 
-function ProxyMockBase<T>(): T {
+function ProxyMockBase<T>(
+  _param : Class<T> | AbstractClass<T> | T | void = undefined
+): T {
   return new Proxy(
-    {
-      // Here we could store public properties of mock structure eventually
-      // (visible stuff in console.log for example)
-    } as any,
+    {} as any,
     {
       get(target, prop, receiver) {
         if (prop === "isMockitMock") {
