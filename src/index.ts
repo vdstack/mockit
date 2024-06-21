@@ -8,6 +8,7 @@ export { when };
 import { Mock } from "./mocks/Mock";
 
 import { verifyThat, getMockHistory } from "./assertions";
+import { partial, schema, unsafe } from "./behaviours/when";
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
@@ -19,4 +20,7 @@ export const Mockit = {
   when,
   verifyThat,
   getMockHistory,
+  partial,
+  schema,
+  unsafe,
 };
