@@ -61,21 +61,21 @@ function partiallyEquals(
     let equals = false;
     const key = keysToCheck[i];
 
-    if (typeof partial[key] === "object" && partial[key].mockit__isZod) {
+    const isSchema =
+      typeof partial[key] === "object" && partial[key].mockit__isZod;
+    const isPartial =
+      typeof partial[key] === "object" && partial[key].mockit__isPartial;
+    const isDeepPartialStruct =
+      typeof partial[key] === "object" && partial[key].mockit__isDeepPartial;
+    if (isSchema) {
       // It's important to know if a schema is injected deep in the object
       const { schema }: { schema: z.ZodType } = partial[key];
       equals = schema.safeParse(obj[key]).success;
-    } else if (
+    } else if (isPartial) {
       // If's important if a partial is injected deep in the object
-      typeof partial[key] === "object" &&
-      partial[key].mockit__isPartial
-    ) {
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial });
-    } else if (
+    } else if (isDeepPartialStruct) {
       // If's important if a deep partial is injected deep in the object
-      typeof partial[key] === "object" &&
-      partial[key].mockit__isDeepPartial
-    ) {
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial: true });
     } else {
       equals =
