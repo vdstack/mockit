@@ -61,24 +61,10 @@ test("should accept unsafe in partials", () => {
 });
 
 test("should accept partials in objects", () => {
-  verifyThat(funcMock).wasCalledOnceWith(partial({
+  verifyThat(funcMock).wasCalledOnceWith({
     location: partial({ lat: 123 }),
     age: schema(z.number()),
     address: "123",
     name: "123"
-  }));
+  });
 });
-
-/**
- * 
-    verifyThat(funcMock).wasCalledOnceWith(partial({
-      location: partial({ lat: 123 }),
-      age: schema(z.number())
-    }))
-
-    verifyThat(funcMock).wasNeverCalledWith(unsafe(2));
-
-    verifyThat(funcMock).wasNeverCalledWith(partial({
-      address: unsafe(2),
-    }))
- */

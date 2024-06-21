@@ -16,9 +16,9 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
       return schema.safeParse(arg).success;
     }
     
-    // if (typeof expected[index] === "object" && recursivelyCheckForMockitFlags(expected[index])) {
-    //   return Object.keys(expected[index]).every((key) => { return compareArgs(arg[key], expected[index][key]) });
-    // }
+    if (typeof expected[index] === "object" && recursivelyCheckForMockitFlags(expected[index])) {
+      return Object.keys(expected[index]).every((key) => { return compareArgs([arg?.[key]], [expected[index][key]]) });
+    }
 
     return hasher.hash(arg) === hasher.hash(expected[index]);
   });
