@@ -216,7 +216,7 @@ export function when<TFunc extends (...args: any[]) => any>(
               },
             });
           },
-          
+
           thenPreserve: () => {
             Reflect.set(mockedFunction, "newZodBehaviour", {
               args,
@@ -289,38 +289,57 @@ export function when<TFunc extends (...args: any[]) => any>(
   };
 }
 
-
 /**
  * V5 objectives
  * - Allow partial zod usage. Like this:
  *    verifyThat(myMockedFunction).zod.wasCalledWithPartial({ name: z.string(), age: 20 })
- * 
+ *
  * - Allow partial matching like jest.toMatchObject or jest.objectContaining
  *   myMockedFunction({ name: "John", age: 20 })
  *   verifyThat(myMockedFunction).wasCalledWith({ name: "John" }) // should pass
  */
 
 export const partial = <T>(mock: Partial<NoInfer<T>>): T => {
-  return new Proxy({
-    ...mock,
-    mockit__isPartial: true,
-  }, {
-    get(target, prop) {
-      return target[prop]
+  return new Proxy(
+    {
+      ...mock,
+      mockit__isPartial: true,
     },
-  }) as any;
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+};
+
+export const deepPartial = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return new Proxy(
+    {
+      ...mock,
+      mockit__isDeepPartial: true,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
 };
 
 export const schema = <T, U extends z.ZodSchema>(mock: U | NoInfer<T>): T => {
-  return new Proxy({
-    schema: mock,
-    mockit__isZod: true,
-  }, {
-    get(target, prop) {
-      return target[prop]
+  return new Proxy(
+    {
+      schema: mock,
+      mockit__isZod: true,
     },
-  }) as T;
-}
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as T;
+};
 
 export const unsafe = <T, U>(mock: U | NoInfer<T>): T => {
   return mock as T;
