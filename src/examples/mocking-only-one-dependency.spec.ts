@@ -8,7 +8,7 @@
  * In this case, Mockit can help you by mocking only the email service and verifying that it was called correctly.
  */
 
-import { mockInterface, when, verifyThat } from "..";
+import { Mock, when, verifyThat } from "..";
 
 interface UserRepository {
   getUserById(id: number): Promise<{ id: number; email: string; name: string }>;
@@ -62,7 +62,7 @@ test("it should send an email if the user exists and the mail ID", async () => {
   };
 
   // We mock the email service to avoid sending real emails.
-  const emailService = mockInterface<EmailService>("sendEmail");
+  const emailService = Mock<EmailService>();
   // We configure the mock to return a fake email ID that we will check as a return value.
   when(emailService.sendEmail).isCalled.thenResolve({ emailID: 1 });
 

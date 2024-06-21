@@ -12,27 +12,9 @@ export function when<TFunc extends (...args: any[]) => any>(
           returnedValue: value,
         });
       },
-      thenReturnUnsafe: (value: any) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.Return,
-          returnedValue: value,
-        });
-      },
       thenPreserve: () => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Preserve,
-        });
-      },
-      thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.Call,
-          callback,
-        });
-      },
-      thenCallUnsafe: (callback: (...args: any[]) => any) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.Call,
-          callback,
         });
       },
       thenThrow: (error: any) => {
@@ -42,12 +24,6 @@ export function when<TFunc extends (...args: any[]) => any>(
         });
       },
       thenResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
-        Reflect.set(mockedFunction, "defaultBehaviour", {
-          kind: Behaviours.Resolve,
-          resolvedValue,
-        });
-      },
-      thenResolveUnsafe: (resolvedValue: any) => {
         Reflect.set(mockedFunction, "defaultBehaviour", {
           kind: Behaviours.Resolve,
           resolvedValue,
@@ -65,19 +41,24 @@ export function when<TFunc extends (...args: any[]) => any>(
           rejectedValue,
         });
       },
+      unsafe: {
+        thenReturn: (value: any) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Return,
+            returnedValue: value,
+          });
+        },
+        thenResolve: (resolvedValue: any) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Resolve,
+            resolvedValue,
+          });
+        },
+      },
     },
     isCalledWith(...args: Parameters<TFunc>) {
       return {
         thenReturn: (value: ReturnType<TFunc>) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Return,
-              returnedValue: value,
-            },
-          });
-        },
-        thenReturnUnsafe: (value: any) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
             behaviour: {
@@ -91,15 +72,6 @@ export function when<TFunc extends (...args: any[]) => any>(
             args,
             behaviour: {
               kind: Behaviours.Preserve,
-            },
-          });
-        },
-        thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Call,
-              callback,
             },
           });
         },
@@ -121,15 +93,6 @@ export function when<TFunc extends (...args: any[]) => any>(
             },
           });
         },
-        thenResolveUnsafe: (resolvedValue: any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Resolve,
-              resolvedValue,
-            },
-          });
-        },
         thenReject: (rejectedValue: any) => {
           Reflect.set(mockedFunction, "newCustomBehaviour", {
             args,
@@ -138,81 +101,105 @@ export function when<TFunc extends (...args: any[]) => any>(
               rejectedValue,
             },
           });
+        },
+        unsafe: {
+          thenReturn: (value: any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Return,
+                returnedValue: value,
+              },
+            });
+          },
+          thenResolve: (resolvedValue: any) => {
+            Reflect.set(mockedFunction, "newZodBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Resolve,
+                resolvedValue,
+              },
+            });
+          },
         },
       };
     },
-    isCalledWithUnsafe(...args: any[]) {
-      return {
-        thenReturn: (value: ReturnType<TFunc>) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Return,
-              returnedValue: value,
+    unsafe: {
+      isCalledWith: (...args: any[]) => {
+        return {
+          thenReturn: (value: ReturnType<TFunc>) => {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Return,
+                returnedValue: value,
+              },
+            });
+          },
+          thenPreserve: () => {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Preserve,
+              },
+            });
+          },
+          thenBehaveLike(customBehaviour: (...args: Parameters<TFunc>) => any) {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              kind: Behaviours.Custom,
+              args,
+              customBehaviour,
+            });
+          },
+          thenThrow: (error: any) => {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Throw,
+                error,
+              },
+            });
+          },
+          thenResolve: (resolvedValue: ReturnType<TFunc>) => {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Resolve,
+                resolvedValue,
+              },
+            });
+          },
+          thenReject: (rejectedValue: any) => {
+            Reflect.set(mockedFunction, "newCustomBehaviour", {
+              args,
+              behaviour: {
+                kind: Behaviours.Reject,
+                rejectedValue,
+              },
+            });
+          },
+          unsafe: {
+            thenReturn: (value: any) => {
+              Reflect.set(mockedFunction, "newZodBehaviour", {
+                args,
+                behaviour: {
+                  kind: Behaviours.Return,
+                  returnedValue: value,
+                },
+              });
             },
-          });
-        },
-        thenPreserve: () => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Preserve,
+            thenResolve: (resolvedValue: any) => {
+              Reflect.set(mockedFunction, "newZodBehaviour", {
+                args,
+                behaviour: {
+                  kind: Behaviours.Resolve,
+                  resolvedValue,
+                },
+              });
             },
-          });
-        },
-        thenBehaveLike(customBehaviour: (...args: Parameters<TFunc>) => any) {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            kind: Behaviours.Custom,
-            args,
-            customBehaviour,
-          });
-        },
-        thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Call,
-              callback,
-            },
-          });
-        },
-        thenThrow: (error: any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Throw,
-              error,
-            },
-          });
-        },
-        thenResolve: (resolvedValue: ReturnType<TFunc>) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Resolve,
-              resolvedValue,
-            },
-          });
-        },
-        thenResolveUnsafe: (resolvedValue: any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Resolve,
-              resolvedValue,
-            },
-          });
-        },
-        thenReject: (rejectedValue: any) => {
-          Reflect.set(mockedFunction, "newCustomBehaviour", {
-            args,
-            behaviour: {
-              kind: Behaviours.Reject,
-              rejectedValue,
-            },
-          });
-        },
-      };
+          },
+        };
+      },
     },
     zod: {
       isCalledWith: (...args: AllowZodSchemas<Parameters<TFunc>>) => {
@@ -226,6 +213,7 @@ export function when<TFunc extends (...args: any[]) => any>(
               },
             });
           },
+          
           thenPreserve: () => {
             Reflect.set(mockedFunction, "newZodBehaviour", {
               args,
@@ -243,15 +231,6 @@ export function when<TFunc extends (...args: any[]) => any>(
               kind: Behaviours.Custom,
               args,
               customBehaviour,
-            });
-          },
-          thenCall: (callback: (...args: Parameters<TFunc>) => any) => {
-            Reflect.set(mockedFunction, "newZodBehaviour", {
-              args,
-              behaviour: {
-                kind: Behaviours.Call,
-                callback,
-              },
             });
           },
           thenThrow: (error: any) => {
@@ -272,15 +251,6 @@ export function when<TFunc extends (...args: any[]) => any>(
               },
             });
           },
-          thenResolveUnsafe: (resolvedValue: any) => {
-            Reflect.set(mockedFunction, "newZodBehaviour", {
-              args,
-              behaviour: {
-                kind: Behaviours.Resolve,
-                resolvedValue,
-              },
-            });
-          },
           thenReject: (rejectedValue: any) => {
             Reflect.set(mockedFunction, "newZodBehaviour", {
               args,
@@ -289,6 +259,26 @@ export function when<TFunc extends (...args: any[]) => any>(
                 rejectedValue,
               },
             });
+          },
+          unsafe: {
+            thenReturn: (value: any) => {
+              Reflect.set(mockedFunction, "newZodBehaviour", {
+                args,
+                behaviour: {
+                  kind: Behaviours.Return,
+                  returnedValue: value,
+                },
+              });
+            },
+            thenResolve: (resolvedValue: any) => {
+              Reflect.set(mockedFunction, "newZodBehaviour", {
+                args,
+                behaviour: {
+                  kind: Behaviours.Resolve,
+                  resolvedValue,
+                },
+              });
+            },
           },
         };
       },

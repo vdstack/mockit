@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Reset, mockFunction, verifyThat } from "../..";
+import { Reset, Mock, verifyThat } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
 }
 
 test("resetHistory should reset the history of calls", () => {
-  const mockAdd = mockFunction(add);
+  const mockAdd = Mock(add);
 
   mockAdd(1, 2);
   mockAdd(3, 2);

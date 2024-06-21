@@ -1,4 +1,4 @@
-import { mockFunction, when, verifyThat } from "../";
+import { Mock, when, verifyThat } from "../";
 
 function log(_: string): void {
   // ... logs something
@@ -27,8 +27,8 @@ function sendMessage(
 }
 
 it("should log the error message if broadcast failed", () => {
-  const logMock = mockFunction(log);
-  const broadcastMock = mockFunction(broadCast);
+  const logMock = Mock(log);
+  const broadcastMock = Mock(broadCast);
   const MESSAGE = "hello";
 
   when(broadcastMock).isCalled.thenThrow("Error while broadcasting");
@@ -40,8 +40,8 @@ it("should log the error message if broadcast failed", () => {
 });
 
 it("should log the success message if broadcast succeeded", () => {
-  const logMock = mockFunction(log);
-  const broadcastMock = mockFunction(broadCast);
+  const logMock = Mock(log);
+  const broadcastMock = Mock(broadCast);
   const MESSAGE = "hello";
 
   when(broadcastMock).isCalled.thenReturn(undefined);

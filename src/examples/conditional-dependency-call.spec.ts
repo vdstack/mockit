@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { mockFunction, verifyThat } from "..";
+import { Mock, verifyThat } from "..";
 
 function registerAdultAccount(...args: any[]) {}
 function registerMinorAccount(...args: any[]) {}
@@ -45,8 +45,8 @@ function createAccount(
  */
 
 it("should only call minor registration if user is minor", () => {
-  const adultRegistrationMock = mockFunction(registerAdultAccount);
-  const minorRegistrationMock = mockFunction(registerMinorAccount);
+  const adultRegistrationMock = Mock(registerAdultAccount);
+  const minorRegistrationMock = Mock(registerMinorAccount);
 
   createAccount(
     // real uuid plz
@@ -64,8 +64,8 @@ it("should only call minor registration if user is minor", () => {
 });
 
 it("should only call adult registration if user is adult", () => {
-  const adultRegistrationMock = mockFunction(registerAdultAccount);
-  const minorRegistrationMock = mockFunction(registerMinorAccount);
+  const adultRegistrationMock = Mock(registerAdultAccount);
+  const minorRegistrationMock = Mock(registerMinorAccount);
 
   createAccount(
     {

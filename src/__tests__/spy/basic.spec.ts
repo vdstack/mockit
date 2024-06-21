@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { mockFunction, getMockHistory } from "../..";
+import { Mock, getMockHistory } from "../..";
 
 test("spied function should give access to its calls", () => {
-  const mock = mockFunction((x: number, y: string) => {});
+  const mock = Mock((x: number, y: string) => {});
   const spy = getMockHistory(mock);
 
   expect(spy.getCalls()).toEqual([]);
@@ -18,7 +18,7 @@ test("spied function should give access to its calls", () => {
 });
 
 test("spy should assert if a function was called", () => {
-  const mock = mockFunction((x: number, y: string) => {});
+  const mock = Mock((x: number, y: string) => {});
   const mockHistory = getMockHistory(mock);
 
   expect(mockHistory.wasCalled()).toBe(false);
@@ -62,7 +62,7 @@ test("spy should assert if a function was called", () => {
 });
 
 test("spy should assert if a function was called with unsafe arguments", () => {
-  const mock = mockFunction((x: number, y: string) => {});
+  const mock = Mock((x: number, y: string) => {});
   const mockHistory = getMockHistory(mock);
 
   expect(mockHistory.unsafe.wasCalledOnceWith(1, "hello")).toBe(false);
@@ -89,7 +89,7 @@ test("spy should assert if a function was called with unsafe arguments", () => {
 });
 
 test("spy should accept zod schemas as arguments", () => {
-  const mock = mockFunction((x: number, y: string) => {});
+  const mock = Mock((x: number, y: string) => {});
   const mockHistory = getMockHistory(mock);
 
   expect(mockHistory.zod.wasCalledWith(z.number(), z.string())).toBe(false);
@@ -133,7 +133,7 @@ test("spy should accept zod schemas as arguments", () => {
 });
 
 test("spy should accept zod schemas alongside any values", () => {
-  const mock = mockFunction((x: number, y: string) => {});
+  const mock = Mock((x: number, y: string) => {});
   const spy = getMockHistory(mock);
 
   expect(spy.zod.wasCalledWith(z.number(), "hello")).toBe(false);

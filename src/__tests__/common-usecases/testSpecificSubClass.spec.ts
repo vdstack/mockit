@@ -1,4 +1,4 @@
-import { Reset, mockFunction, verifyThat, when } from "../..";
+import { Reset, Mock, verifyThat, when } from "../..";
 
 /**
  * This example comes from Clean Code Video series by Robert C. Martin
@@ -28,8 +28,8 @@ describe("Test specific subclass", () => {
   let mockPump: () => void;
   let mockCheckSeal: () => boolean;
   beforeAll(() => {
-    mockPump = mockFunction(() => {});
-    mockCheckSeal = mockFunction(() => true);
+    mockPump = Mock(() => {});
+    mockCheckSeal = Mock(() => true);
   });
 
   beforeEach(() => {
