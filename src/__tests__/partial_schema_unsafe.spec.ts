@@ -1,6 +1,6 @@
 import z from "zod";
 import { verifyThat } from "../assertions";
-import { deepPartial, partial, schema, unsafe } from "../behaviours/when";
+import { deepPartial, partial, schema, unsafe } from "../behaviours/constructs";
 import { Mock } from "../mocks";
 
 function func(params: {

@@ -8,7 +8,7 @@ export { when };
 import { Mock } from "./mocks/Mock";
 
 import { verifyThat, getMockHistory } from "./assertions";
-import { partial, schema, unsafe } from "./behaviours/when";
+import { partial, schema, unsafe } from "./behaviours/constructs";
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
