@@ -1,7 +1,12 @@
 import z from "zod";
-import { verifyThat } from "../assertions";
-import { deepPartial, partial, schema, unsafe } from "../behaviours/constructs";
-import { Mock } from "../mocks";
+import { verifyThat } from "../../assertions";
+import {
+  deepPartial,
+  partial,
+  schema,
+  unsafe,
+} from "../../behaviours/constructs";
+import { Mock } from "../../mocks";
 
 function func(params: {
   name: string;
@@ -83,6 +88,52 @@ test("should accept deepPartial constructs", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     deepPartial({
       location: { lat: 123 },
+    })
+  );
+});
+
+test("should accept deepPartial in partials", () => {
+  verifyThat(funcMock).wasCalledOnceWith(
+    partial({
+      location: deepPartial({ lat: 123 }),
+    })
+  );
+
+  verifyThat(funcMock).wasNeverCalledWith(
+    partial({
+      location: deepPartial({ lat: 1234 }),
+    })
+  );
+});
+
+test("should acces deepPartial in unsafe", () => {
+  verifyThat(funcMock).wasCalledOnceWith(
+    unsafe({
+      location: deepPartial({ lat: 123 }),
+    })
+  );
+
+  verifyThat(funcMock).wasNeverCalledWith(
+    unsafe({
+      location: deepPartial({ lat: 1234 }),
+    })
+  );
+});
+
+test("should accept unsafe in deepPartial", () => {
+  verifyThat(funcMock).wasNeverCalledWith(
+    deepPartial({
+      location: unsafe({ lat: "Victor" }),
+    })
+  );
+
+  verifyThat(funcMock).wasCalledOnceWith(
+    deepPartial({
+      location: unsafe({
+        lat: (() => {
+          return 123;
+        })(),
+      }),
     })
   );
 });
