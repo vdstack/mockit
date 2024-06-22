@@ -82,8 +82,6 @@ function partiallyEquals(
         isDeepPartial && typeof obj[key] === "object"
           ? partiallyEquals(obj[key], partial[key], { isDeepPartial })
           : hasher.hash(obj[key]) === hasher.hash(partial[key]);
-
-      console.log("equals", equals);
     }
 
     if (!equals) {
