@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { Mock, getMockHistory } from "../..";
+import { schema } from "../../behaviours/constructs";
 
 test("spied function should give access to its calls", () => {
   const mock = Mock((x: number, y: string) => {});
   const spy = getMockHistory(mock);
 
   expect(spy.getCalls()).toEqual([]);
-  expect(spy.getUnsafeCalls()).toEqual([]);
 
   mock(1, "hello");
   mock(2, "world");
@@ -61,15 +61,15 @@ test("spy should assert if a function was called", () => {
   ).toBe(true);
 });
 
-test("spy should assert if a function was called with unsafe arguments", () => {
+test("spy should assert if a function was called with arguments", () => {
   const mock = Mock((x: number, y: string) => {});
   const mockHistory = getMockHistory(mock);
 
-  expect(mockHistory.unsafe.wasCalledOnceWith(1, "hello")).toBe(false);
-  expect(mockHistory.unsafe.wasNeverCalledWith(1, "hello")).toBe(true);
-  expect(mockHistory.unsafe.wasCalledWith(1, "hello")).toBe(false);
+  expect(mockHistory.wasCalledOnceWith(1, "hello")).toBe(false);
+  expect(mockHistory.wasNeverCalledWith(1, "hello")).toBe(true);
+  expect(mockHistory.wasCalledWith(1, "hello")).toBe(false);
   expect(
-    mockHistory.unsafe.wasCalledNTimesWith({
+    mockHistory.wasCalledNTimesWith({
       args: [1, "hello"],
       howMuch: 1,
     })
@@ -77,11 +77,11 @@ test("spy should assert if a function was called with unsafe arguments", () => {
 
   mock(1, "hello");
 
-  expect(mockHistory.unsafe.wasCalledOnceWith(1, "hello")).toBe(true);
-  expect(mockHistory.unsafe.wasNeverCalledWith(1, "hello")).toBe(false);
-  expect(mockHistory.unsafe.wasCalledWith(1, "hello")).toBe(true);
+  expect(mockHistory.wasCalledOnceWith(1, "hello")).toBe(true);
+  expect(mockHistory.wasNeverCalledWith(1, "hello")).toBe(false);
+  expect(mockHistory.wasCalledWith(1, "hello")).toBe(true);
   expect(
-    mockHistory.unsafe.wasCalledNTimesWith({
+    mockHistory.wasCalledNTimesWith({
       args: [1, "hello"],
       howMuch: 1,
     })
@@ -92,26 +92,26 @@ test("spy should accept zod schemas as arguments", () => {
   const mock = Mock((x: number, y: string) => {});
   const mockHistory = getMockHistory(mock);
 
-  expect(mockHistory.zod.wasCalledWith(z.number(), z.string())).toBe(false);
-  expect(mockHistory.zod.wasCalledOnceWith(z.number(), z.string())).toBe(false);
-  expect(mockHistory.zod.wasNeverCalledWith(z.number(), z.string())).toBe(true);
+  expect(mockHistory.wasCalledWith(schema(z.number()), schema(z.string()))).toBe(false);
+  expect(mockHistory.wasCalledOnceWith(schema(z.number()), schema(z.string()))).toBe(false);
+  expect(mockHistory.wasNeverCalledWith(schema(z.number()), schema(z.string()))).toBe(true);
   expect(
-    mockHistory.zod.wasCalledNTimesWith({
-      args: [z.number(), z.string()],
+    mockHistory.wasCalledNTimesWith({
+      args: [schema(z.number()), schema(z.string())],
       howMuch: 1,
     })
   ).toBe(false);
 
   mock(1, "hello");
 
-  expect(mockHistory.zod.wasCalledWith(z.number(), z.string())).toBe(true);
-  expect(mockHistory.zod.wasCalledOnceWith(z.number(), z.string())).toBe(true);
-  expect(mockHistory.zod.wasNeverCalledWith(z.number(), z.string())).toBe(
+  expect(mockHistory.wasCalledWith(schema(z.number()), schema(z.string()))).toBe(true);
+  expect(mockHistory.wasCalledOnceWith(schema(z.number()), schema(z.string()))).toBe(true);
+  expect(mockHistory.wasNeverCalledWith(schema(z.number()), schema(z.string()))).toBe(
     false
   );
   expect(
-    mockHistory.zod.wasCalledNTimesWith({
-      args: [z.number(), z.string()],
+    mockHistory.wasCalledNTimesWith({
+      args: [schema(z.number()), schema(z.string())],
       howMuch: 1,
     })
   ).toBe(true);
@@ -119,14 +119,14 @@ test("spy should accept zod schemas as arguments", () => {
   mock(1, "hello");
 
   expect(
-    mockHistory.zod.wasCalledNTimesWith({
-      args: [z.number(), z.string()],
+    mockHistory.wasCalledNTimesWith({
+      args: [schema(z.number()), schema(z.string())],
       howMuch: 1,
     })
   ).toBe(false);
   expect(
-    mockHistory.zod.wasCalledNTimesWith({
-      args: [z.number(), z.string()],
+    mockHistory.wasCalledNTimesWith({
+      args: [schema(z.number()), schema(z.string())],
       howMuch: 2,
     })
   ).toBe(true);
@@ -136,24 +136,24 @@ test("spy should accept zod schemas alongside any values", () => {
   const mock = Mock((x: number, y: string) => {});
   const spy = getMockHistory(mock);
 
-  expect(spy.zod.wasCalledWith(z.number(), "hello")).toBe(false);
-  expect(spy.zod.wasCalledOnceWith(z.number(), "hello")).toBe(false);
-  expect(spy.zod.wasNeverCalledWith(z.number(), "hello")).toBe(true);
+  expect(spy.wasCalledWith(schema(z.number()), "hello")).toBe(false);
+  expect(spy.wasCalledOnceWith(schema(z.number()), "hello")).toBe(false);
+  expect(spy.wasNeverCalledWith(schema(z.number()), "hello")).toBe(true);
   expect(
-    spy.zod.wasCalledNTimesWith({
-      args: [z.number(), "hello"],
+    spy.wasCalledNTimesWith({
+      args: [schema(z.number()), "hello"],
       howMuch: 1,
     })
   ).toBe(false);
 
   mock(1, "hello");
 
-  expect(spy.zod.wasCalledWith(z.number(), "hello")).toBe(true);
-  expect(spy.zod.wasCalledOnceWith(z.number(), "hello")).toBe(true);
-  expect(spy.zod.wasNeverCalledWith(z.number(), "hello")).toBe(false);
+  expect(spy.wasCalledWith(schema(z.number()), "hello")).toBe(true);
+  expect(spy.wasCalledOnceWith(schema(z.number()), "hello")).toBe(true);
+  expect(spy.wasNeverCalledWith(schema(z.number()), "hello")).toBe(false);
   expect(
-    spy.zod.wasCalledNTimesWith({
-      args: [z.number(), "hello"],
+    spy.wasCalledNTimesWith({
+      args: [schema(z.number()), "hello"],
       howMuch: 1,
     })
   ).toBe(true);
@@ -161,9 +161,9 @@ test("spy should accept zod schemas alongside any values", () => {
   mock(1, "hello");
 
   expect(
-    spy.zod.wasCalledNTimesWith({ args: [z.number(), "hello"], howMuch: 1 })
+    spy.wasCalledNTimesWith({ args: [schema(z.number()), "hello"], howMuch: 1 })
   ).toBe(false);
   expect(
-    spy.zod.wasCalledNTimesWith({ args: [z.number(), "hello"], howMuch: 2 })
+    spy.wasCalledNTimesWith({ args: [schema(z.number()), "hello"], howMuch: 2 })
   ).toBe(true);
 });

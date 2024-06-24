@@ -2,7 +2,6 @@ import { ZodSchema, z } from "zod";
 
 import { Call, UnsafeCall } from "../types";
 import { compareArgs } from "../argsComparisons/compareArgs";
-import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZodSchemas";
 
 // This spies the mocked functions only !
 
@@ -22,8 +21,6 @@ export function getMockHistory<T extends (...args: any[]) => any>(
   wasCalledWith: (...args: Parameters<T>) => boolean;
   wasNeverCalled: () => boolean;
   wasNeverCalledWith: (...args: Parameters<T>) => boolean;
-  unsafe: wasUnsafe;
-  zod: wasZod;
 } {
   if (!Reflect.get(mockedFunction, "isMockitMock")) {
     throw new Error("This is not a mockit mock");
@@ -59,59 +56,6 @@ export function getMockHistory<T extends (...args: any[]) => any>(
     wasNeverCalled: () => calls.length === 0,
     wasNeverCalledWith: (...expectedArgs: Parameters<T>) => {
       return !calls.some((call) => compareArgs(call.args, expectedArgs));
-    },
-    unsafe: {
-      wasCalledOnceWith: (...expectedArgs: any[]) => {
-        return calls.some((call) => compareArgs(call.args, expectedArgs));
-      },
-      wasNeverCalledWith: (...expectedArgs: any[]) => {
-        return !calls.some((call) => compareArgs(call.args, expectedArgs));
-      },
-      wasCalledWith: (...expectedArgs: any[]) => {
-        return calls.some((call) => compareArgs(call.args, expectedArgs));
-      },
-      wasCalledNTimesWith: ({
-        args: expectedArgs,
-        howMuch,
-      }: {
-        howMuch: number;
-        args: any[];
-      }) => {
-        return (
-          calls.filter((call) => compareArgs(call.args, expectedArgs))
-            .length === howMuch
-        );
-      },
-    },
-    zod: {
-      wasCalledOnceWith: (...expectedArgs: Array<ZodSchema | any>) => {
-        return calls.some((call) =>
-          compareArgsWithZodSchemas(call.args, expectedArgs)
-        );
-      },
-      wasNeverCalledWith: (...expectedArgs: Array<ZodSchema | any>) => {
-        return !calls.some((call) =>
-          compareArgsWithZodSchemas(call.args, expectedArgs)
-        );
-      },
-      wasCalledWith: (...expectedArgs: Array<ZodSchema | any>) => {
-        return calls.some((call) =>
-          compareArgsWithZodSchemas(call.args, expectedArgs)
-        );
-      },
-      wasCalledNTimesWith: ({
-        args: expectedArgs,
-        howMuch,
-      }: {
-        howMuch: number;
-        args: Array<ZodSchema | any>;
-      }) => {
-        return (
-          calls.filter((call) =>
-            compareArgsWithZodSchemas(call.args, expectedArgs)
-          ).length === howMuch
-        );
-      },
     },
   };
 }
