@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { hasher } from "../hasher";
 
-export function compareArgs(actual: Array<any>, expected: Array<any>) {
+export function compareArgsForBehaviour(
+  actual: Array<any>,
+  expected: Array<any>
+) {
   if (actual.length !== expected.length) {
     return false;
   }
@@ -33,7 +36,7 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
       recursivelyCheckForMockitFlags(expected[index])
     ) {
       return Object.keys(expected[index]).every((key) => {
-        return compareArgs([arg?.[key]], [expected[index][key]]);
+        return compareArgsForBehaviour([arg?.[key]], [expected[index][key]]);
       });
     }
 
@@ -57,6 +60,9 @@ function partiallyEquals(
     (key) => !key.startsWith("mockit__")
   );
 
+  const parentIsPartial = partial.mockit__isPartial;
+  const parentIsDeepPartial = partial.mockit__isDeepPartial;
+
   for (let i = 0; i < keysToCheck.length; i++) {
     let equals = false;
     const key = keysToCheck[i];
@@ -66,41 +72,49 @@ function partiallyEquals(
     console.log("partial[key]", partial[key]);
 
     const isSchema =
-      typeof partial[key] === "object" && !!partial[key].mockit__isZod;
+      typeof partial[key] === "object" && !!partial[key]?.mockit__isZod;
     const isPartial =
-      typeof partial[key] === "object" && !!partial[key].mockit__isPartial;
+      typeof partial[key] === "object" && !!partial[key]?.mockit__isPartial;
     const isDeepPartialStruct =
-      typeof partial[key] === "object" && !!partial[key].mockit__isDeepPartial;
+      typeof partial[key] === "object" && !!partial[key]?.mockit__isDeepPartial;
 
-    console.log(
-      "key",
-      key,
-      "isSchema",
-      isSchema,
-      typeof partial[key] === "object",
-      partial[key].mockit__isZod
-    );
-    console.log("key", key, "isPartial", isPartial);
-    console.log("key", key, "isDeepPartialStruct", isDeepPartialStruct);
+    // console.log(
+    //   "key",
+    //   key,
+    //   "isSchema",
+    //   isSchema,
+    //   typeof partial[key] === "object",
+    //   partial[key]?.mockit__isZod
+    // );
+    // console.log("key", key, "isPartial", isPartial);
+    // console.log("key", key, "isDeepPartialStruct", isDeepPartialStruct);
 
     if (isSchema) {
+      console.log("yo schema");
       // It's important to know if a schema is injected deep in the object
       const { schema }: { schema: z.ZodType } = partial[key];
       equals = schema.safeParse(obj[key]).success;
     } else if (isPartial) {
+      console.log("yo partial");
       // If's important if a partial is injected deep in the object
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial });
     } else if (isDeepPartialStruct) {
+      console.log("yo deep partial");
       // If's important if a deep partial is injected deep in the object
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial: true });
     } else {
       console.log("key", key, "HELLAW");
-      console.log(compareArgs([obj[key]], [partial[key]]));
+      console.log(compareArgsForBehaviour([obj[key]], [partial[key]]));
 
       /**
        * I recognize that this is not the simplest code to read, but it's the only way I could think of to make it work.
        * I will study it more and try to make it simpler.
        */
+      console.log(
+        "key",
+        key,
+        hasher.hash(obj[key]) === hasher.hash(partial[key])
+      );
       equals =
         isDeepPartial && typeof obj[key] === "object"
           ? partiallyEquals(obj[key], partial[key], { isDeepPartial })
@@ -109,7 +123,7 @@ function partiallyEquals(
           : hasher.hash(obj[key]) === hasher.hash(partial[key]);
     }
 
-    console.log("equals", equals);
+    console.log("key", key, "equals", equals);
 
     if (!equals) {
       return false;
@@ -120,6 +134,10 @@ function partiallyEquals(
 }
 
 function recursivelyCheckForMockitFlags(obj: any) {
+  if (typeof obj !== "object") {
+    return false;
+  }
+
   if (Array.isArray(obj)) {
     return obj.some((item) => recursivelyCheckForMockitFlags(item));
   }
