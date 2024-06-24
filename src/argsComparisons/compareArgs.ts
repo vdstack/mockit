@@ -6,6 +6,8 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
     return false;
   }
 
+  console.log(actual, expected);
+
   return actual.every((arg, index) => {
     if (
       typeof expected[index] === "object" &&
@@ -39,11 +41,6 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
   });
 }
 
-// now I want to allow partial comparisons
-
-// Deep partial would be possible with an additional parameter isPartial: boolean
-// I would just need a new mockit__isDeepPartial flag to know if I pass it to the this functions or not
-// I suggest we don't add it for now, but we can add it later if we need it
 function partiallyEquals(
   obj: any,
   partial: any,
@@ -93,6 +90,11 @@ function partiallyEquals(
 }
 
 function recursivelyCheckForMockitFlags(obj: any) {
+  if (Array.isArray(obj)) {
+    return obj.some((item) => recursivelyCheckForMockitFlags(item));
+  }
+
+  console.log(obj);
   const keys = Object.keys(obj);
   if (keys.some((key) => key.startsWith("mockit__"))) {
     return true;

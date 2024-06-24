@@ -4,6 +4,7 @@ import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
 import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZodSchemas";
+import { compareArgs } from "../argsComparisons/compareArgs";
 
 /**
  * This is the function mock, it is taking the place of the function that we want to mock.
@@ -33,6 +34,12 @@ export function mockFunction<T extends (...args: any[]) => any>(
     args: (any | z.ZodType)[];
     behaviour: NewBehaviourParam<T>;
   }> = [];
+
+  const constructBehaviours: Array<{
+    args: any[];
+    behaviour: NewBehaviourParam<T>;
+  }> = [];
+
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
   return new Proxy(original, {
     apply: (original, _thisArg, callArgs) => {
@@ -70,8 +77,8 @@ export function mockFunction<T extends (...args: any[]) => any>(
         }
       }
 
-      const zodBehaviour = zodBehaviours.find((behaviour) => {
-        return compareArgsWithZodSchemas(callArgs, behaviour.args);
+      const zodBehaviour = customBehaviours.find((behaviour) => {
+        return compareArgs(callArgs, behaviour.args);
       });
 
       if (zodBehaviour) {
