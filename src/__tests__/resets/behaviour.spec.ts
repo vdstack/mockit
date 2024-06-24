@@ -16,12 +16,11 @@ test("resetBehaviour should reset all behaviours", () => {
   when(mockAdd).isCalledWith(1, 2).thenReturn(12);
 
   // zod-based
-  // when(mockAdd).zod.isCalledWith(z.number().int().negative(), 2).thenReturn(22);
 
-  when(mockAdd).isCalledWith(schema(z.number().int().positive()), 2).thenReturn(22);
+  when(mockAdd).isCalledWith(schema(z.number().int().negative()), 2).thenReturn(22);
 
   expect(mockAdd(1, 2)).toBe(12);
-  expect(mockAdd(3, 2)).toBe(999);
+  expect(mockAdd(3, 3)).toBe(999);
   expect(mockAdd(-1, 2)).toBe(22);
 
   Reset.behaviourOf(mockAdd);

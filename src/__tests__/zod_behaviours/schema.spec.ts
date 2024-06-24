@@ -24,14 +24,15 @@
 import { Mock, when } from "../..";
 
 import { z } from "zod";
+import { schema } from "../../behaviours/constructs";
 
 test("mock should accept zod schemas as arguments", () => {
   const mock = Mock((x: number, y: string) => {
     return y;
   });
 
-  when(mock).zod.isCalledWith(1, z.string()).thenReturn("world");
-  when(mock).zod.isCalledWith(z.number(), "hello").thenReturn("zod");
+  when(mock).isCalledWith(1, schema(z.string())).thenReturn("world");
+  when(mock).isCalledWith(schema(z.number()), "hello").thenReturn("zod");
   when(mock).isCalled.unsafe.thenReturn("default");
 
   expect(mock(1, "hello")).toBe("world");
@@ -49,8 +50,8 @@ test("complex zod schema", () => {
   const mock = Mock(toTest);
 
   when(mock)
-    .zod.isCalledWith(
-      z.object({
+    .isCalledWith(
+      schema(z.object({
         x: z.number(),
         y: z.string(),
         z: z.object({
@@ -58,7 +59,7 @@ test("complex zod schema", () => {
         }),
         w: z.array(z.number()),
         r: z.enum(["a", "b", "c"]),
-      })
+      }))
     )
     .thenReturn({ x: 1, y: "hello" });
 

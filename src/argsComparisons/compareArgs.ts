@@ -94,7 +94,6 @@ function recursivelyCheckForMockitFlags(obj: any) {
     return obj.some((item) => recursivelyCheckForMockitFlags(item));
   }
 
-  console.log(obj);
   const keys = Object.keys(obj);
   if (keys.some((key) => key.startsWith("mockit__"))) {
     return true;

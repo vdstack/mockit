@@ -1,4 +1,5 @@
 import { Mock, when } from "../..";
+import { unsafe } from "../../behaviours/constructs";
 
 describe("thenPreserve", () => {
   function hello(...args: any[]) {
@@ -17,7 +18,7 @@ describe("thenPreserve", () => {
     when(mock).isCalled.thenPreserve();
     when(mock)
       .isCalledWith(2)
-      .unsafe.thenReturn("Victor");
+      .thenReturn(unsafe("Victor"));
 
     expect(mock()).toBe("hello world");
     expect(mock(2)).toBe("Victor");
