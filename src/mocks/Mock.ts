@@ -26,7 +26,6 @@ function ProxyMockBase<T>(
 ): T {
   return new Proxy({} as any, {
     get(target, prop, receiver) {
-      console.log(prop);
       if (prop in target) {
         return Reflect.get(target, prop, receiver);
       }

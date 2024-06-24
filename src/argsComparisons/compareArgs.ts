@@ -90,23 +90,6 @@ function partiallyEquals(
   }
 
   return true;
-
-  // return objKeys.filter(k => k!== "mockit__isPartial").every((key) => {
-  //   if (typeof partial[key] === "object" && partial[key].mockit__isZod) {
-  //     console.log("here zod", key, obj?.[key])
-  //     console.log("here zod", key, partial[key])
-  //     const { schema }: { schema: z.ZodType } = partial[key];
-  //     return schema.safeParse(obj?.[key]).success;
-  //   }
-
-  //   if (typeof partial[key] === "object" && partial[key].mockit__isPartial) {
-  //     console.log("here partial", key, obj?.[key])
-  //     console.log("here partial", key, partial[key])
-  //     return partiallyEquals(obj?.[key], partial[key]);
-  //   }
-
-  //   return hasher.hash(obj?.[key]) === hasher.hash(partial?.[key]);
-  // });
 }
 
 function recursivelyCheckForMockitFlags(obj: any) {
