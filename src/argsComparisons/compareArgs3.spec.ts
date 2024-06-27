@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { hasher } from "../hasher";
 
-import { Parser, partial, schema } from "../behaviours/constructs";
+import { Parser, containing, partial, schema } from "../behaviours/constructs";
 
 
 it("should compare numbers", () => {
@@ -244,7 +244,7 @@ it("should accept schema in partial arrays", () => {
 it("should accept partial objects constructs", () => {
     expect(compare({ key: 1 }, partial({ key: 1, key2: 2 }))).toBe(true);
     expect(compare({ key: 1 }, partial({ key: 2, key2: 2 }))).toBe(false);
-}); 
+});
 
 it("should accept partial maps constructs", () => {
     expect(compare(new Map([["key", 1]]), partial(new Map([["key", 1], ["key2", 2]])))).toBe(true);
@@ -255,6 +255,76 @@ it("should accept partial sets constructs", () => {
     expect(compare(new Set([1]), partial(new Set([1, 2, 3])))).toBe(true);
     expect(compare(new Set([4]), partial(new Set([1, 2, 3])))).toBe(false);
 });
+
+it("should accept Containing constructs", () => {
+    expect(compare(
+        { key: 1, key2: 2 },
+        containing({ key: 1 }),
+    )).toEqual(true);
+
+    expect(compare(
+        { key: 1, key2: 2 },
+        containing({ key: 2 }),
+    )).toEqual(false);
+});
+
+it("should accept containing in objects", () => {
+    expect(
+        compare(
+            [1, 2, 3],
+            containing([1, 2])
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            [1, 2, 3],
+            containing([1, 4])
+        )
+    ).toBe(false);
+});
+
+it("should accept containing in maps", () => {
+    const map = new Map();
+    map.set("key", 1);
+    map.set("key2", 2);
+
+    expect(
+        compare(
+            map,
+            containing(new Map([["key", 1]]))
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            map,
+            containing(new Map([["key", 2]]))
+        )
+    ).toBe(false);
+});
+
+it("should accept containing in sets", () => {
+    const set = new Set();
+    set.add(1);
+    set.add(2);
+
+    expect(
+        compare(
+            set,
+            containing(new Set([1]))
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            set,
+            containing(new Set([3]))
+        )
+    ).toBe(false);
+});
+
+
 
 // TODO: schemas in maps & sets & arrays
 
@@ -288,6 +358,31 @@ function compare(actual: any, expected: any) {
 
             return Object.keys(actual).every(key => {
                 console.log(actual[key], expected.original[key])
+                return compare(actual[key], expected.original[key]);
+            });
+        }
+
+        const isContaining = Object.keys(expected).some(key => key.endsWith("mockit__isContaining"));
+        if (isContaining) {
+            if (Array.isArray(expected.original)) {
+                return expected.original.every((item, index) => {
+                    return compare(actual[index], item);
+                });
+            }
+
+            if (expected.original instanceof Map) {
+                return Array.from(((expected?.original as Map<any, any>) ?? []).entries()).every(([key, value]) => {
+                    return compare(actual.get(key), value);
+                });
+            }
+
+            if (expected.original instanceof Set) {
+                return Array.from(((expected?.original as Set<any>) ?? []).values()).every(value => {
+                    return Array.from(actual.values()).some(actualValue => compare(actualValue, value));
+                });
+            }
+
+            return Object.keys(expected.original).every(key => {
                 return compare(actual[key], expected.original[key]);
             });
         }

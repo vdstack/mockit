@@ -62,6 +62,23 @@ export const unsafe = <T, U>(mock: U | NoInfer<T>): T => {
   return mock as T;
 };
 
+
+export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
+  return new Proxy(
+    {
+      ...mock,
+      mockit__isContaining: true,
+      original: mock,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+};
+
+
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 /**
  * Adapted from type-fest's PartialDeep
