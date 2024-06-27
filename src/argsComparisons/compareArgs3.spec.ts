@@ -246,6 +246,16 @@ it("should accept partial objects constructs", () => {
     expect(compare({ key: 1 }, partial({ key: 2, key2: 2 }))).toBe(false);
 }); 
 
+it("should accept partial maps constructs", () => {
+    expect(compare(new Map([["key", 1]]), partial(new Map([["key", 1], ["key2", 2]])))).toBe(true);
+    expect(compare(new Map([["key", 1]]), partial(new Map([["key", 2], ["key2", 2]])))).toBe(false);
+});
+
+it("should accept partial sets constructs", () => {
+    expect(compare(new Set([1]), partial(new Set([1, 2, 3])))).toBe(true);
+    expect(compare(new Set([4]), partial(new Set([1, 2, 3])))).toBe(false);
+});
+
 // TODO: schemas in maps & sets & arrays
 
 function compare(actual: any, expected: any) {
@@ -261,6 +271,18 @@ function compare(actual: any, expected: any) {
             if (Array.isArray(expected.original)) {
                 return actual?.every((item, index) => {
                     return compare(item, expected.original?.[index]);
+                });
+            }
+
+            if (expected.original instanceof Map) {
+                return Array.from((actual as Map<any, any> ?? [])?.entries()).every(([key, value]) => {
+                    return compare(value, expected.original.get(key));
+                });
+            }
+
+            if (expected.original instanceof Set) {
+                return Array.from((actual as Set<any> ?? [])?.values()).every(value => {
+                    return Array.from(expected.original?.values()).some(expectedValue => compare(value, expectedValue));
                 });
             }
 
