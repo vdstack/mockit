@@ -78,6 +78,21 @@ export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
   ) as any;
 };
 
+export const deepContaining = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return new Proxy(
+    {
+      ...mock,
+      mockit__isDeepContaining: true,
+      original: mock,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+}
+
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 /**

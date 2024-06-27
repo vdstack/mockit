@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { hasher } from "../hasher";
 
-import { Parser, containing, partial, schema } from "../behaviours/constructs";
+import { Parser, containing, deepContaining, deepPartial, partial, schema } from "../behaviours/constructs";
 
 
 it("should compare numbers", () => {
@@ -324,6 +324,32 @@ it("should accept containing in sets", () => {
     ).toBe(false);
 });
 
+it("should accept deepPartial in objects", () => {
+    expect(
+        compare(
+            { z: { z: { z: 2 } } },
+            deepPartial({ key: 1, z: { z: { z: 2 } }})
+        )
+    ).toBe(true);
+});
+
+it("should accept deepPartial in arrays", () => {
+    expect(
+        compare(
+            [{ z: { z: { z: 2 } } }],
+            deepPartial([1, 2, { key: 1, z: { z: { z: 2 } } }])
+        )
+    ).toBe(true);
+});
+
+// it("should accept deepContaining constructs", () => {
+//     expect(
+//         compare(
+//             { x: 1, y: 2, z: { z: { z: 2 } } },
+//             deepContaining({ z: { z: { z: 2 } } })
+//         )
+//     ).toBe(true);
+// });
 
 
 // TODO: schemas in maps & sets & arrays
@@ -384,6 +410,31 @@ function compare(actual: any, expected: any) {
 
             return Object.keys(expected.original).every(key => {
                 return compare(actual[key], expected.original[key]);
+            });
+        }
+
+        const isDeepPartial = Object.keys(expected).some(key => key.endsWith("mockit__isDeepPartial"));
+        if (isDeepPartial) {
+            if (Array.isArray(expected.original)) {
+                return expected.original.every((item, index) => {
+                    return compare(actual[index], deepPartial(item));
+                });
+            }
+
+            if (expected.original instanceof Map) {
+                return Array.from(((expected.original as Map<any, any>) ?? []).entries()).every(([key, value]) => {
+                    return compare(actual.get(key), deepPartial(value));
+                });
+            }
+
+            if (expected.original instanceof Set) {
+                return Array.from(expected.original.values()).every(value => {
+                    return Array.from(actual.values()).some(actualValue => compare(actualValue, deepPartial(value)));
+                });
+            }
+
+            return Object.keys(expected.original).every(key => {
+                return compare(actual[key], deepPartial(expected.original[key]));
             });
         }
 
