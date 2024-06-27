@@ -193,6 +193,44 @@ it("should compare schemas in sets", () => {
     expect(compare(set1, set2)).toBe(false);
 });
 
+it("should compare a mix of all the above", () => {
+    const actual = {
+        key: [
+            1,
+            2,
+            {
+                key: new Map([
+                    ["key", new Set([1, 2, 3])]
+                ])
+            }
+        ]
+    };
+
+    expect(compare(actual, {
+        key: [
+            1,
+            schema(z.number().positive()),
+            {
+                key: new Map([
+                    ["key", schema(z.set(z.number().positive()))]
+                ])
+            }
+        ]
+    })).toBe(true);
+
+    expect(compare(actual, {
+        key: [
+            1,
+            schema(z.number().positive()),
+            {
+                key: new Map([
+                    ["key", schema(z.set(z.number().negative()))] // changed to negative
+                ])
+            }
+        ]
+    })).toBe(false);
+});
+
 // TODO: schemas in maps & sets & arrays
 
 function compare(actual: any, expected: any) {
