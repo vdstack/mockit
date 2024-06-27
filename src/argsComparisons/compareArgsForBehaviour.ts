@@ -26,7 +26,7 @@ export function compareArgsForBehaviour(
       return partiallyEquals(arg, expected[index], { isDeepPartial: true });
     }
 
-    if (typeof expected[index] === "object" && expected[index].mockit__isZod) {
+    if (typeof expected[index] === "object" && expected[index].mockit__isSchema) {
       const { schema }: { schema: z.ZodType } = expected[index];
       return schema.safeParse(arg).success;
     }
@@ -52,9 +52,9 @@ function partiallyEquals(
   if (typeof obj !== "object") {
     return false;
   }
-  console.log("obj", obj);
-  console.log("partial", partial);
-  console.log("isDeepPartial", isDeepPartial);
+  // console.log("obj", obj);
+  // console.log("partial", partial);
+  // console.log("isDeepPartial", isDeepPartial);
 
   const keysToCheck = Object.keys(partial).filter(
     (key) => !key.startsWith("mockit__")
@@ -67,12 +67,12 @@ function partiallyEquals(
     let equals = false;
     const key = keysToCheck[i];
 
-    console.log("key", key);
-    console.log("obj[key]", obj[key]);
-    console.log("partial[key]", partial[key]);
+    // console.log("key", key);
+    // console.log("obj[key]", obj[key]);
+    // console.log("partial[key]", partial[key]);
 
     const isSchema =
-      typeof partial[key] === "object" && !!partial[key]?.mockit__isZod;
+      typeof partial[key] === "object" && !!partial[key]?.mockit__isSchema;
     const isPartial =
       typeof partial[key] === "object" && !!partial[key]?.mockit__isPartial;
     const isDeepPartialStruct =
@@ -84,37 +84,37 @@ function partiallyEquals(
     //   "isSchema",
     //   isSchema,
     //   typeof partial[key] === "object",
-    //   partial[key]?.mockit__isZod
+    //   partial[key]?.mockit__isSchema
     // );
     // console.log("key", key, "isPartial", isPartial);
     // console.log("key", key, "isDeepPartialStruct", isDeepPartialStruct);
 
     if (isSchema) {
-      console.log("yo schema");
+      // console.log("yo schema");
       // It's important to know if a schema is injected deep in the object
       const { schema }: { schema: z.ZodType } = partial[key];
       equals = schema.safeParse(obj[key]).success;
     } else if (isPartial) {
-      console.log("yo partial");
+      // console.log("yo partial");
       // If's important if a partial is injected deep in the object
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial });
     } else if (isDeepPartialStruct) {
-      console.log("yo deep partial");
+      // console.log("yo deep partial");
       // If's important if a deep partial is injected deep in the object
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial: true });
     } else {
-      console.log("key", key, "HELLAW");
-      console.log(compareArgsForBehaviour([obj[key]], [partial[key]]));
+      // console.log("key", key, "HELLAW");
+      // console.log(compareArgsForBehaviour([obj[key]], [partial[key]]));
 
       /**
        * I recognize that this is not the simplest code to read, but it's the only way I could think of to make it work.
        * I will study it more and try to make it simpler.
        */
-      console.log(
-        "key",
-        key,
-        hasher.hash(obj[key]) === hasher.hash(partial[key])
-      );
+      // console.log(
+      //   "key",
+      //   key,
+      //   hasher.hash(obj[key]) === hasher.hash(partial[key])
+      // );
       equals =
         isDeepPartial && typeof obj[key] === "object"
           ? partiallyEquals(obj[key], partial[key], { isDeepPartial })
@@ -123,7 +123,7 @@ function partiallyEquals(
           : hasher.hash(obj[key]) === hasher.hash(partial[key]);
     }
 
-    console.log("key", key, "equals", equals);
+    // console.log("key", key, "equals", equals);
 
     if (!equals) {
       return false;

@@ -38,11 +38,15 @@ export const deepPartial = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   ) as any;
 };
 
-export const schema = <T, U extends z.ZodSchema>(mock: U | NoInfer<T>): T => {
+export interface Parser {
+  safeParse(value: any): { success: boolean };
+}
+
+export const schema = <T, U extends Parser>(mock: U | NoInfer<T>): T => {
   return new Proxy(
     {
       schema: mock,
-      mockit__isZod: true,
+      mockit__isSchema: true,
     },
     {
       get(target, prop) {

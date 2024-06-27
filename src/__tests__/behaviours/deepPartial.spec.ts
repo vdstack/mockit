@@ -53,7 +53,7 @@ describe("behaviour setup: partial", () => {
 // TODO: we need to split a bit more the new helpers
 // for now we have partial - deepPartial
 // It should be:
-// - partial: will work if you provide some of the properties.
-// - deepPartial: will work if you provide some of the properties, and will work for nested objects as well.
+// - objectContaining: will work if you provide some of the properties.
+// - objectContainingDeep: will work if you provide some of the properties, and will work for nested objects as well.
 // - matching: will work if you provide some properties that match. // Very lax, for example empty objects will match
 // - deepMatching: will work if you provide some properties that match, and will work for nested objects as well.

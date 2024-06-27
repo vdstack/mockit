@@ -6,7 +6,7 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
     return false;
   }
 
-  console.log(actual, expected);
+  // console.log(actual, expected);
 
   return actual.every((arg, index) => {
     if (
@@ -23,7 +23,7 @@ export function compareArgs(actual: Array<any>, expected: Array<any>) {
       return partiallyEquals(arg, expected[index], { isDeepPartial: true });
     }
 
-    if (typeof expected[index] === "object" && expected[index].mockit__isZod) {
+    if (typeof expected[index] === "object" && expected[index].mockit__isSchema) {
       const { schema }: { schema: z.ZodType } = expected[index];
       return schema.safeParse(arg).success;
     }
@@ -49,9 +49,9 @@ function partiallyEquals(
   if (typeof obj !== "object") {
     return false;
   }
-  console.log("obj", obj);
-  console.log("partial", partial);
-  console.log("isDeepPartial", isDeepPartial);
+  // console.log("obj", obj);
+  // console.log("partial", partial);
+  // console.log("isDeepPartial", isDeepPartial);
 
   const keysToCheck = Object.keys(partial).filter(
     (key) => !key.startsWith("mockit__")
@@ -61,27 +61,27 @@ function partiallyEquals(
     let equals = false;
     const key = keysToCheck[i];
 
-    console.log("key", key);
-    console.log("obj[key]", obj[key]);
-    console.log("partial[key]", partial[key]);
+    // console.log("key", key);
+    // console.log("obj[key]", obj[key]);
+    // console.log("partial[key]", partial[key]);
 
     const isSchema =
-      typeof partial[key] === "object" && !!partial[key].mockit__isZod;
+      typeof partial[key] === "object" && !!partial[key].mockit__isSchema;
     const isPartial =
       typeof partial[key] === "object" && !!partial[key].mockit__isPartial;
     const isDeepPartialStruct =
       typeof partial[key] === "object" && !!partial[key].mockit__isDeepPartial;
 
-    console.log(
-      "key",
-      key,
-      "isSchema",
-      isSchema,
-      typeof partial[key] === "object",
-      partial[key].mockit__isZod
-    );
-    console.log("key", key, "isPartial", isPartial);
-    console.log("key", key, "isDeepPartialStruct", isDeepPartialStruct);
+    // console.log(
+    //   "key",
+    //   key,
+    //   "isSchema",
+    //   isSchema,
+    //   typeof partial[key] === "object",
+    //   partial[key].mockit__isSchema
+    // );
+    // console.log("key", key, "isPartial", isPartial);
+    // console.log("key", key, "isDeepPartialStruct", isDeepPartialStruct);
 
     if (isSchema) {
       // It's important to know if a schema is injected deep in the object
@@ -94,8 +94,8 @@ function partiallyEquals(
       // If's important if a deep partial is injected deep in the object
       equals = partiallyEquals(obj[key], partial[key], { isDeepPartial: true });
     } else {
-      console.log("key", key, "HELLAW");
-      console.log(compareArgs([obj[key]], [partial[key]]));
+      // console.log("key", key, "HELLAW");
+      // console.log(compareArgs([obj[key]], [partial[key]]));
 
       /**
        * I recognize that this is not the simplest code to read, but it's the only way I could think of to make it work.
@@ -109,7 +109,7 @@ function partiallyEquals(
           : hasher.hash(obj[key]) === hasher.hash(partial[key]);
     }
 
-    console.log("equals", equals);
+    // console.log("equals", equals);
 
     if (!equals) {
       return false;
@@ -137,3 +137,4 @@ function recursivelyCheckForMockitFlags(obj: any) {
     return false;
   });
 }
+
