@@ -241,6 +241,10 @@ it("should accept schema in partial arrays", () => {
     expect(compare([1], partial([schema(z.string())]))).toBe(false);
 });
 
+it("should accept partial objects constructs", () => {
+    expect(compare({ key: 1 }, partial({ key: 1, key2: 2 }))).toBe(true);
+    expect(compare({ key: 1 }, partial({ key: 2, key2: 2 }))).toBe(false);
+}); 
 
 // TODO: schemas in maps & sets & arrays
 
@@ -259,6 +263,11 @@ function compare(actual: any, expected: any) {
                     return compare(item, expected.original?.[index]);
                 });
             }
+
+            return Object.keys(actual).every(key => {
+                console.log(actual[key], expected.original[key])
+                return compare(actual[key], expected.original[key]);
+            });
         }
 
         const containsSchema = objectContainsSchema(expected);
