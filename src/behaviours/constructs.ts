@@ -15,6 +15,7 @@ export const partial = <T>(mock: Partial<NoInfer<T>>): T => {
     {
       ...mock,
       mockit__isPartial: true,
+      original: mock,
     },
     {
       get(target, prop) {
@@ -29,6 +30,7 @@ export const deepPartial = <T>(mock: PartialDeep<NoInfer<T>>): T => {
     {
       ...mock,
       mockit__isDeepPartial: true,
+      original: mock,
     },
     {
       get(target, prop) {

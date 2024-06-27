@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { hasher } from "../hasher";
 
-import { Parser, schema } from "../behaviours/constructs";
+import { Parser, partial, schema } from "../behaviours/constructs";
 
 
 it("should compare numbers", () => {
@@ -231,6 +231,17 @@ it("should compare a mix of all the above", () => {
     })).toBe(false);
 });
 
+it("should accept partial arrays constructs", () => {
+    expect(compare([1], partial([1, 2, 3]))).toBe(true);
+    expect(compare([4], partial([1, 2, 3]))).toBe(false);
+});
+
+it("should accept schema in partial arrays", () => {
+    expect(compare([1], partial([schema(z.number())]))).toBe(true);
+    expect(compare([1], partial([schema(z.string())]))).toBe(false);
+});
+
+
 // TODO: schemas in maps & sets & arrays
 
 function compare(actual: any, expected: any) {
@@ -239,6 +250,15 @@ function compare(actual: any, expected: any) {
         const isSchema = Object.keys(expected).some(key => key.endsWith("mockit__isSchema"));
         if (isSchema) {
             return (expected.schema as Parser).safeParse(actual).success;
+        }
+
+        const isPartial = Object.keys(expected).some(key => key.endsWith("mockit__isPartial"));
+        if (isPartial) {
+            if (Array.isArray(expected.original)) {
+                return actual?.every((item, index) => {
+                    return compare(item, expected.original?.[index]);
+                });
+            }
         }
 
         const containsSchema = objectContainsSchema(expected);
@@ -307,3 +327,33 @@ function objectContainsSchema(obj: any) {
     });
   }
   
+function objectContainsPartial(obj: any) {
+    if (typeof obj !== "object") {
+        return false;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.some((item) => objectContainsPartial(item));
+    }
+
+    if (obj instanceof Map) {
+        return Array.from(obj.values()).some((value) => objectContainsPartial(value));
+    }
+
+    if (obj instanceof Set) {
+        return Array.from(obj.values()).some((value) => objectContainsPartial(value));
+    }
+
+    const keys = Object.keys(obj);
+    if (keys.some((key) => key.endsWith("mockit__isPartial"))) {
+        return true;
+    }
+
+    return keys.some((key) => {
+        if (typeof obj[key] === "object") {
+            return objectContainsPartial(obj[key]);
+        }
+
+        return false;
+    });
+}
