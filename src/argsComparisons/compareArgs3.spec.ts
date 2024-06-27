@@ -324,6 +324,32 @@ it("should accept containing in sets", () => {
     ).toBe(false);
 });
 
+
+// difference between containing and partial in arrays
+it("should work differently for containing and partial in arrays", () => {
+    expect(
+        compare(
+            [1, 2, 3],
+            containing([1, 2])
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            [1, 2, 3],
+            partial([1, 2])
+        )
+    ).toBe(false);
+
+    expect(
+        compare(
+            [1, 2, 3],
+            partial([1, 2, 3, 4])
+        )
+    ).toBe(true);
+});
+
+
 it("should accept deepPartial in objects", () => {
     expect(
         compare(
@@ -340,6 +366,55 @@ it("should accept deepPartial in arrays", () => {
             deepPartial([1, 2, { key: 1, z: { z: { z: 2 } } }])
         )
     ).toBe(true);
+
+    expect(
+        compare(
+            [{ z: { z: { z: 3 } } }],
+            deepPartial([1, 2, { key: 1, z: { z: { z: 2 } } }])
+        )
+    ).toBe(false);
+});
+
+it("should accept deepPartial in maps", () => {
+    const map = new Map();
+    map.set("key", { z: { z: { z: 2 } }});
+
+    expect(
+        compare(
+            map,
+            deepPartial(new Map([["key", { key: 1, z: { z: { z: 2 } } }]]))
+        )
+    ).toBe(true);
+
+    map.set("key2", { z: { z: { z: 3 } }});
+
+    expect(
+        compare(
+            map,
+            deepPartial(new Map([["key", { key: 1, z: { z: { z: 2 } } }]]))
+        )
+    ).toBe(false);
+});
+
+it("should accept deepPartial in sets", () => {
+    const set = new Set();
+    set.add({ z: { z: { z: 2 } }});
+
+    expect(
+        compare(
+            set,
+            deepPartial(new Set([{ key: 1, z: { z: { z: 2 } }}]))
+        )
+    ).toBe(true);
+
+    set.add({ z: { z: { z: 3 } } });
+
+    expect(
+        compare(
+            set,
+            deepPartial(new Set([{ key: 1, z: { z: { z: 2 } }}]))
+        )
+    ).toBe(false);
 });
 
 // it("should accept deepContaining constructs", () => {
@@ -416,19 +491,19 @@ function compare(actual: any, expected: any) {
         const isDeepPartial = Object.keys(expected).some(key => key.endsWith("mockit__isDeepPartial"));
         if (isDeepPartial) {
             if (Array.isArray(expected.original)) {
-                return expected.original.every((item, index) => {
+                return actual.every((item, index) => {
                     return compare(actual[index], deepPartial(item));
                 });
             }
 
             if (expected.original instanceof Map) {
-                return Array.from(((expected.original as Map<any, any>) ?? []).entries()).every(([key, value]) => {
+                return Array.from(((actual as Map<any, any>) ?? [])?.entries()).every(([key, value]) => {
                     return compare(actual.get(key), deepPartial(value));
                 });
             }
 
             if (expected.original instanceof Set) {
-                return Array.from(expected.original.values()).every(value => {
+                return Array.from((actual as Set<any> ?? new Set()).values()).every(value => {
                     return Array.from(actual.values()).some(actualValue => compare(actualValue, deepPartial(value)));
                 });
             }
