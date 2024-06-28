@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { deepPartial } from "../../behaviours/constructs";
+import { partialDeep } from "../../behaviours/constructs";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
@@ -35,9 +35,9 @@ describe("behaviour setup: partial", () => {
     Reset.completely(mock);
     when(mock).isCalled.thenReturn("default return value");
 
-    // Now, we're using deepPartial to setup the behaviour
+    // Now, we're using partialDeep to setup the behaviour
     when(mock)
-      .isCalledWith(deepPartial({ identity: { id: 1 } }))
+      .isCalledWith(partialDeep({ identity: { id: 1 } }))
       .thenReturn("hello world 1");
 
     expect(
@@ -51,7 +51,7 @@ describe("behaviour setup: partial", () => {
 });
 
 // TODO: we need to split a bit more the new helpers
-// for now we have partial - deepPartial
+// for now we have partial - partialDeep
 // It should be:
 // - objectContaining: will work if you provide some of the properties.
 // - objectContainingDeep: will work if you provide some of the properties, and will work for nested objects as well.

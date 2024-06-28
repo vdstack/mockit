@@ -1,7 +1,7 @@
 import z from "zod";
 import { verifyThat } from "../../assertions";
 import {
-  deepPartial,
+  partialDeep,
   partial,
   schema,
   unsafe,
@@ -84,51 +84,51 @@ test("should accept partials in objects", () => {
   });
 });
 
-test("should accept deepPartial constructs", () => {
+test("should accept partialDeep constructs", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    deepPartial({
+    partialDeep({
       location: { lat: 123 },
     })
   );
 });
 
-test("should accept deepPartial in partials", () => {
+test("should accept partialDeep in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     partial({
-      location: deepPartial({ lat: 123 }),
+      location: partialDeep({ lat: 123 }),
     })
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
     partial({
-      location: deepPartial({ lat: 1234 }),
+      location: partialDeep({ lat: 1234 }),
     })
   );
 });
 
-test("should acces deepPartial in unsafe", () => {
+test("should acces partialDeep in unsafe", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     unsafe({
-      location: deepPartial({ lat: 123 }),
+      location: partialDeep({ lat: 123 }),
     })
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
     unsafe({
-      location: deepPartial({ lat: 1234 }),
+      location: partialDeep({ lat: 1234 }),
     })
   );
 });
 
-test("should accept unsafe in deepPartial", () => {
+test("should accept unsafe in partialDeep", () => {
   verifyThat(funcMock).wasNeverCalledWith(
-    deepPartial({
+    partialDeep({
       location: unsafe({ lat: "Victor" }),
     })
   );
 
   verifyThat(funcMock).wasCalledOnceWith(
-    deepPartial({
+    partialDeep({
       location: unsafe({
         lat: (() => {
           return 123;

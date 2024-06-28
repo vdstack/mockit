@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { deepPartial, partial } from "../../behaviours/constructs";
+import { partialDeep, partial } from "../../behaviours/constructs";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {

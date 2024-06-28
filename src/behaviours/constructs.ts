@@ -25,11 +25,11 @@ export const partial = <T>(mock: Partial<NoInfer<T>>): T => {
   ) as any;
 };
 
-export const deepPartial = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+export const partialDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
     {
       ...mock,
-      mockit__isDeepPartial: true,
+      mockit__ispartialDeep: true,
       original: mock,
     },
     {
@@ -78,11 +78,11 @@ export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
   ) as any;
 };
 
-export const deepContaining = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
     {
       ...mock,
-      mockit__isDeepContaining: true,
+      mockit__iscontainingDeep: true,
       original: mock,
     },
     {
@@ -92,7 +92,6 @@ export const deepContaining = <T>(mock: PartialDeep<NoInfer<T>>): T => {
     }
   ) as any;
 }
-
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 /**
