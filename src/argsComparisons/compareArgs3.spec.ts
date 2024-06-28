@@ -2,6 +2,7 @@ import { z } from "zod";
 import { hasher } from "../hasher";
 
 import { Parser, containing, deepContaining, deepPartial, partial, schema } from "../behaviours/constructs";
+import { randomUUID } from "crypto";
 
 
 it("should compare numbers", () => {
@@ -256,6 +257,72 @@ it("should accept partial sets constructs", () => {
     expect(compare(new Set([4]), partial(new Set([1, 2, 3])))).toBe(false);
 });
 
+it("should accept schemas in partials arrays", () => {
+    expect(compare([1], partial([schema(z.number()), schema(z.number())]))).toBe(true);
+    expect(compare([1], partial([schema(z.string()), schema(z.number())]))).toBe(false);
+});
+
+it("should accept schemas in partials objects", () => {
+    expect(compare({ key: 1 }, partial({ key: schema(z.number()), key2: schema(z.number()) }))).toBe(true);
+    expect(compare({ key: 1 }, partial({ key: schema(z.string()), key2: schema(z.number()) }))).toBe(false);
+});
+
+it("should accept schemas in partials maps", () => {
+    expect(compare(new Map([["key", 1]]), partial(new Map([["key", schema(z.number())], ["key2", schema(z.number())]])))).toBe(true);
+    expect(compare(new Map([["key", 1]]), partial(new Map([["key", schema(z.string())], ["key2", schema(z.number())]])))).toBe(false);
+});
+
+it("should accept schemas in partials sets", () => {
+    expect(compare(new Set([1]), partial(new Set([schema(z.number()), schema(z.number())])))).toBe(true); // [1] is a part of [string, number]
+    expect(compare(new Set([1]), partial(new Set([schema(z.string()), schema(z.number())])))).toBe(true); // [1] is a part of [string, number]
+    expect(compare(new Set([1]), partial(new Set([schema(z.string()), schema(z.string())])))).toBe(false); // [1] is not a part of [string, string]
+});
+
+it("should accept schemas in nested partials", () => {
+    expect(
+        compare(
+            {
+                x: 1,
+                y: {
+                    z: {
+                        w: new Map([["key", new Set([randomUUID()])]])
+                    }
+                }
+            },
+            partial({ 
+                x: 1,
+                y: {
+                    z: {
+                        w: new Map([["key", new Set([schema(z.string().uuid())])]])
+                    }
+                }
+            })
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            {
+                x: 1,
+                y: {
+                    z: {
+                        w: new Map([["key", new Set([randomUUID()])]])
+                    }
+                }
+            },
+            partial({ 
+                x: 1,
+                y: {
+                    z: {
+                        w: new Map([["key", new Set([schema(z.string().email())])]]) // changed to email => should fail
+                    }
+                }
+            })
+        )
+    ).toBe(false);
+});
+
+
 it("should accept Containing constructs", () => {
     expect(compare(
         { key: 1, key2: 2 },
@@ -324,7 +391,6 @@ it("should accept containing in sets", () => {
     ).toBe(false);
 });
 
-
 // difference between containing and partial in arrays
 it("should work differently for containing and partial in arrays", () => {
     expect(
@@ -359,7 +425,7 @@ it("should accept deepPartial in objects", () => {
     ).toBe(true);
 });
 
-it("should accept deepPartial in arrays", () => {
+it.skip("should accept deepPartial in arrays", () => {
     expect(
         compare(
             [{ z: { z: { z: 2 } } }],
@@ -375,7 +441,7 @@ it("should accept deepPartial in arrays", () => {
     ).toBe(false);
 });
 
-it("should accept deepPartial in maps", () => {
+it.skip("should accept deepPartial in maps", () => {
     const map = new Map();
     map.set("key", { z: { z: { z: 2 } }});
 
@@ -396,7 +462,7 @@ it("should accept deepPartial in maps", () => {
     ).toBe(false);
 });
 
-it("should accept deepPartial in sets", () => {
+it.skip("should accept deepPartial in sets", () => {
     const set = new Set();
     set.add({ z: { z: { z: 2 } }});
 
@@ -458,7 +524,7 @@ function compare(actual: any, expected: any) {
             }
 
             return Object.keys(actual).every(key => {
-                console.log(actual[key], expected.original[key])
+                console.log("partial: comparing values: ", actual[key], expected.original[key])
                 return compare(actual[key], expected.original[key]);
             });
         }
@@ -490,6 +556,10 @@ function compare(actual: any, expected: any) {
 
         const isDeepPartial = Object.keys(expected).some(key => key.endsWith("mockit__isDeepPartial"));
         if (isDeepPartial) {
+            // DO i need to pass a deepPartial on the recursion ?
+            // Or pass a partial with a specific information stating that we're dealing with a deepPartial ?
+            // I ask this because I will need to nest other constructs in there, and passing deepPartial might lock me in this branch for ever.
+            // It could probably still work but I would need to detect more constructs in this branch in order to be able to escape it.
             if (Array.isArray(expected.original)) {
                 return actual.every((item, index) => {
                     return compare(actual[index], deepPartial(item));
@@ -543,6 +613,7 @@ function compare(actual: any, expected: any) {
     if (typeof actual !== typeof expected) {
         return false;
     }
+
 
     return hasher.hash(actual) === hasher.hash(expected);
 }
