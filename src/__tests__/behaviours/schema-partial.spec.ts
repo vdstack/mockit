@@ -9,7 +9,7 @@ describe("behaviour setup: schema in partial", () => {
     return "hello world";
   }
 
-  it.only("should match schema when placed deep in a partial", () => {
+  it("should match schema when placed deep in a partial", () => {
     const mock = Mock(toTest);
     when(mock).isCalled.thenReturn("default return value");
 

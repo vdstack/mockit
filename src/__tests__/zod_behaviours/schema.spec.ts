@@ -24,7 +24,7 @@
 import { Mock, when } from "../..";
 
 import { z } from "zod";
-import { schema } from "../../behaviours/constructs";
+import { schema, unsafe } from "../../behaviours/constructs";
 
 test("mock should accept zod schemas as arguments", () => {
   const mock = Mock((x: number, y: string) => {
@@ -33,7 +33,7 @@ test("mock should accept zod schemas as arguments", () => {
 
   when(mock).isCalledWith(1, schema(z.string())).thenReturn("world");
   when(mock).isCalledWith(schema(z.number()), "hello").thenReturn("zod");
-  when(mock).isCalled.unsafe.thenReturn("default");
+  when(mock).isCalled.thenReturn(unsafe("default"));
 
   expect(mock(1, "hello")).toBe("world");
   expect(mock(2, "hello")).toBe("zod");

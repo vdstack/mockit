@@ -38,8 +38,9 @@ export function compare(actual: any, expected: any) {
         const isContaining = Object.keys(expected).some(key => key.endsWith("mockit__isContaining"));
         if (isContaining) {
             if (Array.isArray(expected.original)) {
+                console.log("expected.original", expected.original);
                 return expected.original.every((item, index) => {
-                    return compare(actual[index], item);
+                    return actual?.some(actualItem => compare(actualItem, item));
                 });
             }
 
@@ -98,8 +99,12 @@ export function compare(actual: any, expected: any) {
             }
 
             if (Array.isArray(expected.original)) {
-                return expected.original.every((expectedValue, index) => {
-                    return compare(actual[index], containingDeep(expectedValue));
+                return expected.original.every((expectedValue) => {
+                    // return compare(actual[index], containingDeep(expectedValue));
+                    console.log("expectedValue", expectedValue);
+                    console.log("actual", actual);
+                    console.log(actual?.some(actualValue => compare(actualValue, containingDeep(expectedValue))));
+                    return actual?.some(actualValue => compare(actualValue, containingDeep(expectedValue)));
                 });
             }
 
@@ -113,6 +118,11 @@ export function compare(actual: any, expected: any) {
                 return Array.from(((expected?.original as Set<any>) ?? []).values()).every(expectedValue => {
                     return Array.from(actual.values()).some(actualValue => compare(actualValue, containingDeep(expectedValue)));
                 });
+            }
+
+            if (typeof expected.original !== "object") {
+                // For simple values that were stuck in the containingDeep regression
+                return compare(actual, expected.original);
             }
 
             return Object.keys(expected.original).every(key => {
@@ -135,7 +145,6 @@ export function compare(actual: any, expected: any) {
 
         // Not sure the containsSchema check is necessary anymore. Should try removing it
         const dataContainsMockitConstruct = containsMockitConstruct(expected, "mockit__");
-
 
         if (dataContainsMockitConstruct) {
             if (Array.isArray(expected)) {

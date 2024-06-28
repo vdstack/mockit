@@ -539,6 +539,7 @@ it("should accept containingDeep constructs in object", () => {
     ).toBe(false);
 });
 
+
 it("should accept containingDeep constructs in arrays", () => {
     expect(
         compare(
@@ -619,3 +620,44 @@ it("should accept schemas in containingDeep", () => {
     ).toBe(false);
 });
 
+it("should combine nested containing ", () => {
+    expect(
+        compare(
+            {
+                x: {
+                    y: {
+                        z: { z: { z: 2 } }
+                    },
+                    w: [1, 2, { name: "Victor", surname: "Dupuy" }]
+                }
+            },
+            {
+                x: containing({
+                    w: containing([schema(z.number().int().positive()), containing({ name: "Victor" })]),
+                })
+            },
+        )
+    ).toBe(true);
+});
+
+
+
+it("should combine work the same way with containingDeep ", () => {
+    expect(
+        compare(
+            {
+                x: {
+                    y: {
+                        z: { z: { z: 2 } }
+                    },
+                    w: [1, 2, { name: "Victor", surname: "Dupuy" }]
+                }
+            },
+            {
+                x: containingDeep({
+                    w: ([schema(z.number().int().positive()), { name: "Victor" }]),
+                })
+            },
+        )
+    ).toBe(true);
+});

@@ -1,13 +1,8 @@
-import z from "zod";
-
 /**
- * V5 objectives
- * - Allow partial zod usage. Like this:
- *    verifyThat(myMockedFunction).zod.wasCalledWithPartial({ name: z.string(), age: 20 })
- *
- * - Allow partial matching like jest.toMatchObject or jest.objectContaining
- *   myMockedFunction({ name: "John", age: 20 })
- *   verifyThat(myMockedFunction).wasCalledWith({ name: "John" }) // should pass
+ * @param mock This is heavily inspired by the library @total-typescript/shoehorn
+ * I just wanted a different API and a few more features so I decided to diverge and create my own
+ * 
+ * Kudos to Matt Pococks for the inspiration
  */
 
 export const partial = <T>(mock: Partial<NoInfer<T>>): T => {
@@ -77,6 +72,7 @@ export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
     }
   ) as any;
 };
+
 
 export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
