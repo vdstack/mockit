@@ -259,7 +259,7 @@ it("should accept partial sets constructs", () => {
 
 it("should accept schemas in partials arrays", () => {
     expect(compare([1], partial([schema(z.number()), schema(z.number())]))).toBe(true);
-    expect(compare([1], partial([schema(z.string()), schema(z.number())]))).toBe(false);
+    expect(compare([1], partial([schema(z.string()), schema(z.string())]))).toBe(false);
 });
 
 it("should accept schemas in partials objects", () => {
@@ -402,7 +402,9 @@ it("should work differently for containing and partial in arrays", () => {
 
     expect(
         compare(
-            [1, 2, 3],
+            [1, 2, 3], // 3 is not in the array
+            // => [1, 2, 3] is not a part of [1, 2]
+            // => should fail
             partial([1, 2])
         )
     ).toBe(false);
@@ -410,7 +412,9 @@ it("should work differently for containing and partial in arrays", () => {
     expect(
         compare(
             [1, 2, 3],
-            partial([1, 2, 3, 4])
+            // 1, 2 and 3 are part of [1, 2, 4, 3]
+            // => should pass
+            partial([1, 2, 4, 3])
         )
     ).toBe(true);
 });
@@ -462,7 +466,7 @@ it("should accept deepPartial in objects", () => {
     ).toBe(false);
 });
 
-it.skip("should accept deepPartial in arrays", () => {
+it("should accept deepPartial in arrays", () => {
     expect(
         compare(
             [{ z: { z: { z: 2 } } }],
@@ -510,12 +514,10 @@ it.skip("should accept deepPartial in sets", () => {
         )
     ).toBe(true);
 
-    set.add({ z: { z: { z: 3 } } });
-
     expect(
         compare(
             set,
-            deepPartial(new Set([{ key: 1, z: { z: { z: 2 } }}]))
+            deepPartial(new Set([{ key: 1, z: { z: { z: 5 } }}]))
         )
     ).toBe(false);
 });
@@ -543,8 +545,12 @@ function compare(actual: any, expected: any) {
         const isPartial = Object.keys(expected).some(key => key.endsWith("mockit__isPartial"));
         if (isPartial) {
             if (Array.isArray(expected.original)) {
-                return actual?.every((item, index) => {
-                    return compare(item, expected.original?.[index]);
+                return actual?.every((item) => {
+                    console.log("partial: comparing values: ",
+                        "actual", item,
+                        "result: ",  compare(item, expected.original[0])
+                    )
+                    return expected.original?.some(expectedItem => compare(item, expectedItem));
                 });
             }
 
@@ -597,9 +603,17 @@ function compare(actual: any, expected: any) {
             // Or pass a partial with a specific information stating that we're dealing with a deepPartial ?
             // I ask this because I will need to nest other constructs in there, and passing deepPartial might lock me in this branch for ever.
             // It could probably still work but I would need to detect more constructs in this branch in order to be able to escape it.
+            
+            console.log("deepPartial: comparing values: ", actual, expected.original)
+
+            // Numbers, strings, etc.
+            if (typeof actual !== "object") {
+                return hasher.hash(actual) === hasher.hash(expected.original);
+            }
+
             if (Array.isArray(expected.original)) {
-                return actual.every((item, index) => {
-                    return compare(actual[index], deepPartial(item));
+                return actual.every((item) => {
+                    return expected.original?.some(expectedItem => compare(item, deepPartial(expectedItem)));
                 });
             }
 
@@ -614,9 +628,10 @@ function compare(actual: any, expected: any) {
                     return Array.from(actual.values()).some(actualValue => compare(actualValue, deepPartial(value)));
                 });
             }
-
-            return Object.keys(expected.original).every(key => {
-                return compare(actual[key], deepPartial(expected.original[key]));
+            
+            // C'est reparti pour un tour
+            return Object.keys(actual).every(key => {
+                return compare(actual[key], deepPartial(expected?.original?.[key]));
             });
         }
 
