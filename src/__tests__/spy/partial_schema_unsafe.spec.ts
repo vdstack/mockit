@@ -5,6 +5,8 @@ import {
   partial,
   schema,
   unsafe,
+  containing,
+  containingDeep,
 } from "../../behaviours/constructs";
 import { Mock } from "../../mocks";
 
@@ -29,8 +31,8 @@ funcMock({
 });
 
 test("wasCalledWith should accept partial construct", () => {
-  verifyThat(funcMock).wasCalledOnceWith(partial({ address: "123" }));
-  verifyThat(funcMock).wasNeverCalledWith(partial({ address: "1234" }));
+  verifyThat(funcMock).wasCalledOnceWith(containing({ address: "123" }));
+  verifyThat(funcMock).wasNeverCalledWith(containing({ address: "1234" }));
 });
 
 test("wasCalledWith should accept zod schema construct", () => {
@@ -51,8 +53,8 @@ test("should accept unsafe construct", () => {
 
 test("should accept partials in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    partial({
-      location: partial({ lat: 123 }),
+    containing({
+      location: containing({ lat: 123 }),
       age: schema(z.number()),
     })
   );
@@ -60,8 +62,8 @@ test("should accept partials in partials", () => {
 
 test("should accept schemas in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    partial({
-      location: partial({ lat: 123 }),
+    containing({
+      location: containing({ lat: 123 }),
       age: schema(z.number()),
     })
   );
@@ -69,7 +71,7 @@ test("should accept schemas in partials", () => {
 
 test("should accept unsafe in partials", () => {
   verifyThat(funcMock).wasNeverCalledWith(
-    partial({
+    containing({
       address: unsafe(2),
     })
   );
@@ -77,7 +79,7 @@ test("should accept unsafe in partials", () => {
 
 test("should accept partials in objects", () => {
   verifyThat(funcMock).wasCalledOnceWith({
-    location: partial({ lat: 123 }),
+    location: containing({ lat: 123 }),
     age: schema(z.number()),
     address: "123",
     name: "123",
@@ -86,7 +88,7 @@ test("should accept partials in objects", () => {
 
 test("should accept partialDeep constructs", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    partialDeep({
+    containingDeep({
       location: { lat: 123 },
     })
   );
@@ -94,14 +96,14 @@ test("should accept partialDeep constructs", () => {
 
 test("should accept partialDeep in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    partial({
-      location: partialDeep({ lat: 123 }),
+    containing({
+      location: containingDeep({ lat: 123 }),
     })
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
     partial({
-      location: partialDeep({ lat: 1234 }),
+      location: containingDeep({ lat: 1234 }),
     })
   );
 });
@@ -109,26 +111,32 @@ test("should accept partialDeep in partials", () => {
 test("should acces partialDeep in unsafe", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     unsafe({
-      location: partialDeep({ lat: 123 }),
+      location: containingDeep({ lat: 123 }),
+      address: "123",
+      age: 123,
+      name: "123",
     })
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
     unsafe({
-      location: partialDeep({ lat: 1234 }),
+      location: containingDeep({ lat: 1234 }),
+      address: "123",
+      age: 123,
+      name: "123",
     })
   );
 });
 
 test("should accept unsafe in partialDeep", () => {
   verifyThat(funcMock).wasNeverCalledWith(
-    partialDeep({
+    containingDeep({
       location: unsafe({ lat: "Victor" }),
     })
   );
 
   verifyThat(funcMock).wasCalledOnceWith(
-    partialDeep({
+    containingDeep({
       location: unsafe({
         lat: (() => {
           return 123;

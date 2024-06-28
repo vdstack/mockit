@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { partialDeep } from "../../behaviours/constructs";
+import { containingDeep } from "../../behaviours/constructs";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
@@ -26,6 +26,7 @@ describe("behaviour setup: partial", () => {
       .isCalledWith({ identity: { id: 1 } })
       .thenReturn("hello world Victor");
 
+
     // Here, we're not passing an object containing { identity: { id: 1 } }, so it should not match
     // Hence, the default return value should be returned
     expect(
@@ -37,7 +38,7 @@ describe("behaviour setup: partial", () => {
 
     // Now, we're using partialDeep to setup the behaviour
     when(mock)
-      .isCalledWith(partialDeep({ identity: { id: 1 } }))
+      .isCalledWith(containingDeep({ identity: { id: 1 } }))
       .thenReturn("hello world 1");
 
     expect(
@@ -49,11 +50,3 @@ describe("behaviour setup: partial", () => {
     expect(mock({ name: "Victor" })).toBe("default return value");
   });
 });
-
-// TODO: we need to split a bit more the new helpers
-// for now we have partial - partialDeep
-// It should be:
-// - objectContaining: will work if you provide some of the properties.
-// - objectContainingDeep: will work if you provide some of the properties, and will work for nested objects as well.
-// - matching: will work if you provide some properties that match. // Very lax, for example empty objects will match
-// - deepMatching: will work if you provide some properties that match, and will work for nested objects as well.

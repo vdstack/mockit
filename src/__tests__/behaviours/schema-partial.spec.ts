@@ -32,8 +32,6 @@ describe("behaviour setup: schema in partial", () => {
           id: 1,
           uuid: randomUUID(),
         },
-        name: "Victor",
-        age: 20,
       })
     ).toBe("ding ding ding");
 
@@ -43,8 +41,16 @@ describe("behaviour setup: schema in partial", () => {
           id: 1,
           uuid: "not a uuid",
         },
-        name: "Victor",
-        age: 20,
+      })
+    ).toBe("default return value");
+
+    expect(
+      mock({
+        identity: {
+          id: 1,
+          uuid: randomUUID(),
+        },
+        invalidKey: "invalid value", // this is not part of the partial object passed as a setup => should not match
       })
     ).toBe("default return value");
   });

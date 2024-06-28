@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { partialDeep, partial } from "../../behaviours/constructs";
+import { containing } from "../../behaviours/constructs";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
@@ -37,7 +37,7 @@ describe("behaviour setup: partial", () => {
 
     // Now, we're using partial to setup the behaviour
     when(mock)
-      .isCalledWith(partial({ identity: { id: 1, email: "1@1.1" } }))
+      .isCalledWith(containing({ identity: { id: 1, email: "1@1.1" } }))
       .thenReturn("hello world 1");
 
     // This should not match, because we did not pass the email

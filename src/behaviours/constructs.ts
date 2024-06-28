@@ -29,7 +29,7 @@ export const partialDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
     {
       ...mock,
-      mockit__ispartialDeep: true,
+      mockit__isPartialDeep: true,
       original: mock,
     },
     {
@@ -82,7 +82,7 @@ export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
     {
       ...mock,
-      mockit__iscontainingDeep: true,
+      mockit__isContainingDeep: true,
       original: mock,
     },
     {
