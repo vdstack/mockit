@@ -523,15 +523,101 @@ it("should accept deepPartial in sets", () => {
     ).toBe(false);
 });
 
-// it("should accept deepContaining constructs", () => {
-//     expect(
-//         compare(
-//             { x: 1, y: 2, z: { z: { z: 2 } } },
-//             deepContaining({ z: { z: { z: 2 } } })
-//         )
-//     ).toBe(true);
-// });
+it("should accept deepContaining constructs in object", () => {
+    expect(
+        compare(
+            { x: 1, y: 2, z: { z: { z: 2, y: 3 } } },
+            deepContaining({ z: { z: { z: 2 } } })
+        )
+    ).toBe(true);
 
+    expect(
+        compare(
+            { x: 1, y: 2, z: { z: { z: 2, y: 3 } } },
+            deepContaining({ z: { z: { z: 3 } }}) // z changed to 3, but provided a value of 2 => should fail
+        )
+    ).toBe(false);
+});
+
+it("should accept deepContaining constructs in arrays", () => {
+    expect(
+        compare(
+            [1, 2, { z: { z: { z: 2 } } }, 4, 5, 6],
+            deepContaining([1, 2, { z: { z: { z: 2 } }}])
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            [{ z: { z: { z: 2 } }}, 4, 5, 6], // 1 and 2 are not contained in the provided array => should fail
+            deepContaining([1, 2, { z: { z: { z: 2 } }}])
+        )
+    ).toBe(false);
+});
+
+it("should accept deepContaining constructs in maps", () => {
+    const map = new Map();
+    map.set("key", { z: { z: { z: 2 } }});
+    map.set("key2", { z: { z: { z: 5 }}});
+
+    expect(
+        compare(
+            map,
+            deepContaining(new Map([["key", { z: { z: { z: 2 } }}]])) // key2 is not contained in the deepContainingMap
+            // BUT, the provided value is contained in the map => should pass (containing just checks if the provided value is contained in the map)
+        )
+    ).toBe(true);
+    
+    expect(
+        compare(
+            map,
+            deepPartial(new Map([["key", { z: { z: { z: 2 } }}]]) // map contains 5 which is not a part of the map provided in the deepPartial => should fail
+        ))
+    ).toBe(false)
+
+    expect(
+        compare(
+            map,
+            deepContaining(new Map([["key", { z: { z: { z: 3 } }}]])) // key2 is not contained in the map passed to deepContainingMap => should fail
+        )
+    ).toBe(false);
+});
+
+it("should accept deepContaining constructs in sets", () => {
+    const set = new Set();
+    set.add({ z: { z: { z: 2 }}});
+    set.add({ z: { z: { z: 5 }}});
+
+    expect(
+        compare(
+            set,
+            deepContaining(new Set([{ z: { z: { z: 2 }}}]))
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            set,
+            deepContaining(new Set([{ z: { z: { z: 3 }}}]))
+        )
+    ).toBe(false);
+});
+
+it("should accept schemas in deepContaining", () => {
+    expect(
+        compare(
+            [1, 2, "Victor", { z: { z: { z: 2 }}}, 4, 5, 6],
+            deepContaining([1, 2, schema(z.string()), { z: { z: { z: 2 }}}, 4, 5, schema(z.number().refine(n => n === 6))])
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            [1, 2, "Victor", { z: { z: { z: 2 }}}, 4, 5, 6],
+            deepContaining([1, 2, schema(z.string()), { z: { z: { z: 2 }}}, 4, 5, schema(z.number().refine(n => n === 7))]) // 6 !== 7 => should fail
+        )
+    ).toBe(false);
+});
 
 // TODO: schemas in maps & sets & arrays
 
@@ -547,10 +633,6 @@ function compare(actual: any, expected: any) {
         if (isPartial) {
             if (Array.isArray(expected.original)) {
                 return actual?.every((item) => {
-                    console.log("partial: comparing values: ",
-                        "actual", item,
-                        "result: ",  compare(item, expected.original[0])
-                    )
                     return expected.original?.some(expectedItem => compare(item, expectedItem));
                 });
             }
@@ -600,13 +682,6 @@ function compare(actual: any, expected: any) {
 
         const isDeepPartial = Object.keys(expected).some(key => key.endsWith("mockit__isDeepPartial"));
         if (isDeepPartial) {
-            // DO i need to pass a deepPartial on the recursion ?
-            // Or pass a partial with a specific information stating that we're dealing with a deepPartial ?
-            // I ask this because I will need to nest other constructs in there, and passing deepPartial might lock me in this branch for ever.
-            // It could probably still work but I would need to detect more constructs in this branch in order to be able to escape it.
-            
-            console.log("deepPartial: comparing values: ", actual, expected.original)
-
             // Numbers, strings, etc.
             if (typeof actual !== "object") {
                 return hasher.hash(actual) === hasher.hash(expected.original);
@@ -633,6 +708,35 @@ function compare(actual: any, expected: any) {
             // C'est reparti pour un tour
             return Object.keys(actual).every(key => {
                 return compare(actual[key], deepPartial(expected?.original?.[key]));
+            });
+        }
+
+        const isDeepContaining = Object.keys(expected).some(key => key.endsWith("mockit__isDeepContaining"));
+        if (isDeepContaining) {
+            if (typeof actual !== "object") {
+                return hasher.hash(actual) === hasher.hash(expected.original);
+            }
+
+            if (Array.isArray(expected.original)) {
+                return expected.original.every((expectedValue, index) => {
+                    return compare(actual[index], deepContaining(expectedValue));
+                });
+            }
+
+            if (expected.original instanceof Map) {
+                return Array.from(((expected?.original as Map<any, any>) ?? []).entries()).every(([key, expectedVAlue]) => {
+                    return compare(actual.get(key), deepContaining(expectedVAlue));
+                });
+            }
+
+            if (expected.original instanceof Set) {
+                return Array.from(((expected?.original as Set<any>) ?? []).values()).every(expectedValue => {
+                    return Array.from(actual.values()).some(actualValue => compare(actualValue, deepContaining(expectedValue)));
+                });
+            }
+
+            return Object.keys(expected.original).every(key => {
+                return compare(actual[key], deepContaining(expected.original[key]));
             });
         }
 
