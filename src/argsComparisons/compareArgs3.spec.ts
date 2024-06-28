@@ -482,7 +482,7 @@ it("should accept deepPartial in arrays", () => {
     ).toBe(false);
 });
 
-it.skip("should accept deepPartial in maps", () => {
+it("should accept deepPartial in maps", () => {
     const map = new Map();
     map.set("key", { z: { z: { z: 2 } }});
 
@@ -493,17 +493,18 @@ it.skip("should accept deepPartial in maps", () => {
         )
     ).toBe(true);
 
-    map.set("key2", { z: { z: { z: 3 } }});
+    const map2 = new Map();
+    map2.set("key", { z: { z: { z: 3 } }}); // changed to 3 => should fail
 
     expect(
         compare(
-            map,
+            map2,
             deepPartial(new Map([["key", { key: 1, z: { z: { z: 2 } } }]]))
         )
     ).toBe(false);
 });
 
-it.skip("should accept deepPartial in sets", () => {
+it("should accept deepPartial in sets", () => {
     const set = new Set();
     set.add({ z: { z: { z: 2 } }});
 
@@ -618,14 +619,14 @@ function compare(actual: any, expected: any) {
             }
 
             if (expected.original instanceof Map) {
-                return Array.from(((actual as Map<any, any>) ?? [])?.entries()).every(([key, value]) => {
-                    return compare(actual.get(key), deepPartial(value));
+                return Array.from(((actual as Map<any, any>) ?? [])?.entries()).every(([key, actualValue]) => {
+                    return compare(actualValue, deepPartial(expected.original.get(key)));
                 });
             }
 
             if (expected.original instanceof Set) {
-                return Array.from((actual as Set<any> ?? new Set()).values()).every(value => {
-                    return Array.from(actual.values()).some(actualValue => compare(actualValue, deepPartial(value)));
+                return Array.from((actual as Set<any> ?? new Set()).values()).every(actualValue => {
+                    return Array.from(expected.original.values()).some(expectedValue => compare(actualValue, deepPartial(expectedValue)));
                 });
             }
             
