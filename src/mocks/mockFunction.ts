@@ -3,9 +3,7 @@ import { z } from "zod";
 import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
-import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZodSchemas";
-import { compareArgs } from "../argsComparisons/compareArgs";
-import { compareArgsForBehaviour } from "../argsComparisons/compareArgsForBehaviour";
+import { compare } from "../argsComparisons/compare";
 
 /**
  * This is the function mock, it is taking the place of the function that we want to mock.
@@ -80,7 +78,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
 
       const constructBasedCustomBehaviour = customBehaviours.find(
         (behaviour) => {
-          return compareArgsForBehaviour(callArgs, behaviour.args);
+          return compare(callArgs, behaviour.args);
         }
       );
 

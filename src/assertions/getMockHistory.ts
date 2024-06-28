@@ -1,7 +1,7 @@
 import { ZodSchema, z } from "zod";
 
 import { Call, UnsafeCall } from "../types";
-import { compareArgs } from "../argsComparisons/compareArgs";
+import { compare } from "../argsComparisons/compare";
 
 // This spies the mocked functions only !
 
@@ -32,7 +32,7 @@ export function getMockHistory<T extends (...args: any[]) => any>(
     getUnsafeCalls: () => calls as unknown as UnsafeCall,
     wasCalledOnce: () => calls.length === 1,
     wasCalledOnceWith: (...expectedArgs: Parameters<T>) => {
-      return calls.some((call) => compareArgs(call.args, expectedArgs));
+      return calls.some((call) => compare(call.args, expectedArgs));
     },
     wasCalledNTimes: (howMuch: number) => calls.length === howMuch,
     wasCalledNTimesWith: ({
@@ -43,7 +43,7 @@ export function getMockHistory<T extends (...args: any[]) => any>(
       args: Parameters<T>;
     }) => {
       return (
-        calls.filter((call) => compareArgs(call.args, expectedArgs)).length ===
+        calls.filter((call) => compare(call.args, expectedArgs)).length ===
         howMuch
       );
     },
@@ -51,11 +51,11 @@ export function getMockHistory<T extends (...args: any[]) => any>(
       return calls.length > 0;
     },
     wasCalledWith: (...expectedArgs: Parameters<T>) => {
-      return calls.some((call) => compareArgs(call.args, expectedArgs));
+      return calls.some((call) => compare(call.args, expectedArgs));
     },
     wasNeverCalled: () => calls.length === 0,
     wasNeverCalledWith: (...expectedArgs: Parameters<T>) => {
-      return !calls.some((call) => compareArgs(call.args, expectedArgs));
+      return !calls.some((call) => compare(call.args, expectedArgs));
     },
   };
 }
