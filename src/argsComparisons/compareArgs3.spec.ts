@@ -415,6 +415,36 @@ it("should work differently for containing and partial in arrays", () => {
     ).toBe(true);
 });
 
+it("should combine containing & partials", () => {
+    expect(
+        compare(
+            {
+                x: [1, 2, 3],
+                y: { key: 1 },
+            },
+            partial({
+                x: containing([1, 2]),
+                y: { key: 1 },
+                z: 3
+            })
+        )
+    ).toBe(true);
+
+    expect(
+        compare(
+            {
+                x: [1, 2, 3],
+                y: { key: 1 },
+            },
+            partial({
+                x: containing([1, 4]), // 4 is not in the array => should fail
+                y: { key: 1 },
+                z: 3
+            })
+        )
+    ).toBe(false);
+});
+
 
 it("should accept deepPartial in objects", () => {
     expect(
@@ -423,6 +453,13 @@ it("should accept deepPartial in objects", () => {
             deepPartial({ key: 1, z: { z: { z: 2 } }})
         )
     ).toBe(true);
+
+    expect(
+        compare(
+            { z: { z: { z: 3 } } },
+            deepPartial({ key: 1, z: { z: { z: 2 } }})
+        )
+    ).toBe(false);
 });
 
 it.skip("should accept deepPartial in arrays", () => {
