@@ -1,7 +1,5 @@
 import { getMockHistory } from "./getMockHistory";
 
-import type { AllowZodSchemas } from "../types";
-
 export function verifyThat<TFunc extends (...args: any[]) => any>(
   mockedFunction: TFunc
 ) {
@@ -60,64 +58,6 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       if (!mockHistory.wasNeverCalledWith(...args)) {
         throw new Error(`Function was called with parameters ${args}`);
       }
-    },
-    unsafe: {
-      wasCalledOnceWith(...args: any[]) {
-        if (!mockHistory.unsafe.wasCalledOnceWith(...args)) {
-          throw new Error(
-            `Function was not called exactly once with parameters ${args}`
-          );
-        }
-      },
-      wasNeverCalledWith(...args: any[]) {
-        if (!mockHistory.unsafe.wasNeverCalledWith(...args)) {
-          throw new Error(`Function was called with parameters ${args}`);
-        }
-      },
-      wasCalledWith(...args: any[]) {
-        if (!mockHistory.unsafe.wasCalledWith(...args)) {
-          throw new Error(`Function was not called with parameters ${args}`);
-        }
-      },
-      wasCalledNTimesWith({ args, howMuch }: { howMuch: number; args: any[] }) {
-        if (!mockHistory.unsafe.wasCalledNTimesWith({ args, howMuch })) {
-          throw new Error(
-            `Function was not called exactly ${howMuch} times with parameters ${args}`
-          );
-        }
-      },
-    },
-    zod: {
-      wasCalledOnceWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        if (!mockHistory.zod.wasCalledOnceWith(...args)) {
-          throw new Error(
-            `Function was not called exactly once with parameters ${args}`
-          );
-        }
-      },
-      wasNeverCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        if (!mockHistory.zod.wasNeverCalledWith(...args)) {
-          throw new Error(`Function was called with parameters ${args}`);
-        }
-      },
-      wasCalledWith(...args: AllowZodSchemas<Parameters<TFunc>>) {
-        if (!mockHistory.zod.wasCalledWith(...args)) {
-          throw new Error(`Function was not called with parameters ${args}`);
-        }
-      },
-      wasCalledNTimesWith({
-        args,
-        howMuch,
-      }: {
-        howMuch: number;
-        args: AllowZodSchemas<Parameters<TFunc>>;
-      }) {
-        if (!mockHistory.zod.wasCalledNTimesWith({ args, howMuch })) {
-          throw new Error(
-            `Function was not called exactly ${howMuch} times with parameters ${args}`
-          );
-        }
-      },
-    },
+    }
   };
 }

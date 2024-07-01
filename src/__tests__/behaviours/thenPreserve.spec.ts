@@ -1,4 +1,5 @@
 import { Mock, when } from "../..";
+import { unsafe } from "../../behaviours/matchers";
 
 describe("thenPreserve", () => {
   function hello(...args: any[]) {
@@ -15,9 +16,7 @@ describe("thenPreserve", () => {
   it("should combine default and custom behaviours", () => {
     const mock = Mock(hello);
     when(mock).isCalled.thenPreserve();
-    when(mock)
-      .isCalledWith(2)
-      .unsafe.thenReturn("Victor");
+    when(mock).isCalledWith(2).thenReturn(unsafe("Victor"));
 
     expect(mock()).toBe("hello world");
     expect(mock(2)).toBe("Victor");

@@ -8,6 +8,38 @@ export { when };
 import { Mock } from "./mocks/Mock";
 
 import { verifyThat, getMockHistory } from "./assertions";
+import {
+  arrayContaining,
+  containing,
+  containingDeep,
+  isOneOf,
+  mapContaining,
+  objectContaining,
+  schema,
+  setContaining,
+  stringContaining,
+  stringEndingWith,
+  stringStartingWith,
+  unsafe,
+  any,
+} from "./behaviours/matchers";
+
+export {
+  any,
+  arrayContaining,
+  containing,
+  containingDeep,
+  isOneOf,
+  mapContaining,
+  objectContaining,
+  schema,
+  setContaining,
+  stringContaining,
+  stringEndingWith,
+  stringStartingWith,
+  unsafe,
+};
+
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
@@ -19,4 +51,15 @@ export const Mockit = {
   when,
   verifyThat,
   getMockHistory,
+  schema,
+  unsafe,
+  containing,
+  containingDeep,
+  objectContaining,
+  arrayContaining,
+  mapContaining,
+  setContaining,
+  any,
+  stringContaining,
+  isOneOf,
 };
