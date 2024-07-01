@@ -94,6 +94,22 @@ export const setContaining = <T>(mock: Partial<NoInfer<T>>): T => {
   return containing(mock);
 }
 
+export const objectContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return containingDeep(mock);
+}
+
+export const arrayContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return containingDeep(mock);
+}
+
+export const mapContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return containingDeep(mock);
+}
+
+export const setContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+  return containingDeep(mock);
+}
+
 export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
     {
