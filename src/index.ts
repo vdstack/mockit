@@ -8,7 +8,18 @@ export { when };
 import { Mock } from "./mocks/Mock";
 
 import { verifyThat, getMockHistory } from "./assertions";
-import { containing, containingDeep, partial, schema, unsafe } from "./behaviours/constructs";
+import {
+  arrayContaining,
+  containing,
+  containingDeep,
+  isOneOf,
+  mapContaining,
+  objectContaining,
+  schema,
+  setContaining,
+  stringContaining,
+  unsafe,
+} from "./behaviours/constructs";
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
@@ -20,9 +31,14 @@ export const Mockit = {
   when,
   verifyThat,
   getMockHistory,
-  partial,
   schema,
   unsafe,
   containing,
   containingDeep,
+  objectContaining,
+  arrayContaining,
+  mapContaining,
+  setContaining,
+  stringContaining,
+  isOneOf,
 };

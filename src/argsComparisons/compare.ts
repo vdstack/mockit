@@ -1,5 +1,5 @@
 import { hasher } from "../hasher";
-import { Parser, containingDeep, partialDeep } from "../behaviours/constructs";
+import { Parser, containingDeep } from "../behaviours/constructs";
 
 // TODO: schemas in maps & sets & arrays
 export function compare(actual: any, expected: any) {
@@ -10,41 +10,6 @@ export function compare(actual: any, expected: any) {
     );
     if (isSchema) {
       return (expected.schema as Parser).safeParse(actual).success;
-    }
-
-    const isPartial = Object.keys(expected).some((key) =>
-      key.endsWith("mockit__isPartial")
-    );
-    if (isPartial) {
-      if (Array.isArray(expected.original)) {
-        return actual?.every((item) => {
-          return expected.original?.some((expectedItem) =>
-            compare(item, expectedItem)
-          );
-        });
-      }
-
-      if (expected.original instanceof Map) {
-        return Array.from(((actual as Map<any, any>) ?? [])?.entries()).every(
-          ([key, value]) => {
-            return compare(value, expected.original.get(key));
-          }
-        );
-      }
-
-      if (expected.original instanceof Set) {
-        return Array.from(((actual as Set<any>) ?? [])?.values()).every(
-          (value) => {
-            return Array.from(expected.original?.values()).some(
-              (expectedValue) => compare(value, expectedValue)
-            );
-          }
-        );
-      }
-
-      return Object.keys(actual).every((key) => {
-        return compare(actual[key], expected.original[key]);
-      });
     }
 
     const isOneOf = Object.keys(expected).some((key) =>
@@ -98,51 +63,6 @@ export function compare(actual: any, expected: any) {
       // objectContaining
       return Object.keys(expected.original).every((key) => {
         return compare(actual[key], expected.original[key]);
-      });
-    }
-
-    const isPartialDeep = Object.keys(expected).some((key) =>
-      key.endsWith("mockit__isPartialDeep")
-    );
-    if (isPartialDeep) {
-      // Numbers, strings, etc.
-      if (typeof actual !== "object") {
-        return hasher.hash(actual) === hasher.hash(expected.original);
-      }
-
-      if (Array.isArray(expected.original)) {
-        return actual.every((item) => {
-          return expected.original?.some((expectedItem) =>
-            compare(item, partialDeep(expectedItem))
-          );
-        });
-      }
-
-      if (expected.original instanceof Map) {
-        return Array.from(((actual as Map<any, any>) ?? [])?.entries()).every(
-          ([key, actualValue]) => {
-            return compare(
-              actualValue,
-              partialDeep(expected.original.get(key))
-            );
-          }
-        );
-      }
-
-      if (expected.original instanceof Set) {
-        return Array.from(((actual as Set<any>) ?? new Set()).values()).every(
-          (actualValue) => {
-            return Array.from(expected.original.values()).some(
-              (expectedValue) =>
-                compare(actualValue, partialDeep(expectedValue))
-            );
-          }
-        );
-      }
-
-      // C'est reparti pour un tour
-      return Object.keys(actual).every((key) => {
-        return compare(actual[key], partialDeep(expected?.original?.[key]));
       });
     }
 

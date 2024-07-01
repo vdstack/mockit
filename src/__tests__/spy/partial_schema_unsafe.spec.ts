@@ -1,8 +1,6 @@
 import z from "zod";
 import { verifyThat } from "../../assertions";
 import {
-  partialDeep,
-  partial,
   schema,
   unsafe,
   containing,
@@ -102,7 +100,7 @@ test("should accept partialDeep in partials", () => {
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
-    partial({
+    containing({
       location: containingDeep({ lat: 1234 }),
     })
   );

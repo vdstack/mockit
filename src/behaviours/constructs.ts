@@ -5,36 +5,6 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
-export const partial = <T>(mock: Partial<NoInfer<T>>): T => {
-  return new Proxy(
-    {
-      ...mock,
-      mockit__isPartial: true,
-      original: mock,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
-};
-
-export const partialDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
-  return new Proxy(
-    {
-      ...mock,
-      mockit__isPartialDeep: true,
-      original: mock,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
-};
-
 export const isOneOf = <T>(mock: NoInfer<T>[]): T => {
   return new Proxy(
     {
