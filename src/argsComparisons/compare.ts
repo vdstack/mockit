@@ -33,6 +33,13 @@ export function compare(actual: any, expected: any) {
       return actual?.endsWith?.(expected.original);
     }
 
+    const isRegexp = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__matchesRegex")
+    );
+    if (isRegexp) {
+      return expected.regexp?.test?.(actual);
+    }
+
     const isAnyOf = Object.keys(expected).some((key) =>
       key.endsWith("mockit__any")
     );

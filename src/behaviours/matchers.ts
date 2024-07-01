@@ -172,6 +172,10 @@ const anySet = <T>() => {
   return ProxyFactory<T>("any", { what: "set" });
 };
 
+const stringMatchingRegex = <T>(regexp: RegExp) => {
+  return ProxyFactory<T>("matchesRegex", { regexp });
+};
+
 function ProxyFactory<T>(suffix: string, content: Record<string, any>) {
   return new Proxy(
     {
@@ -199,6 +203,26 @@ export const any = {
   truthy: anyTruthy,
   map: anyMap,
   set: anySet,
+};
+
+export const matchers = {
+  isOneOf,
+  schema,
+  unsafe,
+  containing,
+  objectContaining,
+  arrayContaining,
+  mapContaining,
+  setContaining,
+  objectContainingDeep,
+  arrayContainingDeep,
+  mapContainingDeep,
+  setContainingDeep,
+  containingDeep,
+  stringStartingWith,
+  stringEndingWith,
+  stringMatchingRegex,
+  any,
 };
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
