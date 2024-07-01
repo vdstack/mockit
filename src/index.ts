@@ -18,8 +18,28 @@ import {
   schema,
   setContaining,
   stringContaining,
+  stringEndingWith,
+  stringStartingWith,
   unsafe,
+  any,
 } from "./behaviours/matchers";
+
+export {
+  any,
+  arrayContaining,
+  containing,
+  containingDeep,
+  isOneOf,
+  mapContaining,
+  objectContaining,
+  schema,
+  setContaining,
+  stringContaining,
+  stringEndingWith,
+  stringStartingWith,
+  unsafe,
+};
+
 export { getMockHistory, verifyThat };
 
 export const Mockit = {
@@ -39,6 +59,7 @@ export const Mockit = {
   arrayContaining,
   mapContaining,
   setContaining,
+  any,
   stringContaining,
   isOneOf,
 };
