@@ -5,18 +5,8 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
-export const isOneOf = <T>(mock: NoInfer<T>[]): T => {
-  return new Proxy(
-    {
-      mockit__isOneOf: true,
-      options: mock,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
+export const isOneOf = <T, U>(options: U | NoInfer<T>[]): T => {
+  return ProxyFactory<T>("isOneOf", { options: options });
 };
 
 export interface Parser {
@@ -24,151 +14,123 @@ export interface Parser {
 }
 
 export const schema = <T, U extends Parser>(mock: U | NoInfer<T>): T => {
-  return new Proxy(
-    {
-      schema: mock,
-      mockit__isSchema: true,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as T;
+  return ProxyFactory<T>("isSchema", { schema: mock });
 };
 
 export const unsafe = <T, U>(mock: U | NoInfer<T>): T => {
   return mock as T;
 };
 
-export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
-  return new Proxy(
-    {
-      ...mock,
-      mockit__isContaining: true,
-      original: mock,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
+export const containing = <T, U extends any>(original: U | NoInfer<T>): T => {
+  return ProxyFactory<T>("isContaining", { original });
 };
 
-export const objectContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+export const objectContaining = <T, U>(mock: U | Partial<NoInfer<T>>): T => {
   return containing(mock);
 };
 
-export const arrayContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+export const arrayContaining = <T, U extends Array<any>>(
+  mock: U | Partial<NoInfer<T>>
+): T => {
   return containing(mock);
 };
 
 // Strings not functional yet
-export const stringContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+export const stringContaining = <T>(mock: string): T => {
   return containing(mock);
 };
 
-export const mapContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+export const mapContaining = <T, U extends Map<string, any>>(
+  mock: U | Partial<NoInfer<T>>
+): T => {
   return containing(mock);
 };
 
-export const setContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+export const setContaining = <T, U extends Set<any>>(
+  mock: U | Partial<NoInfer<T>>
+): T => {
   return containing(mock);
 };
 
-export const objectContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
+export const objectContainingDeep = <T, U>(
+  mock: U | PartialDeep<NoInfer<T>>
+): T => {
   return containingDeep(mock);
 };
 
-export const arrayContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
-  return containingDeep(mock);
+export const arrayContainingDeep = <T, U extends Array<any>>(
+  values: U | NoInfer<T>
+): T => {
+  return containingDeep(values);
 };
 
-export const mapContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
-  return containingDeep(mock);
+export const mapContainingDeep = <T, U extends Map<string, any>>(
+  map: U | PartialDeep<NoInfer<T>>
+): T => {
+  return containingDeep(map);
 };
 
-export const setContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
-  return containingDeep(mock);
+export const setContainingDeep = <T, U extends Set<any>>(
+  set: U | NoInfer<T>
+): T => {
+  return containingDeep<T, U>(set);
 };
 
-export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
-  return new Proxy(
-    {
-      ...mock,
-      mockit__isContainingDeep: true,
-      original: mock,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
+export const containingDeep = <T, U>(mock: U | NoInfer<T>): T => {
+  return ProxyFactory<T>("isContainingDeep", { ...mock, original: mock });
 };
 
 export const stringStartingWith = <T, U extends string>(
   s: U | NoInfer<T>
 ): T => {
-  return new Proxy(
-    {
-      mockit__startsWith: true,
-      original: s,
-    },
-    {
-      get(target, prop) {
-        return target[prop];
-      },
-    }
-  ) as any;
+  return ProxyFactory<T>("startsWith", { original: s });
 };
 
-export const stringEndingWith = <T>(string: string) => {
-  return ProxyFactory<T>("endsWith", { original: string });
+export const stringEndingWith = <T, U extends string>(s: U | NoInfer<T>): T => {
+  return ProxyFactory<T>("endsWith", { original: s });
 };
 
-export const anyObject = <T>() => {
+export const anyObject = <T, U>() => {
   return ProxyFactory<T>("any", { what: "object" });
 };
 
-const anyArray = <T>() => {
+const anyArray = <T, U>() => {
   return ProxyFactory<T>("any", { what: "array" });
 };
 
-const anyFunction = <T>() => {
+const anyFunction = <T, U>() => {
   return ProxyFactory<T>("any", { what: "function" });
 };
 
-const anyString = <T>() => {
+const anyString = <T, U>() => {
   return ProxyFactory<T>("any", { what: "string" });
 };
 
-const anyNumber = <T>() => {
+const anyNumber = <T, U>() => {
   return ProxyFactory<T>("any", { what: "number" });
 };
 
-const anyBoolean = <T>() => {
+const anyBoolean = <T, U>() => {
   return ProxyFactory<T>("any", { what: "boolean" });
 };
 
-const anyNullish = <T>() => {
+const anyNullish = <T, U>() => {
   return ProxyFactory<T>("any", { what: "nullish" });
 };
 
-const anyFalsy = <T>() => {
+const anyFalsy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "falsy" });
 };
 
-const anyTruthy = <T>() => {
+const anyTruthy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "truthy" });
 };
 
-const anyMap = <T>() => {
+const anyMap = <T, U>() => {
   return ProxyFactory<T>("any", { what: "map" });
 };
 
-const anySet = <T>() => {
+const anySet = <T, U>() => {
   return ProxyFactory<T>("any", { what: "set" });
 };
 

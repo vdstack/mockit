@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Mock, verifyThat } from "../..";
-import { schema } from "../../behaviours/matchers";
+import { matchers, schema } from "../../behaviours/matchers";
 
 function hellaw(...args: (string | number)[]) {
   return args;
@@ -79,7 +79,7 @@ test("verifyThat should assert if a function was called with a combination of zo
     false
   );
   verifyThat(mock).wasCalledNTimesWith({
-    args: [1, "x", schema(z.boolean())],
+    args: [1, "x", matchers.schema(z.boolean())],
     howMuch: 1,
   });
 });
