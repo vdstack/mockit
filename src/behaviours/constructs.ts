@@ -108,6 +108,34 @@ export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   ) as any;
 };
 
+export const startsWith = (string: string) => {
+  return new Proxy(
+    {
+      mockit__startsWith: true,
+      original: string,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+};
+
+export const endsWith = (string: string) => {
+  return new Proxy(
+    {
+      mockit__endsWith: true,
+      original: string,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+};
+
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 /**
  * Adapted from type-fest's PartialDeep

@@ -19,6 +19,20 @@ export function compare(actual: any, expected: any) {
       return expected.options.some((option) => compare(actual, option));
     }
 
+    const isStartsWith = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__startsWith")
+    );
+    if (isStartsWith) {
+      return actual?.startsWith?.(expected.original);
+    }
+
+    const isEndsWith = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__endsWith")
+    );
+    if (isEndsWith) {
+      return actual?.endsWith?.(expected.original);
+    }
+
     const isContaining = Object.keys(expected).some((key) =>
       key.endsWith("mockit__isContaining")
     );
