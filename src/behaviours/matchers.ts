@@ -108,7 +108,9 @@ export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   ) as any;
 };
 
-export const startsWith = <T, U extends string>(s: U | NoInfer<T>): T => {
+export const stringStartingWith = <T, U extends string>(
+  s: U | NoInfer<T>
+): T => {
   return new Proxy(
     {
       mockit__startsWith: true,
@@ -122,7 +124,7 @@ export const startsWith = <T, U extends string>(s: U | NoInfer<T>): T => {
   ) as any;
 };
 
-export const endsWith = <T>(string: string) => {
+export const stringEndingWith = <T>(string: string) => {
   return ProxyFactory<T>("endsWith", { original: string });
 };
 
