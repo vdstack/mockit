@@ -24,7 +24,7 @@
 import { Mock, when } from "../..";
 
 import { z } from "zod";
-import { schema, unsafe } from "../../behaviours/constructs";
+import { schema, unsafe } from "../../behaviours/matchers";
 
 test("mock should accept zod schemas as arguments", () => {
   const mock = Mock((x: number, y: string) => {
@@ -51,15 +51,17 @@ test("complex zod schema", () => {
 
   when(mock)
     .isCalledWith(
-      schema(z.object({
-        x: z.number(),
-        y: z.string(),
-        z: z.object({
-          a: z.string(),
-        }),
-        w: z.array(z.number()),
-        r: z.enum(["a", "b", "c"]),
-      }))
+      schema(
+        z.object({
+          x: z.number(),
+          y: z.string(),
+          z: z.object({
+            a: z.string(),
+          }),
+          w: z.array(z.number()),
+          r: z.enum(["a", "b", "c"]),
+        })
+      )
     )
     .thenReturn({ x: 1, y: "hello" });
 

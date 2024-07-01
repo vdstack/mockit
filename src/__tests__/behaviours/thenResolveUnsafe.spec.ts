@@ -1,5 +1,5 @@
 import { Mock, when } from "../..";
-import { unsafe } from "../../behaviours/constructs";
+import { unsafe } from "../../behaviours/matchers";
 
 function hello(...args: any[]) {
   return "hello world" as const;

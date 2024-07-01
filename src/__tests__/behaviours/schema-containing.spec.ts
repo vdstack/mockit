@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { when } from "../../behaviours";
-import { objectContaining, schema } from "../../behaviours/constructs";
+import { objectContaining, schema } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 import { randomUUID } from "crypto";
 

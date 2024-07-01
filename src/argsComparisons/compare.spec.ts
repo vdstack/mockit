@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { containing, schema, containingDeep } from "../behaviours/constructs";
+import { containing, schema, containingDeep } from "../behaviours/matchers";
 import { compare } from "./compare";
 
 it("should compare numbers", () => {

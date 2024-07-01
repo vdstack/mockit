@@ -1,4 +1,4 @@
-import { endsWith, startsWith } from "../behaviours/constructs";
+import { endsWith, startsWith } from "../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.endsWith", () => {

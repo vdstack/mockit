@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { containing } from "../../behaviours/constructs";
+import { containing } from "../../behaviours/matchers";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {

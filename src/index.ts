@@ -19,7 +19,7 @@ import {
   setContaining,
   stringContaining,
   unsafe,
-} from "./behaviours/constructs";
+} from "./behaviours/matchers";
 export { getMockHistory, verifyThat };
 
 export const Mockit = {

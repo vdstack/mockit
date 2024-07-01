@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { z } from "zod";
 
-import { schema, unsafe } from "../../behaviours/constructs";
+import { schema, unsafe } from "../../behaviours/matchers";
 import { when } from "../../behaviours";
 import { Mock, Reset } from "../../mocks";
 

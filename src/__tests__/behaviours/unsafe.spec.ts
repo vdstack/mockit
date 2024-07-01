@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { unsafe } from "../../behaviours/constructs";
+import { unsafe } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 
 describe("behaviour setup: unsafe", () => {

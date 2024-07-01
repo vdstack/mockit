@@ -1,4 +1,4 @@
-import { startsWith } from "../behaviours/constructs";
+import { startsWith } from "../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.startsWith", () => {

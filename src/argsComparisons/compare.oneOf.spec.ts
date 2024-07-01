@@ -1,4 +1,4 @@
-import { isOneOf } from "../behaviours/constructs";
+import { isOneOf } from "../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.oneOf", () => {

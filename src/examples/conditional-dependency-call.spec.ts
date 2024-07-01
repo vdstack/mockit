@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { Mock, verifyThat } from "..";
-import { schema } from "../behaviours/constructs";
+import { schema } from "../behaviours/matchers";
 
 function registerAdultAccount(...args: any[]) {}
 function registerMinorAccount(...args: any[]) {}

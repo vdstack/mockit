@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Mock, verifyThat } from "../..";
-import { schema } from "../../behaviours/constructs";
+import { schema } from "../../behaviours/matchers";
 
 function hellaw(...args: (string | number)[]) {
   return args;
@@ -37,7 +37,10 @@ test("verifyThat should assert if a function was called with specific arguments"
 
 test("verifyThat should assert if a function was called with data matching zod schemas", () => {
   const mock = Mock(hellaw);
-  verifyThat(mock).wasNeverCalledWith(schema(schema(z.number())), schema(z.string()));
+  verifyThat(mock).wasNeverCalledWith(
+    schema(schema(z.number())),
+    schema(z.string())
+  );
   verifyThat(mock).wasCalledNTimesWith({
     args: [schema(z.number()), schema(z.string())],
     howMuch: 0,
@@ -65,11 +68,13 @@ test("verifyThat should assert if a function was called with a combination of zo
 
   verifyThat(mock).wasCalledWith(1, schema(z.string()), schema(z.boolean()));
   verifyThat(mock).wasCalledOnceWith(
-    schema(z
-      .number()
-      .positive()
-      .int()
-      .refine((v) => v < 10)),
+    schema(
+      z
+        .number()
+        .positive()
+        .int()
+        .refine((v) => v < 10)
+    ),
     schema(z.string()),
     false
   );

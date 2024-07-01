@@ -1,5 +1,5 @@
 import { when } from "../../behaviours";
-import { containingDeep } from "../../behaviours/constructs";
+import { containingDeep } from "../../behaviours/matchers";
 import { Mock, Reset } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
@@ -25,7 +25,6 @@ describe("behaviour setup: partial", () => {
     when(mock)
       .isCalledWith({ identity: { id: 1 } })
       .thenReturn("hello world Victor");
-
 
     // Here, we're not passing an object containing { identity: { id: 1 } }, so it should not match
     // Hence, the default return value should be returned

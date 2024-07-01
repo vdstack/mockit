@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Mock, Reset, when } from "../..";
-import { schema, unsafe } from "../../behaviours/constructs";
+import { schema, unsafe } from "../../behaviours/matchers";
 import { randomUUID } from "crypto";
 
 function hello(...args: any[]) {

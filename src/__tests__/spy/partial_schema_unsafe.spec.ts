@@ -5,7 +5,7 @@ import {
   unsafe,
   containing,
   containingDeep,
-} from "../../behaviours/constructs";
+} from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 
 function func(params: {

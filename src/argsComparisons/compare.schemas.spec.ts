@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { schema } from "../behaviours/constructs";
+import { schema } from "../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.schema", () => {
