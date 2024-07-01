@@ -1,7 +1,7 @@
 /**
  * @param mock This is heavily inspired by the library @total-typescript/shoehorn
  * I just wanted a different API and a few more features so I decided to diverge and create my own
- * 
+ *
  * Kudos to Matt Pococks for the inspiration
  */
 
@@ -35,6 +35,20 @@ export const partialDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   ) as any;
 };
 
+export const isOneOf = <T>(mock: NoInfer<T>[]): T => {
+  return new Proxy(
+    {
+      mockit__isOneOf: true,
+      options: mock,
+    },
+    {
+      get(target, prop) {
+        return target[prop];
+      },
+    }
+  ) as any;
+};
+
 export interface Parser {
   safeParse(value: any): { success: boolean };
 }
@@ -56,7 +70,6 @@ export const schema = <T, U extends Parser>(mock: U | NoInfer<T>): T => {
 export const unsafe = <T, U>(mock: U | NoInfer<T>): T => {
   return mock as T;
 };
-
 
 export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
   return new Proxy(
@@ -88,27 +101,27 @@ export const stringContaining = <T>(mock: Partial<NoInfer<T>>): T => {
 
 export const mapContaining = <T>(mock: Partial<NoInfer<T>>): T => {
   return containing(mock);
-}
+};
 
 export const setContaining = <T>(mock: Partial<NoInfer<T>>): T => {
   return containing(mock);
-}
+};
 
 export const objectContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return containingDeep(mock);
-}
+};
 
 export const arrayContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return containingDeep(mock);
-}
+};
 
 export const mapContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return containingDeep(mock);
-}
+};
 
 export const setContainingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return containingDeep(mock);
-}
+};
 
 export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
@@ -123,7 +136,7 @@ export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
       },
     }
   ) as any;
-}
+};
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
 /**
