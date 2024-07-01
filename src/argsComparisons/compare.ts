@@ -33,6 +33,54 @@ export function compare(actual: any, expected: any) {
       return actual?.endsWith?.(expected.original);
     }
 
+    const isAnyOf = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__any")
+    );
+
+    if (isAnyOf) {
+      switch (expected.what) {
+        case "object":
+          if (Array.isArray(actual)) {
+            return false;
+          }
+
+          if (actual == null) {
+            return false;
+          }
+
+          if (actual instanceof Map) {
+            return false;
+          }
+
+          if (actual instanceof Set) {
+            return false;
+          }
+
+          return typeof actual === "object";
+
+        case "function":
+        case "undefined":
+        case "string":
+        case "boolean":
+        case "number":
+          return typeof actual === expected.what;
+        case "nullish":
+          return actual == null;
+        case "array":
+          return Array.isArray(actual);
+        case "map":
+          return actual instanceof Map;
+        case "set":
+          return actual instanceof Set;
+        case "falsy":
+          return !actual;
+        case "truthy":
+          return !!actual;
+        default:
+          return false;
+      }
+    }
+
     const isContaining = Object.keys(expected).some((key) =>
       key.endsWith("mockit__isContaining")
     );

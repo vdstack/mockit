@@ -108,11 +108,11 @@ export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   ) as any;
 };
 
-export const startsWith = (string: string) => {
+export const startsWith = <T, U extends string>(s: U | NoInfer<T>): T => {
   return new Proxy(
     {
       mockit__startsWith: true,
-      original: string,
+      original: s,
     },
     {
       get(target, prop) {
@@ -122,18 +122,81 @@ export const startsWith = (string: string) => {
   ) as any;
 };
 
-export const endsWith = (string: string) => {
+export const endsWith = <T>(string: string) => {
+  return ProxyFactory<T>("endsWith", { original: string });
+};
+
+export const anyObject = <T>() => {
+  return ProxyFactory<T>("any", { what: "object" });
+};
+
+const anyArray = <T>() => {
+  return ProxyFactory<T>("any", { what: "array" });
+};
+
+const anyFunction = <T>() => {
+  return ProxyFactory<T>("any", { what: "function" });
+};
+
+const anyString = <T>() => {
+  return ProxyFactory<T>("any", { what: "string" });
+};
+
+const anyNumber = <T>() => {
+  return ProxyFactory<T>("any", { what: "number" });
+};
+
+const anyBoolean = <T>() => {
+  return ProxyFactory<T>("any", { what: "boolean" });
+};
+
+const anyNullish = <T>() => {
+  return ProxyFactory<T>("any", { what: "nullish" });
+};
+
+const anyFalsy = <T>() => {
+  return ProxyFactory<T>("any", { what: "falsy" });
+};
+
+const anyTruthy = <T>() => {
+  return ProxyFactory<T>("any", { what: "truthy" });
+};
+
+const anyMap = <T>() => {
+  return ProxyFactory<T>("any", { what: "map" });
+};
+
+const anySet = <T>() => {
+  return ProxyFactory<T>("any", { what: "set" });
+};
+
+function ProxyFactory<T>(suffix: string, content: Record<string, any>) {
   return new Proxy(
     {
-      mockit__endsWith: true,
-      original: string,
+      [`mockit__${suffix}`]: true,
+      ...content,
     },
     {
       get(target, prop) {
+        // @ts-expect-error - I don't know how to fix this yet
         return target[prop];
       },
     }
-  ) as any;
+  ) as any as T;
+}
+
+export const any = {
+  object: anyObject,
+  array: anyArray,
+  function: anyFunction,
+  string: anyString,
+  number: anyNumber,
+  boolean: anyBoolean,
+  nullish: anyNullish,
+  falsy: anyFalsy,
+  truthy: anyTruthy,
+  map: anyMap,
+  set: anySet,
 };
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];
