@@ -37,25 +37,36 @@ export function compare(actual: any, expected: any) {
 
         const isContaining = Object.keys(expected).some(key => key.endsWith("mockit__isContaining"));
         if (isContaining) {
+            // arrayContaining
             if (Array.isArray(expected.original)) {
-                console.log("expected.original", expected.original);
                 return expected.original.every((item, index) => {
                     return actual?.some(actualItem => compare(actualItem, item));
                 });
             }
 
+            // mapContaining
             if (expected.original instanceof Map) {
                 return Array.from(((expected?.original as Map<any, any>) ?? []).entries()).every(([key, value]) => {
                     return compare(actual.get(key), value);
                 });
             }
 
+            // setContaining
             if (expected.original instanceof Set) {
                 return Array.from(((expected?.original as Set<any>) ?? []).values()).every(value => {
-                    return Array.from(actual.values()).some(actualValue => compare(actualValue, value));
+                    return Array.from(actual?.values?.() ?? []).some(actualValue => compare(actualValue, value));
                 });
             }
+    
+            // stringContaining
+            if (typeof expected?.original === "string") {
+                const isContaining = Object.keys(expected).some(key => key.endsWith("mockit__isContaining"));
+                if (isContaining) {
+                    return actual.includes(expected?.original);
+                }
+            }
 
+            // objectContaining
             return Object.keys(expected.original).every(key => {
                 return compare(actual[key], expected.original[key]);
             });
@@ -100,10 +111,6 @@ export function compare(actual: any, expected: any) {
 
             if (Array.isArray(expected.original)) {
                 return expected.original.every((expectedValue) => {
-                    // return compare(actual[index], containingDeep(expectedValue));
-                    console.log("expectedValue", expectedValue);
-                    console.log("actual", actual);
-                    console.log(actual?.some(actualValue => compare(actualValue, containingDeep(expectedValue))));
                     return actual?.some(actualValue => compare(actualValue, containingDeep(expectedValue)));
                 });
             }
@@ -160,8 +167,8 @@ export function compare(actual: any, expected: any) {
             }
 
             if (expected instanceof Set) {
-                return Array.from(expected.values()).every(value => {
-                    return Array.from(actual.values()).some(actualValue => compare(actualValue, value));
+                return Array.from(expected.values()).every(expectedValue => {
+                    return Array.from((actual?.values?.()) ?? []).some(actualValue => compare(actualValue, expectedValue));
                 });
             }
 
@@ -182,7 +189,6 @@ export function compare(actual: any, expected: any) {
     if (typeof actual !== typeof expected) {
         return false;
     }
-
 
     return hasher.hash(actual) === hasher.hash(expected);
 }

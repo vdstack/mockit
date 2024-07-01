@@ -73,6 +73,26 @@ export const containing = <T>(mock: Partial<NoInfer<T>>): T => {
   ) as any;
 };
 
+export const objectContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+  return containing(mock);
+};
+
+export const arrayContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+  return containing(mock);
+};
+
+// Strings not functional yet
+export const stringContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+  return containing(mock);
+};
+
+export const mapContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+  return containing(mock);
+}
+
+export const setContaining = <T>(mock: Partial<NoInfer<T>>): T => {
+  return containing(mock);
+}
 
 export const containingDeep = <T>(mock: PartialDeep<NoInfer<T>>): T => {
   return new Proxy(
