@@ -27,6 +27,7 @@ import {
   stringStartingWith,
   unsafe,
   any,
+  anyObject,
 } from "./behaviours/matchers";
 
 export {
@@ -43,31 +44,14 @@ export {
   stringEndingWith,
   stringStartingWith,
   unsafe,
+  stringMatchingRegex,
+  arrayContainingDeep,
+  mapContainingDeep,
+  objectContainingDeep,
+  setContainingDeep,
 };
 
 export { getMockHistory, verifyThat };
-
-export const Mockit = {
-  Reset,
-  resetBehaviour,
-  resetCompletely,
-  resetHistory,
-  Mock,
-  when,
-  verifyThat,
-  getMockHistory,
-  schema,
-  unsafe,
-  containing,
-  containingDeep,
-  objectContaining,
-  arrayContaining,
-  mapContaining,
-  setContaining,
-  any,
-  stringContaining,
-  isOneOf,
-};
 
 export const m = {
   reset: {

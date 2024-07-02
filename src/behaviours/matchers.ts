@@ -29,28 +29,43 @@ export const objectContaining = <T, U>(mock: U | Partial<NoInfer<T>>): T => {
   return containing(mock);
 };
 
+// TODO: should we change what's passed to containing so that it can accept multiple arguments instead of an array? Not easy in TS while maintaining the incognito safety tbh.
+// This is because it's not that obvious, considering the name, that it should accept an array.
+// I think jest had the same issue, i might need to check their old issues beforehand to see how they thought about it.
+// I remember having difficulties to wrap my head around their implementation which required to pass an arrays inside arrays. For now, i'm leaning towards flattening it one level,
+// but it's not as clear as I'd like it to be.
 export const arrayContaining = <T, U extends Array<any>>(
-  mock: U | Partial<NoInfer<T>>
+  values: (U | Partial<NoInfer<T>>)[]
 ): T => {
-  return containing(mock);
+  return containing(values);
 };
 
+// TODO: explore possibility to accept multiple strings here. If doing so, should it be an OR or an AND? Both are useful...
 // Strings not functional yet
 export const stringContaining = <T>(mock: string): T => {
   return containing(mock);
 };
 
+// Right now we accept Maps, should we instead accept objects so that keys and values are easier to setup ?
+// ex: mapContaining({ key: "value" }) instead of mapContaining(new Map([["key", "value"]]))
+// It IS easier to setup, but cuts the feature to provide a submap for checking...
 export const mapContaining = <T, U extends Map<string, any>>(
   mock: U | Partial<NoInfer<T>>
 ): T => {
   return containing(mock);
 };
 
+// same question as for mapContaining, slightly different: should we accept sets or arrays ?
+// ex: setContaining([1, 2, 3]) instead of setContaining(new Set([1, 2, 3]))
+// In theory a set should containg a sub-set (mathematical definition), so I'm leaning towards keeping it as is
 export const setContaining = <T, U extends Set<any>>(
   mock: U | Partial<NoInfer<T>>
 ): T => {
   return containing(mock);
 };
+
+// TODO: explore capacity to provide an OR for stronger assertions.
+// For example: m.or(m.any.string(), m.any.number()) would match both strings and numbers
 
 export const objectContainingDeep = <T, U>(
   mock: U | PartialDeep<NoInfer<T>>
