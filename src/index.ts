@@ -1,56 +1,11 @@
-import { Reset, resetBehaviour, resetCompletely, resetHistory } from "./mocks";
-
-export { Mock, Reset, resetBehaviour, resetCompletely, resetHistory };
-
+import { resetBehaviour, resetCompletely, resetHistory } from "./mocks";
 import { when } from "./behaviours";
-export { when };
-
 import { Mock } from "./mocks/Mock";
-
 import { verifyThat, getMockHistory } from "./assertions";
-import {
-  arrayContaining,
-  containing,
-  containingDeep,
-  isOneOf,
-  mapContaining,
-  objectContaining,
-  schema,
-  setContaining,
-  stringContaining,
-  stringEndingWith,
-  setContainingDeep,
-  mapContainingDeep,
-  arrayContainingDeep,
-  objectContainingDeep,
-  stringMatchingRegex,
-  stringStartingWith,
-  unsafe,
-  any,
-  anyObject,
-} from "./behaviours/matchers";
+import { matchers } from "./behaviours/matchers";
 
-export {
-  any,
-  arrayContaining,
-  containing,
-  containingDeep,
-  isOneOf,
-  mapContaining,
-  objectContaining,
-  schema,
-  setContaining,
-  stringContaining,
-  stringEndingWith,
-  stringStartingWith,
-  unsafe,
-  stringMatchingRegex,
-  arrayContainingDeep,
-  mapContainingDeep,
-  objectContainingDeep,
-  setContainingDeep,
-};
-
+export { Mock };
+export { when };
 export { getMockHistory, verifyThat };
 
 export const m = {
@@ -63,22 +18,7 @@ export const m = {
   when,
   verifyThat,
   getMockHistory,
-  match: {
-    objectContaining,
-    objectContainingDeep,
-    arrayContaining,
-    arrayContainingDeep,
-    mapContaining,
-    mapContainingDeep,
-    setContaining,
-    setContainingDeep,
-    any,
-    stringContaining,
-    stringStartingWith,
-    stringEndingWith,
-    stringMatchingRegex,
-    isOneOf,
-    schema,
-    unsafe,
-  }
-}
+  match: { ...matchers },
+};
+
+export { matchers } from "./behaviours/matchers";
