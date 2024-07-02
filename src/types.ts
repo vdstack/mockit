@@ -30,4 +30,3 @@ export type AllowZodSchemas<Tuple extends any[]> = [
     [Key in keyof Tuple]: Tuple[Key] | z.ZodType;
   }
 ];
-

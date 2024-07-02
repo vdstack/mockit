@@ -19,6 +19,11 @@ import {
   setContaining,
   stringContaining,
   stringEndingWith,
+  setContainingDeep,
+  mapContainingDeep,
+  arrayContainingDeep,
+  objectContainingDeep,
+  stringMatchingRegex,
   stringStartingWith,
   unsafe,
   any,
@@ -63,3 +68,33 @@ export const Mockit = {
   stringContaining,
   isOneOf,
 };
+
+export const m = {
+  reset: {
+    completely: resetCompletely,
+    behaviour: resetBehaviour,
+    history: resetHistory,
+  },
+  Mock,
+  when,
+  verifyThat,
+  getMockHistory,
+  match: {
+    objectContaining,
+    objectContainingDeep,
+    arrayContaining,
+    arrayContainingDeep,
+    mapContaining,
+    mapContainingDeep,
+    setContaining,
+    setContainingDeep,
+    any,
+    stringContaining,
+    stringStartingWith,
+    stringEndingWith,
+    stringMatchingRegex,
+    isOneOf,
+    schema,
+    unsafe,
+  }
+}

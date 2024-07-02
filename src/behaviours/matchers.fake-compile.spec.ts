@@ -1,105 +1,105 @@
 import { Mock } from "../mocks";
-import { matchers } from "./matchers";
+import { any, arrayContaining, arrayContainingDeep, mapContaining, mapContainingDeep, objectContaining, objectContainingDeep, setContaining, setContainingDeep, stringEndingWith, stringMatchingRegex, stringStartingWith, unsafe } from "./matchers";
 import { when } from "./when";
 /**
  * This test suite is here to test that matchers can take the place of any type of value.
  * We're testing type compilation here, not features.
  */
 it("should compile with any matcher", () => {
-  function toTest(params: Record<string, string>) {}
+  function toTest(params: Record<string, string>) { }
 
   const mock = Mock(toTest);
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.map(),
+    toReplace: any.map(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.mapContaining(new Map([["a", 1]])),
+    toReplace: mapContaining(new Map([["a", 1]])),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.mapContainingDeep(new Map([["a", 1]])),
+    toReplace: mapContainingDeep(new Map([["a", 1]])),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.set(),
+    toReplace: any.set(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.setContaining(new Set([1])),
+    toReplace: setContaining(new Set([1])),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.setContainingDeep(new Set([1])),
+    toReplace: setContainingDeep(new Set([1])),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.object(),
+    toReplace: any.object(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.objectContaining({ a: 1 }),
+    toReplace: objectContaining({ a: 1 }),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.objectContainingDeep({ a: 1 }),
+    toReplace: objectContainingDeep({ a: 1 }),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.array(),
+    toReplace: any.array(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.arrayContaining([1]),
+    toReplace: arrayContaining([1]),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.arrayContainingDeep([1]),
+    toReplace: arrayContainingDeep([1]),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.number(),
+    toReplace: any.number(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.string(),
+    toReplace: any.string(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.stringStartingWith("a"),
+    toReplace: stringStartingWith("a"),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.stringEndingWith("a"),
+    toReplace: stringEndingWith("a"),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.stringMatchingRegex(/a/),
+    toReplace: stringMatchingRegex(/a/),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.boolean(),
+    toReplace: any.boolean(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.function(),
+    toReplace: any.function(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.falsy(),
+    toReplace: any.falsy(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.truthy(),
+    toReplace: any.truthy(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.any.nullish(),
+    toReplace: any.nullish(),
   });
 
   when(mock).isCalledWith({
-    toReplace: matchers.unsafe("yo"),
+    toReplace: unsafe("yo"),
   });
 });
 
@@ -109,26 +109,26 @@ function deepToTest(params: {
       z: string;
     };
   };
-}) {}
+}) { }
 
 it("should compile with deep matchers", () => {
   const mock = Mock(deepToTest);
 
   when(mock).isCalledWith(
-    matchers.objectContainingDeep({
+    objectContainingDeep({
       x: {
         y: {
-          z: matchers.stringStartingWith("a"),
+          z: stringStartingWith("a"),
         },
       },
     })
   );
 
   when(mock).isCalledWith(
-    matchers.objectContaining({
+    objectContaining({
       x: {
         y: {
-          z: matchers.stringStartingWith("a"),
+          z: stringStartingWith("a"),
         },
       },
     })
