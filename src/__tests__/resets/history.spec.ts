@@ -1,5 +1,4 @@
-import { z } from "zod";
-import { Reset, Mock, verifyThat } from "../..";
+import { m, Mock, verifyThat } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
@@ -18,7 +17,7 @@ test("resetHistory should reset the history of calls", () => {
   verifyThat(mockAdd).wasCalledWith(-1, 2);
   verifyThat(mockAdd).wasCalledNTimes(3);
 
-  Reset.historyOf(mockAdd);
+  m.reset.historyOf(mockAdd);
 
   verifyThat(mockAdd).wasNeverCalled();
 });

@@ -11,8 +11,8 @@ export { getMockHistory, verifyThat };
 export const m = {
   reset: {
     completely: resetCompletely,
-    behaviour: resetBehaviour,
-    history: resetHistory,
+    behaviourOf: resetBehaviour,
+    historyOf: resetHistory,
   },
   Mock,
   when,
