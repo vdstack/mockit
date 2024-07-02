@@ -1,6 +1,6 @@
 {
   "name": "@vdstack/mockit",
-  "version": "5.0.0-beta.2",
+  "version": "5.0.0-beta.3",
   "description": "Behaviour mocking library for TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -12,7 +12,7 @@
   "scripts": {
     "test": "jest --forceExit",
     "test:watch": "jest --watch",
-    "build": "tsup src/index.ts src/matchers.ts --format esm,cjs --dts --minify",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "watch": "tsup src/index.ts --watch --format esm,cjs --dts",
     "lint": "tsc"
   },
