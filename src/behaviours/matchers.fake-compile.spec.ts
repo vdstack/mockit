@@ -1,12 +1,27 @@
 import { Mock } from "../mocks";
-import { any, arrayContaining, arrayContainingDeep, mapContaining, mapContainingDeep, objectContaining, objectContainingDeep, setContaining, setContainingDeep, stringEndingWith, stringMatchingRegex, stringStartingWith, unsafe } from "./matchers";
+import {
+  any,
+  arrayContaining,
+  arrayContainingDeep,
+  mapContaining,
+  mapContainingDeep,
+  objectContaining,
+  objectContainingDeep,
+  or,
+  setContaining,
+  setContainingDeep,
+  stringEndingWith,
+  stringMatchingRegex,
+  stringStartingWith,
+  unsafe,
+} from "./matchers";
 import { when } from "./when";
 /**
  * This test suite is here to test that matchers can take the place of any type of value.
  * We're testing type compilation here, not features.
  */
 it("should compile with any matcher", () => {
-  function toTest(params: Record<string, string>) { }
+  function toTest(params: Record<string, string>) {}
 
   const mock = Mock(toTest);
 
@@ -51,11 +66,11 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: arrayContaining([1]),
+    toReplace: arrayContaining(["1"]),
   });
 
   when(mock).isCalledWith({
-    toReplace: arrayContainingDeep([1]),
+    toReplace: arrayContainingDeep(["1"]),
   });
 
   when(mock).isCalledWith({
@@ -101,6 +116,10 @@ it("should compile with any matcher", () => {
   when(mock).isCalledWith({
     toReplace: unsafe("yo"),
   });
+
+  when(mock).isCalledWith({
+    toReplace: or(any.string(), any.number()),
+  });
 });
 
 function deepToTest(params: {
@@ -109,7 +128,7 @@ function deepToTest(params: {
       z: string;
     };
   };
-}) { }
+}) {}
 
 it("should compile with deep matchers", () => {
   const mock = Mock(deepToTest);
@@ -133,4 +152,15 @@ it("should compile with deep matchers", () => {
       },
     })
   );
+});
+
+test("typesafe for array containing", () => {
+  const values = ["a", "b", "c"] as const;
+  const mock = Mock((_params: (typeof values)[number]) => {
+    return values;
+  });
+
+  // Should auto-complete with the correct values
+  when(mock).isCalledWith(arrayContaining(["a", "b"]));
+  when(mock).isCalledWith(arrayContainingDeep(["a", "b", "c"]));
 });

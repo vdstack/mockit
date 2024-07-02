@@ -34,13 +34,15 @@ export const objectContaining = <T, U>(mock: U | Partial<NoInfer<T>>): T => {
 // I think jest had the same issue, i might need to check their old issues beforehand to see how they thought about it.
 // I remember having difficulties to wrap my head around their implementation which required to pass an arrays inside arrays. For now, i'm leaning towards flattening it one level,
 // but it's not as clear as I'd like it to be.
-export const arrayContaining = <T, U extends Array<any>>(
-  values: (U | Partial<NoInfer<T>>)[]
+export const arrayContaining = <T, U extends Array<T>>(
+  values: (U | NoInfer<T>)[]
 ): T => {
   return containing(values);
 };
 
 // TODO: explore possibility to accept multiple strings here. If doing so, should it be an OR or an AND? Both are useful...
+// TODO: explore capacity to provide an OR for stronger assertions.
+// For example: m.or(m.any.string(), m.any.number()) would match both strings and numbers
 // Strings not functional yet
 export const stringContaining = <T>(mock: string): T => {
   return containing(mock);
@@ -58,14 +60,12 @@ export const mapContaining = <T, U extends Map<string, any>>(
 // same question as for mapContaining, slightly different: should we accept sets or arrays ?
 // ex: setContaining([1, 2, 3]) instead of setContaining(new Set([1, 2, 3]))
 // In theory a set should containg a sub-set (mathematical definition), so I'm leaning towards keeping it as is
+// Now that I've said that I might change my mind about arrays, considering the fact that an array can be a subset of another array.
 export const setContaining = <T, U extends Set<any>>(
   mock: U | Partial<NoInfer<T>>
 ): T => {
   return containing(mock);
 };
-
-// TODO: explore capacity to provide an OR for stronger assertions.
-// For example: m.or(m.any.string(), m.any.number()) would match both strings and numbers
 
 export const objectContainingDeep = <T, U>(
   mock: U | PartialDeep<NoInfer<T>>
@@ -73,7 +73,7 @@ export const objectContainingDeep = <T, U>(
   return containingDeep(mock);
 };
 
-export const arrayContainingDeep = <T, U extends Array<any>>(
+export const arrayContainingDeep = <T, U extends Array<T>>(
   values: U | NoInfer<T>
 ): T => {
   return containingDeep(values);
@@ -168,6 +168,10 @@ function ProxyFactory<T>(suffix: string, content: Record<string, any>) {
   ) as any as T;
 }
 
+export const or = <T, U>(...args: U[]): T => {
+  return ProxyFactory<T>("or_operator", { options: args });
+};
+
 export const any = {
   object: anyObject,
   array: anyArray,
@@ -201,6 +205,7 @@ export const matchers = {
   stringEndingWith,
   any,
   stringMatchingRegex,
+  or,
 };
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];

@@ -5,6 +5,14 @@ import { Parser, containingDeep } from "../behaviours/matchers";
 export function compare(actual: any, expected: any) {
   if (typeof expected === "object" && expected !== null) {
     // fyi, (typeof null) equals "object". I know. #javascript
+
+    const isOROperator = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__or_operator")
+    );
+    if (isOROperator) {
+      return expected.options.some((option) => compare(actual, option));
+    }
+
     const isSchema = Object.keys(expected).some((key) =>
       key.endsWith("mockit__isSchema")
     );
