@@ -5,28 +5,83 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
+/**
+ * 
+ * @param options an array of options of which one element should be the value we want to match
+ * 
+ * @example
+ * isOneOf([1, 2, 3]) // matches 1
+ * isOneOf([m.schema(z.number().int().positive())]) // matches 1
+ * isOneOf([m.schema(z.number().int().positive())]) // does not match (-1)
+ */
 export const isOneOf = <T, U>(options: U | NoInfer<T>[]): T => {
   return ProxyFactory<T>("isOneOf", { options: options });
 };
 
-export interface Parser {
+export interface Schema {
   safeParse(value: any): { success: boolean };
 }
 
-export const schema = <T, U extends Parser>(mock: U | NoInfer<T>): T => {
-  return ProxyFactory<T>("isSchema", { schema: mock });
+/**
+ * 
+ * @param schema a schema object that has a safeParse method.
+ * 
+ * Use this to validate a value against a schema. zod schemas are compliant, but you can create your own,
+ * or adapt existing ones to fit the schema interface.
+ * 
+ * export interface Schema {
+ *  safeParse(value: any): { success: boolean };
+ * }
+ * 
+ * @example
+ * // zod schema
+ * const schema = z.number().int().positive()
+ * m.schema(z.number().int().positive()) // matches 1
+ * 
+ * @example
+ * // Custom matchers
+ * m.schema({ safeParse: (_a) => ({ success: true }) }) // matches anything
+ * m.schema({ safeParse: (a) => { return joi.string().uuid().validate(a) } }) // matches a uuid
+ */
+export const schema = <T, U extends Schema>(schema: U | NoInfer<T>): T => {
+  return ProxyFactory<T>("isSchema", { schema });
 };
 
-export const unsafe = <T, U>(mock: U | NoInfer<T>): T => {
-  return mock as T;
+/**
+ * 
+ * @param value a value that is not type-safe. It will trick the type-checker into thinking it's the right type.
+ * 
+ * Use this when you want to match a value that is not type-safe, but you're sure it's the right one
+ * (like testing an invalid value, for example).
+ * 
+ * USE WITH CAUTION
+ * 
+ * @example
+ * function takesNumber(n: number) { return n + 1 }
+ * expect(takesNumber(m.unsafe("1"))).toBe("11")
+ */
+export const unsafe = <T, U>(value: U | NoInfer<T>): T => {
+  return value as T;
 };
 
 export const containing = <T, U extends any>(original: U | NoInfer<T>): T => {
   return ProxyFactory<T>("isContaining", { original });
 };
 
-export const objectContaining = <T, U>(mock: U | Partial<NoInfer<T>>): T => {
-  return containing(mock);
+/**
+ * 
+ * @param subObject an object that is a subset of the object we want to match
+ * 
+ * @example
+ * m.objectContaining({ key: "value" }) // matches { key: "value", otherKey: "otherValue" }
+ * m.objectContaining({ key: "value" }) // does not match { otherKey: "otherValue" } (missing key)
+ * 
+ * @example
+ * m.objectContaining({ x: { y: 1 } }) // does not match { x: { y: 1, z: 2 } } (missing z)
+ * // To match the above, you should use objectContainingDeep
+ */
+export const objectContaining = <T, U>(subObject: U | Partial<NoInfer<T>>): T => {
+  return containing(subObject);
 };
 
 // TODO: should we change what's passed to containing so that it can accept multiple arguments instead of an array? Not easy in TS while maintaining the incognito safety tbh.
@@ -34,43 +89,101 @@ export const objectContaining = <T, U>(mock: U | Partial<NoInfer<T>>): T => {
 // I think jest had the same issue, i might need to check their old issues beforehand to see how they thought about it.
 // I remember having difficulties to wrap my head around their implementation which required to pass an arrays inside arrays. For now, i'm leaning towards flattening it one level,
 // but it's not as clear as I'd like it to be.
+
+/**
+ * 
+ * @param subArray an array that is a subset of the array we want to match
+ * 
+ * @example
+ * m.arrayContaining([1, 2, 3]) // matches [1, 2, 3, 4, 5]
+ * m.arrayContaining([1, 2, 3]) // does not match [1, 2, 4, 5] (missing 3)
+ * 
+ * @example
+ * m.arrayContaining([{ x: 1 }]) // does not match [{ x: 1, y: 2 }] (missing y)
+ * // To match the above, you should use arrayContainingDeep
+ */
 export const arrayContaining = <T, U extends Array<T>>(
-  values: (U | NoInfer<T>)[]
+  subArray: (U | NoInfer<T>)[]
 ): T => {
-  return containing(values);
+  return containing(subArray);
 };
 
-// TODO: explore possibility to accept multiple strings here. If doing so, should it be an OR or an AND? Both are useful...
-// TODO: explore capacity to provide an OR for stronger assertions.
-// For example: m.or(m.any.string(), m.any.number()) would match both strings and numbers
-// Strings not functional yet
-export const stringContaining = <T>(mock: string): T => {
-  return containing(mock);
+/**
+ * @param subString a string that is a subset of the string we want to match
+ * 
+ * @example
+ * m.stringContaining("hello") // matches "hello world"
+ * m.stringContaining("hello") // does not match "world" (missing hello)
+ * 
+ * @example
+ * m.stringContaining("vic") // does not match "dude named victor is saying hi" (missing tor)
+ * 
+ * @example
+ * m.stringContaining("VIC") // does not match "vic" (case sensitive)
+ */
+export const stringContaining = <T>(subString: string): T => {
+  return containing(subString);
 };
 
 // Right now we accept Maps, should we instead accept objects so that keys and values are easier to setup ?
 // ex: mapContaining({ key: "value" }) instead of mapContaining(new Map([["key", "value"]]))
 // It IS easier to setup, but cuts the feature to provide a submap for checking...
+
+/**
+ * 
+ * @param subMap a map that is a subset of the map we want to match
+ * 
+ * @example
+ * m.mapContaining(new Map([["key", "value"]])) // matches new Map([["key", "value"], ["otherKey", "otherValue"]])
+ * m.mapContaining(new Map([["key", "value"]])) // does not match new Map([["otherKey", "otherValue"]]) (missing key)
+ * 
+ * @example
+ * m.mapContaining(new Map([["x", { y: 1 }]])) // does not match new Map([["x", { y: 1, z: 2 }]]) (missing z)
+ * // To match the above, you should use mapContainingDeep
+ */
 export const mapContaining = <T, U extends Map<string, any>>(
-  mock: U | Partial<NoInfer<T>>
+  subMap: U | Partial<NoInfer<T>>
 ): T => {
-  return containing(mock);
+  return containing(subMap);
 };
 
 // same question as for mapContaining, slightly different: should we accept sets or arrays ?
 // ex: setContaining([1, 2, 3]) instead of setContaining(new Set([1, 2, 3]))
 // In theory a set should containg a sub-set (mathematical definition), so I'm leaning towards keeping it as is
 // Now that I've said that I might change my mind about arrays, considering the fact that an array can be a subset of another array.
+
+/**
+ * 
+ * @param subset a set that is a subset of the set we want to match
+ * 
+ * @example
+ * m.setContaining(new Set([1, 2, 3])) // matches new Set([1, 2, 3, 4, 5])
+ * m.setContaining(new Set([1, 2, 3])) // does not match new Set([1, 2, 4, 5]) (missing 3)
+ * 
+ * @example
+ * m.setContaining(new Set([1, 2, { x: { y: 2 }}])) // does not match new Set([1, 2, { x: { y: 2, z: 3 }}]) (missing z)
+ * // To match the above, you should use setContainingDeep
+ */
 export const setContaining = <T, U extends Set<any>>(
-  mock: U | Partial<NoInfer<T>>
+  subset: U | Partial<NoInfer<T>>
 ): T => {
-  return containing(mock);
+  return containing(subset);
 };
 
+/**
+ * 
+ * @param deepSubObject an object that is a deep subset of the object we want to match
+ * 
+ * @example
+ * m.objectContainingDeep({ key: "value" }) // matches { key: "value", otherKey: "otherValue" }
+ * m.objectContainingDeep({ x: { y: { z: 1 } } }) // matches { x: { y: { z: 1, w: 2 } }, a: 2 }
+ * 
+ * very powerful when checking a specific key deep down the object
+ */
 export const objectContainingDeep = <T, U>(
-  mock: U | PartialDeep<NoInfer<T>>
+  deepSubObject: U | PartialDeep<NoInfer<T>>
 ): T => {
-  return containingDeep(mock);
+  return containingDeep(deepSubObject);
 };
 
 export const arrayContainingDeep = <T, U extends Array<T>>(
@@ -95,44 +208,110 @@ export const containingDeep = <T, U>(mock: U | NoInfer<T>): T => {
   return ProxyFactory<T>("isContainingDeep", { ...mock, original: mock });
 };
 
+/**
+ * 
+ * @param s a string that should be at the beginning of the string we want to match
+ * 
+ * @example
+ * m.stringStartingWith("hello") // matches "hello world"
+ * m.stringStartingWith("hello") // does not match "world" (missing hello at the beginning)
+ */
 export const stringStartingWith = <T, U extends string>(
   s: U | NoInfer<T>
 ): T => {
   return ProxyFactory<T>("startsWith", { original: s });
 };
 
+/**
+ * 
+ * @param s a string that should be at the end of the string we want to match
+ * 
+ * @example
+ * m.stringEndingWith("world") // matches "hello world"
+ * m.stringEndingWith("world") // does not match "hello" (missing world at the end)
+ */
 export const stringEndingWith = <T, U extends string>(s: U | NoInfer<T>): T => {
   return ProxyFactory<T>("endsWith", { original: s });
 };
 
+/**
+ * 
+ * NOTE THAT IT WILL NOT MATCH NULL, Maps, Sets and Arrays.
+ * 
+ * @example
+ * m.any.object() // matches { key: "value" }
+ * m.any.object() // does not match null
+ * m.any.object() // does not match new Map([["key", "value"]])
+ * m.any.object() // does not match [1, 2, 3]
+ * m.any.object() // does not match new Set([1, 2, 3])
+ */
 export const anyObject = <T, U>() => {
   return ProxyFactory<T>("any", { what: "object" });
 };
 
+/**
+ * @example
+ * m.any.array() // matches [1, 2, 3]
+ * m.any.array() // matches []
+ */
 const anyArray = <T, U>() => {
   return ProxyFactory<T>("any", { what: "array" });
 };
 
+/**
+ * @example
+ * m.any.function() // matches () => {}
+ * m.any.function() // matches function() {}
+ */
 const anyFunction = <T, U>() => {
   return ProxyFactory<T>("any", { what: "function" });
 };
 
+/**
+ * @example
+ * m.any.string() // matches "hello"
+ * m.any.string() // matches ""
+ */
 const anyString = <T, U>() => {
   return ProxyFactory<T>("any", { what: "string" });
 };
 
+/**
+ * @example
+ * m.any.number() // matches 1
+ * m.any.number() // does not match "1"
+ * m.any.number() // does not match NaN
+ */
 const anyNumber = <T, U>() => {
   return ProxyFactory<T>("any", { what: "number" });
 };
 
+/**
+ * @example
+ * m.any.boolean() // matches true
+ * m.any.boolean() // matches false
+ * m.any.boolean() // does not match "true", "false", 1, 0, null, undefined, "", {}
+ */
 const anyBoolean = <T, U>() => {
   return ProxyFactory<T>("any", { what: "boolean" });
 };
 
+/**
+ * @example
+ * m.any.nullish() // matches null
+ * m.any.nullish() // matches undefined
+*/
 const anyNullish = <T, U>() => {
   return ProxyFactory<T>("any", { what: "nullish" });
 };
 
+/**
+ * @example
+ * m.any.falsy() // matches false
+ * m.any.falsy() // matches null
+ * m.any.falsy() // matches undefined
+ * m.any.falsy() // matches 0
+ */
 const anyFalsy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "falsy" });
 };
@@ -141,14 +320,32 @@ const anyTruthy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "truthy" });
 };
 
+/**
+ * @example
+ * m.any.map() // matches new Map()
+ * m.any.map() // does not match {}
+ */
 const anyMap = <T, U>() => {
   return ProxyFactory<T>("any", { what: "map" });
 };
 
+/**
+ * @example
+ * m.any.set() // matches new Set()
+ * m.any.set() // does not match {}
+ */
 const anySet = <T, U>() => {
   return ProxyFactory<T>("any", { what: "set" });
 };
 
+/**
+ * 
+ * @param regexp a regular expression that the string should match
+ * 
+ * @example
+ * m.stringMatchingRegex(/hello/) // matches "hello world"
+ * m.stringMatchingRegex(/hello/) // does not match "world" (missing hello)
+ */
 export const stringMatchingRegex = <T>(regexp: RegExp) => {
   return ProxyFactory<T>("matchesRegex", { regexp });
 };
