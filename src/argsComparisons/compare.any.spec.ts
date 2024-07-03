@@ -16,6 +16,12 @@ describe("compare.any", () => {
   it("should detect any boolean", () => {
     expect(compare(true, any.boolean())).toBe(true);
     expect(compare("true", any.boolean())).toBe(false);
+    expect(compare(1, any.boolean())).toBe(false);
+    expect(compare(0, any.boolean())).toBe(false);
+    expect(compare(null, any.boolean())).toBe(false);
+    expect(compare(undefined, any.boolean())).toBe(false);
+    expect(compare("", any.boolean())).toBe(false);
+    expect(compare({}, any.boolean())).toBe(false);
   });
 
   it("should detect any object", () => {
