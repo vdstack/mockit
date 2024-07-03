@@ -1,5 +1,5 @@
 import { hasher } from "../hasher";
-import { Parser, containingDeep } from "../behaviours/matchers";
+import { Schema, containingDeep } from "../behaviours/matchers";
 
 // TODO: schemas in maps & sets & arrays
 export function compare(actual: any, expected: any) {
@@ -17,7 +17,7 @@ export function compare(actual: any, expected: any) {
       key.endsWith("mockit__isSchema")
     );
     if (isSchema) {
-      return (expected.schema as Parser).safeParse(actual).success;
+      return (expected.schema as Schema).safeParse(actual).success;
     }
 
     const isOneOf = Object.keys(expected).some((key) =>
@@ -77,8 +77,9 @@ export function compare(actual: any, expected: any) {
         case "undefined":
         case "string":
         case "boolean":
-        case "number":
           return typeof actual === expected.what;
+        case "number":
+          return typeof actual === "number" && !isNaN(actual);
         case "nullish":
           return actual == null;
         case "array":

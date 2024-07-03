@@ -5,6 +5,7 @@ describe("compare.any", () => {
   it("should detect any number", () => {
     expect(compare(2, any.number())).toBe(true);
     expect(compare("2", any.number())).toBe(false);
+    expect(compare(NaN, any.number())).toBe(false);
   });
 
   it("should detect any string", () => {
