@@ -1,6 +1,6 @@
 import { when } from "../../behaviours";
 import { containingDeep } from "../../behaviours/matchers";
-import { Mock, Reset } from "../../mocks";
+import { Mock, resetCompletely } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
   it("should partially match the arguments", () => {
@@ -32,7 +32,7 @@ describe("behaviour setup: partial", () => {
       mock({ name: "Victor", age: 20, identity: { id: 1, email: "1@1.1" } })
     ).toBe("default return value");
 
-    Reset.completely(mock);
+    resetCompletely(mock);
     when(mock).isCalled.thenReturn("default return value");
 
     // Now, we're using partialDeep to setup the behaviour

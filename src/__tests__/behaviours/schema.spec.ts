@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { schema, unsafe } from "../../behaviours/matchers";
 import { when } from "../../behaviours";
-import { Mock, Reset } from "../../mocks";
+import { Mock, resetCompletely } from "../../mocks";
 
 test("test new zod comparison", () => {
   function toTest(params: any) {}
@@ -17,7 +17,7 @@ test("test new zod comparison", () => {
 
   expect(mock({ name: -1 })).toBe(999);
 
-  Reset.completely(mock);
+  resetCompletely(mock);
 
   when(mock)
     .isCalledWith({
@@ -32,7 +32,7 @@ test("test new zod comparison", () => {
   expect(mock({ x: ["Victor", "D"], y: [-1, -2], z: 2 })).toBe(undefined);
   expect(mock({ x: [1, 2], y: ["Victor", "D"], z: 2 })).toBe(undefined);
 
-  Reset.completely(mock);
+  resetCompletely(mock);
 
   when(mock)
     .isCalledWith({
@@ -53,7 +53,7 @@ test("test new zod comparison", () => {
     undefined
   );
 
-  Reset.completely(mock);
+  resetCompletely(mock);
 
   when(mock)
     .isCalledWith({

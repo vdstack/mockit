@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Mock, when, verifyThat, m } from "../..";
+import { Mock, when, verifyThat, resetCompletely } from "../..";
 import { schema } from "../../behaviours/matchers";
 
 function add(a: number, b: number): number {
@@ -30,7 +30,7 @@ test("resetCompletely should reset all behaviours and history", () => {
   verifyThat(mockAdd).wasCalledWith(-1, 2);
   verifyThat(mockAdd).wasCalledNTimes(3);
 
-  m.reset.completely(mockAdd);
+  resetCompletely(mockAdd);
 
   verifyThat(mockAdd).wasNeverCalled();
 

@@ -1,10 +1,11 @@
-import { m, Mock, verifyThat } from "../..";
+import { Mock, verifyThat } from "../..";
+import { resetHistoryOf } from "../../mocks";
 
 function add(a: number, b: number): number {
   return a + b;
 }
 
-test("resetHistory should reset the history of calls", () => {
+test("resetHistoryOf should reset the history of calls", () => {
   const mockAdd = Mock(add);
 
   mockAdd(1, 2);
@@ -17,7 +18,7 @@ test("resetHistory should reset the history of calls", () => {
   verifyThat(mockAdd).wasCalledWith(-1, 2);
   verifyThat(mockAdd).wasCalledNTimes(3);
 
-  m.reset.historyOf(mockAdd);
+  resetHistoryOf(mockAdd);
 
   verifyThat(mockAdd).wasNeverCalled();
 });

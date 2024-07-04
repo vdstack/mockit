@@ -171,7 +171,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
-      if (prop === "resetBehaviour") {
+      if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;
         zodBehaviours.length = 0;
         defaultBehaviour = {
@@ -181,7 +181,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
-      if (prop === "resetHistory") {
+      if (prop === "resetHistoryOf") {
         calls.length = 0;
         return true;
       }

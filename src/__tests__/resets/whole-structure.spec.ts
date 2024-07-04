@@ -1,6 +1,7 @@
-import { Mock, Reset } from "../../mocks";
+import { Mock } from "../../mocks";
 import { verifyThat } from "../../assertions";
 import { when } from "../../behaviours";
+import { m } from "../..";
 
 class Hellaw {
   public hiii() {
@@ -21,7 +22,7 @@ test("reset should be able to reset history for all the functions of a class moc
   verifyThat(mock.hiii).wasCalledOnce();
   verifyThat(mock.hello).wasCalledOnce();
 
-  Reset.historyOf(mock);
+  m.resetHistoryOf(mock);
 
   verifyThat(mock.hiii).wasNeverCalled();
   verifyThat(mock.hello).wasNeverCalled();
@@ -36,7 +37,7 @@ it("should be able to reset the behaviour of all the functions of a class mock",
   expect(mock.hiii()).toBe("hiii");
   expect(mock.hello()).toBe("hello");
 
-  Reset.behaviourOf(mock);
+  m.resetBehaviourOf(mock);
 
   expect(mock.hiii()).toBeUndefined();
   expect(mock.hello()).toBeUndefined();
@@ -54,7 +55,7 @@ it("should be able to reset completely all the functions of a class mock", async
   verifyThat(mock.hiii).wasCalledOnce();
   verifyThat(mock.hello).wasCalledOnce();
 
-  Reset.completely(mock);
+  m.resetCompletely(mock);
   verifyThat(mock.hiii).wasNeverCalled();
   verifyThat(mock.hello).wasNeverCalled();
 
