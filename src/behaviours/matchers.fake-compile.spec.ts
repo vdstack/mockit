@@ -18,7 +18,7 @@ import {
 import { when } from "./when";
 /**
  * This test suite is here to test that matchers can take the place of any type of value.
- * We're testing type compilation here, not features.
+ * We're testing type compilation here, not features. => No assertions needed.
  */
 it("should compile with any matcher", () => {
   function toTest(params: Record<string, string>) {}
