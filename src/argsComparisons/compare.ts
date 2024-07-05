@@ -13,6 +13,14 @@ export function compare(actual: any, expected: any) {
       return expected.options.some((option) => compare(actual, option));
     }
 
+    const isInstanceOf = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__instanceOf")
+    );
+
+    if (isInstanceOf) {
+      return actual instanceof expected.class;
+    }
+
     const isSchema = Object.keys(expected).some((key) =>
       key.endsWith("mockit__isSchema")
     );
