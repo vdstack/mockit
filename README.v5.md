@@ -438,7 +438,10 @@ These matchers are useful when you want to focus on specific properties of the o
 ```ts
 type Deps = { save: (p: { id: string; age: string }) => void };
 function doesSomethingWithAge(age: string, deps: Deps) {
-  deps.save("123e4567-e89b-12d3-a456-426614174000", parseInt(age, 10));
+  deps.save({
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    age: parseInt(age, 10),
+  });
 }
 
 test("it should save the parsed age", () => {
@@ -462,10 +465,10 @@ const forbiddenHobbies = ["gambling"];
 
 type Deps = { save: (p: { id: string; hobbies: string[] }) => void };
 function doesSomethingWithHobbies(hobbies: string[], deps: Deps) {
-  deps.save(
-    "123e4567-e89b-12d3-a456-426614174000",
-    hobbies.filter((hobby) => !forbiddenHobbies.includes(hobby))
-  );
+  deps.save({
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    hobbies: hobbies.filter((hobby) => !forbiddenHobbies.includes(hobby)),
+  });
 }
 
 test("it should not save the forbidden hobbies", () => {
@@ -503,7 +506,7 @@ m.setContaining(new Set(["value1"])); // matches any Set containing the value "v
 
 ### Deep matchers
 
-`m.objectContaining`, `m.arrayContaining`, `m.mapContaining` and `m.setContaining` all have deep variants: `m.deep.objectContaining`, `m.deep.arrayContaining`, `m.deep.mapContaining` and `m.deep.setContaining`.
+`m.objectContaining`, `m.arrayContaining`, `m.mapContaining` and `m.setContaining` all have deep variants: `m.objectContainingDeep`, `m.arrayContainingDeep`, `m.mapContainingDeep` and `m.setContainingDeep`.
 
 These deep matchers will recursively check the structure of the object, array, Map or Set passed to the mocked function, and ignore any other properties or elements.
 
@@ -513,7 +516,7 @@ This is **very** useful when you're dealing with deeply nested structures but si
 /**
  * This will match any object that has a obj.x.y.z.a property equal to 42, and ignore any other properties of the object.
  */
-m.objectContaining({
+m.objectContainingDeep({
   x: {
     y: {
       z: {
@@ -527,7 +530,7 @@ m.objectContaining({
  * This will match any array that matches at least once arr[i][j][k] === 42, and ignore any other elements of the array.
  */
 
-m.arrayContaining([[[[42]]]]);
+m.arrayContainingDeep([[[[42]]]]);
 ```
 
 ## String matchers
