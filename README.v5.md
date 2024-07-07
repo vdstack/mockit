@@ -325,7 +325,7 @@ It can also be useful to test that a dependency was **NOT** called in a specific
 ## Verifications
 
 You get a wide range of verifications available to you, from checking the number of times the mock was called, to checking the arguments passed to it.
-
+![image](https://github.com/vdstack/mockit/assets/6061078/60299ab4-0015-4274-b856-02af9f53f5fb)
 ### wasCalled
 
 `verifyThat(mockedFunc).wasCalled()` will assert that the mock was called at least once.
