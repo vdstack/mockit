@@ -282,45 +282,78 @@ mockedFunc(); // throws Error("yoo")
 
 ## Setup with matchers
 
-Matchers are a powerful tool. They allow you to make your tests more resilient to changes in the implementation, and more focused on the logic you want to test.
-For setup, then can be used in place of any value passed to the isCalledWith function. If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact we provide a lot more matchers than Jest does.
+Matchers are a powerful tool to make your tests **more resilient to changes** in the implementation, and **more focused on the specific bits of logic** you want to test. **They're made with the intent to reduce the time needed to code and maintain your tests**.
+If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact, Mockit provides a lot more matchers than Jest does.
 
-## unsafe
+For setup, they can be used in place of any value passed to the isCalledWith function.
 
-If you don't care about the type of the returned value (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can wrap the returned value in the `m.unsafe(...)` function.
-
-```ts
-function takeNumber(x: Number) {
-  return x;
-}
-const mockedFunc = Mock(takeNumber);
-
-when(mockedFunc)
-  .isCalledWith("Victor") // compiler will complain: "Victor" is not a number
-  .thenReturn(42);
-
-when(mockedFunc)
-  .isCalledWith(m.unsafe("Victor")) // compiler will not complain: you can pass anything
-  .thenReturn(42);
-```
-
-## zod integration
-
-Mockit provides a powerful way to check if your mocked functions have been called with arguments matching a validation schema. This is especially useful when you want to check the nature of the arguments passed to your mocks, but don't know the exact value of them (this can happen when your code is generating them midway).
-You can use zod schemas directly in the m.schema() matcher.
-You can also use any schema that that has a safeParse(): boolean function ! This means you can adapt any validation library to work with Mockit !
+For assertions, they can be used in place of the expected values in the `verifyThat(mock).wasCalledWith(...)` function.
 
 ```ts
+// In this test I only care about the age, and id properties of the object passed to the mocked function.
 when(mockedFunc)
   .isCalledWith(
-    m.schema(
-      z.object({
-        name: z.string(),
-        age: z.number().positive().int(),
-        id: z.string().uuid(),
-        date: z.date(),
-      })
-    )
+    m.objectContaining({
+      age: m.schema(z.number().positive().int()),
+      id: m.any.string(),
+    })
   )
   .thenReturn(42);
+
+// This will match the setup above, even though the name, hobbies, company & nationality properties
+// are not checked: the test is more resilient to changes in the implementation and focuses
+// on the properties that are important for the test.
+const response = mockedFunc({
+  name: "Victor",
+  age: 42,
+  id: "123e4567-e89b-12d3-a456-426614174000",
+  nationality: "French",
+  hobbies: ["coding", "reading", "making music", "video games"],
+  company: "VDStack",
+}); // 42
 ```
+
+For more information about matchers, see the [Matchers](#matchers) section.
+
+# verifyThat
+
+You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify a function mock behaviour.
+It couples your test code with the module under test implementation though, so use it carefully, when it makes sense to verify a behaviour that cannot be tested by reading the module's returned value (for example, when testing side-effects). **Matchers can help reduce this coupling** (see the [Matchers](#matchers) section).
+
+It can also be useful to test that a dependency was **NOT** called in a specific branch of your code.
+
+## Verifications
+
+You get a wide range of verifications available to you, from checking the number of times the mock was called, to checking the arguments passed to it.
+
+### wasCalled
+
+`verifyThat(mockedFunc).wasCalled()` will assert that the mock was called at least once.
+
+### wasCalledWith
+
+`verifyThat(mockedFunc).wasCalledWith(...args: any[])` will assert that the mock was called at least once with the specified arguments. These arguments are type-checked.
+
+### wasCalledOnce
+
+`verifyThat(mockedFunc).wasCalled()` will assert that the mock was called exactly once.
+
+### wasCalledOnceWith
+
+`verifyThat(mockedFunc).wasCalledOnceWith(...args: any[])` will assert that the mock was called exactly once with the specified arguments. These arguments are type-checked.
+
+### wasCalledNTimes
+
+`verifyThat(mockedFunc).wasCalledNTimes(n: number)` will assert that the mock was called exactly `n` times.
+
+### wasCalledNTimesWith
+
+`verifyThat(mockedFunc).wasCalledNTimesWith(n: number, ...args: any[])` will assert that the mock was called exactly `n` times with the specified arguments. These arguments are type-checked.
+
+### wasNeverCalled
+
+`verifyThat(mockedFunc).wasNeverCalled()` will assert that the mock was never called.
+
+### wasNeverCalledWith
+
+`verifyThat(mockedFunc).wasNeverCalledWith(...args: any[])` will assert that the mock was never called with the specified arguments. These arguments are type-checked.

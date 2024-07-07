@@ -239,6 +239,7 @@ export const stringEndingWith = <T, U extends string>(s: U | NoInfer<T>): T => {
 /**
  *
  * NOTE THAT IT WILL NOT MATCH NULL, Maps, Sets and Arrays.
+ * You any.nullish(), any.map(), any.set() and any.array() instead.
  *
  * @example
  * m.any.object() // matches { key: "value" }
