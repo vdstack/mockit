@@ -8,14 +8,14 @@
  * In this case, Mockit can help you by mocking only the email service and verifying that it was called correctly.
  */
 
-import { Mock, when, verifyThat } from "..";
+import { Mock, when, verifyThat, m } from "..";
 
 interface UserRepository {
   getUserById(id: number): Promise<{ id: number; email: string; name: string }>;
 }
 
 interface EmailService {
-  sendEmail(to: string[], content: string): Promise<{ emailID: number }>;
+  sendEmail(p: {to: string[], content: string}): Promise<{ emailID: number }>;
 }
 
 async function sendWelcomeEmail(
@@ -28,10 +28,10 @@ async function sendWelcomeEmail(
   const user = await deps.userRepository.getUserById(userId);
   if (!user) throw new Error("User not found");
 
-  const { emailID } = await deps.emailService.sendEmail(
-    [user.email],
-    `Welcome ${user.name}!`
-  );
+  const { emailID } = await deps.emailService.sendEmail({
+    to: [user.email],
+    content: `Welcome ${user.name}!`
+  });
   if (!emailID) throw new Error("Email not sent");
 
   return emailID;
@@ -84,7 +84,9 @@ test("it should send an email if the user exists and the mail ID", async () => {
 
   // We verify that the email service was called with the correct arguments.
   verifyThat(emailService.sendEmail).wasCalledWith(
-    [user.email],
-    `Welcome ${user.name}!`
+    m.objectContaining({
+      to: [user.email],
+      content: m.any.string() // changing the content won't break the test => it's more resilient to changes in the implementation
+    })
   );
 });
