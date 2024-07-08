@@ -24,17 +24,8 @@ export function mockFunction<T extends (...args: any[]) => any>(
       kind: Behaviours.Return,
       returnedValue: undefined,
     } as NewBehaviourParam<T>);
+
   const customBehaviours: Array<{
-    args: any[];
-    behaviour: NewBehaviourParam<T>;
-  }> = [];
-
-  const zodBehaviours: Array<{
-    args: (any | z.ZodType)[];
-    behaviour: NewBehaviourParam<T>;
-  }> = [];
-
-  const constructBehaviours: Array<{
     args: any[];
     behaviour: NewBehaviourParam<T>;
   }> = [];
@@ -161,19 +152,10 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
-      if (prop === "newZodBehaviour") {
-        zodBehaviours.push(
-          value as {
-            args: (any | z.ZodType)[];
-            behaviour: NewBehaviourParam<T>;
-          }
-        );
-        return true;
-      }
+
 
       if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;
-        zodBehaviours.length = 0;
         defaultBehaviour = {
           kind: Behaviours.Return,
           returnedValue: undefined,
