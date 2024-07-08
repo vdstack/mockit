@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-import { Mock, verifyThat } from "..";
-import { schema } from "../behaviours/matchers";
+import { m, Mock, verifyThat } from "..";
 
 function registerAdultAccount(...args: any[]) {}
 function registerMinorAccount(...args: any[]) {}
@@ -60,7 +59,7 @@ it("should only call minor registration if user is minor", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verifyThat(minorRegistrationMock).wasCalledOnceWith(schema(minorSchema));
+  verifyThat(minorRegistrationMock).wasCalledOnceWith(m.schema(minorSchema));
   verifyThat(adultRegistrationMock).wasNeverCalled();
 });
 
@@ -78,6 +77,6 @@ it("should only call adult registration if user is adult", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verifyThat(adultRegistrationMock).wasCalledOnceWith(schema(adultSchema));
+  verifyThat(adultRegistrationMock).wasCalledOnceWith(m.schema(adultSchema));
   verifyThat(minorRegistrationMock).wasNeverCalled();
 });
