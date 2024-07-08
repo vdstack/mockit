@@ -1,6 +1,6 @@
 {
   "name": "@vdstack/mockit",
-  "version": "5.0.0-beta.5",
+  "version": "5.0.0-beta.6",
   "description": "Behaviour mocking library for TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
