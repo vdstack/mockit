@@ -76,6 +76,61 @@ verifyThat(mockedFunc).wasCalledOnceWith(
 );
 ```
 
+Feel free to contribute :)
+
+Index:
+
+- [Mock](#Mock)
+  - [Functions](#Functions)
+  - [Classes](#Classes)
+  - [Abstract classes](#Abstract-classes)
+  - [Types and interfaces](#Types-and-interfaces)
+  - [Object modules](#Object-modules)
+  - [Interacting with the mocks](#Interacting-with-the-mocks)
+- [when](#when)
+  - [Behaviours control](#Behaviours-control)
+  - [Behaviours](#Behaviours)
+    - [thenReturn](#thenReturn)
+    - [thenThrow](#thenThrow)
+    - [thenResolve](#thenResolve)
+    - [thenReject](#thenReject)
+    - [thenPreserve](#thenPreserve)
+    - [thenBehaveLike](#thenBehaveLike)
+  - [Setup with matchers](#Setup-with-matchers)
+- [verifyThat](#verifyThat)
+  - [Verifications](#Verifications)
+    - [wasCalled](#wasCalled)
+    - [wasCalledWith](#wasCalledWith)
+    - [wasCalledOnce](#wasCalledOnce)
+    - [wasCalledOnceWith](#wasCalledOnceWith)
+    - [wasCalledNTimes](#wasCalledNTimes)
+    - [wasCalledNTimesWith](#wasCalledNTimesWith)
+    - [wasNeverCalled](#wasNeverCalled)
+    - [wasNeverCalledWith](#wasNeverCalledWith)
+- [Matchers](#Matchers)
+  - [Categorial matchers](#Categorial-matchers)
+    - [m.any](#m.any)
+    - [isOneOf](#isOneOf)
+    - [instanceOf](#instanceOf)
+    - [unsafe](#unsafe)
+  - [Rule-based matchers](#Rule-based-matchers)
+    - [m.schema](#m.schema)
+  - [Structure-based matchers](#Structure-based-matchers)
+    - [objectContaining](#objectContaining)
+    - [arrayContaining](#arrayContaining)
+    - [mapContaining](#mapContaining)
+    - [setContaining](#setContaining)
+    - [Deep matchers](#Deep-matchers)
+  - [String matchers](#String-matchers)
+    - [stringContaining](#stringContaining)
+    - [stringStartingWith](#stringStartingWith)
+    - [stringEndingWith](#stringEndingWith)
+    - [stringMatchingRegex](#stringMatchingRegex)
+  - [Combining matchers](#Combining-matchers)
+    - [or](#or)
+    - [Composition](#Composition)
+
+
 # Mock
 
 You can mock functions, classes, abstract classes, objects, interfaces and types with the same function `Mock`.
@@ -352,7 +407,7 @@ const mockedFunc = Mock(original);
 
 ## Categorial matchers
 
-### m.any
+### any
 
 `m.any` provides a wide range of matchers for each common category of values. It requires no dependency and is the most versatile set of matchers.
 
@@ -413,7 +468,7 @@ mockedFunc(42); // 42
 
 ## Rule-based matchers
 
-### m.schema
+### schema
 
 `m.schema` is a matcher that accepts any schema that complies with the following type:
 `type Schema = { safeParse: (value: any) => boolean; }`
@@ -431,7 +486,7 @@ m.schema(z.string().email()); // matches any email string
 Mockit provides a wide range of matchers to match the structure of objects, arrays, Maps, Sets, etc...
 These matchers are useful when you want to focus on specific properties of the object passed to the mocked function, and ignore the rest.
 
-### m.objectContaining
+### objectContaining
 
 `m.objectContaining` is a matcher that will focus on the properties you specify, and ignore any other properties of the object passed to the mocked function. This is a very common use-case, for example when you want to verify that a function was called with a specific ID, or that a specific property was parsed correctly.
 
@@ -456,7 +511,7 @@ test("it should save the parsed age", () => {
 });
 ```
 
-### m.arrayContaining
+### arrayContaining
 
 Similar to `m.objectContaining`, `m.arrayContaining` will focus on the elements you specify, and ignore any other elements of the array passed to the mocked function.
 
@@ -484,7 +539,7 @@ test("it should not save the forbidden hobbies", () => {
 });
 ```
 
-### m.mapContaining
+### mapContaining
 
 Similar to `m.objectContaining`, `m.mapContaining` will focus on the entries you specify, and ignore any other entries of the Map passed to the mocked function.
 Just pass a Map to the matcher that contains the entries you want to check.
@@ -493,7 +548,7 @@ Just pass a Map to the matcher that contains the entries you want to check.
 m.mapContaining(new Map([["key1", "value1"]])); // matches any Map containing the entry ["key1", "value1"]
 ```
 
-### m.setContaining
+### setContaining
 
 Similar to `m.arrayContaining`, `m.setContaining` will focus on the elements you specify, and ignore any other elements of the Set passed to the mocked function.
 Litteraly pass a subset of the Set you want to check.
@@ -537,25 +592,25 @@ m.arrayContainingDeep([[[[42]]]]);
 
 Mockit provides 4 matchers to match strings: `m.stringContaining`, `m.stringStartingWith`, `m.stringEndingWith` and `m.stringMatchingRegex`.
 
-### m.stringContaining
+### stringContaining
 
 `m.stringContaining("bubble")` will match any string that contains the substring "bubble".
 
-### m.stringStartingWith
+### stringStartingWith
 
 `m.stringStartingWith("bubble")` will match any string that starts with the substring "bubble".
 
-### m.stringEndingWith
+### stringEndingWith
 
 `m.stringEndingWith("bubble")` will match any string that ends with the substring "bubble".
 
-### m.stringMatchingRegex
+### stringMatchingRegex
 
 `m.stringMatchingRegex(reg:RegExp)` will match any string that matches the regular expression passed as an argument.
 
 ## Combining matchers
 
-### m.or
+### or
 
 With the `m.or` matcher, you can build custom matchers that accept a wider range of values. For example, you can match any number that is either positive or negative, while rejecting zero.
 
