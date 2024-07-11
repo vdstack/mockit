@@ -86,7 +86,7 @@ test("it should send an email if the user exists and the mail ID", async () => {
   verifyThat(emailService.sendEmail).wasCalledWith(
     m.objectContaining({
       to: [user.email],
-      content: m.any.string() // changing the content won't break the test => it's more resilient to changes in the implementation
+      content: m.anyString() // changing the content won't break the test => it's more resilient to changes in the implementation
     })
   );
 });
