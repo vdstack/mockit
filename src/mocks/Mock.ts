@@ -3,10 +3,28 @@ import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
 
 /**
- * This function is used to create a mock of a class, abstract class or function.
- * You can also pass an interface / type in generic to create a mock of it.
+ * This function is used to create a mock of classes, abstract classes, functions, objects,
+ * types and interfaces.
+ * For types and interfaces, pass them in the generic slot to create a mock that respects the type.
  * @param _param anything that can be mocked: class, abstract class or function
  * @returns a mock of the provided parameter
+ *
+ * @example Class, Object, Abstract Class and Function
+ * ```ts
+ * const mockedVersion = Mock(original);
+ * // You can now use the mocked version as if it was the original
+ * ```
+ * @example Types and Interfaces
+ * ```ts
+ * type MyType = {
+ *   doSomething(): void;
+ *   doSomethingElse(): string;
+ * };
+ *
+ * const mockedType = Mock<MyType>();
+ * // You can now use the mocked version as if it was the original
+ * mockedType.doSomething(); // returns undefined
+ * ```
  */
 export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
