@@ -70,7 +70,7 @@ expect(response).toBe("adult");
  */
 verifyThat(mockedFunc).wasCalledOnceWith(
   m.objectContaining({
-    age: m.schema(z.number().int().positive()),
+    age: m.validates(z.number().int().positive()),
     hobbies: m.arrayContaining(m.any.string()),
   })
 );
@@ -114,7 +114,7 @@ Index:
     - [instanceOf](#instanceOf)
     - [unsafe](#unsafe)
   - [Rule-based matchers](#Rule-based-matchers)
-    - [m.schema](#m.schema)
+    - [m.validates](#m.validates)
   - [Structure-based matchers](#Structure-based-matchers)
     - [objectContaining](#objectContaining)
     - [arrayContaining](#arrayContaining)
@@ -129,7 +129,6 @@ Index:
   - [Combining matchers](#Combining-matchers)
     - [or](#or)
     - [Composition](#Composition)
-
 
 # Mock
 
@@ -314,7 +313,7 @@ For assertions, they can be used in place of the expected values in the `verifyT
 when(mockedFunc)
   .isCalledWith(
     m.objectContaining({
-      age: m.schema(z.number().positive().int()),
+      age: m.validates(z.number().positive().int()),
       id: m.any.string(),
     })
   )
@@ -392,7 +391,7 @@ One solution to this problem **is not to use mocks at all and focus on I/O testi
 Another solution **is not to assert against specific values, but against more generic logic**.
 This is where matchers come in: they represent **categories of values** instead of specific ones, or **rules that the values must comply with** instead of the values themselves.
 
-For example, the `m.any.string()` matcher will match any string passed to the mocked function, or the `m.schema(z.number().positive().int())` matcher to match any positive integer (using the Zod library).
+For example, the `m.any.string()` matcher will match any string passed to the mocked function, or the `m.validates(z.number().positive().int())` matcher to match any positive integer (using the Zod library).
 If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact, Mockit provides a lot more matchers than Jest does.
 
 ## How to use matchers ?
@@ -468,17 +467,26 @@ mockedFunc(42); // 42
 
 ## Rule-based matchers
 
-### schema
+### validate
 
-`m.schema` is a matcher that accepts any schema that complies with the following type:
-`type Schema = { safeParse: (value: any) => boolean; }`
-By design, it's compatible with the Zod library, but you can easily build an adapter for any validation library should you need it.
+You can provide a custom validation function thanks to the `validate` matcher.
+It accepts a function that will be called with the actual value and the expected value.
+It should return `true` if the actual value matches the expected value, and `false` otherwise.
 
 ```ts
-import { z } from "zod";
+const mockedFunc = Mock(original);
+mockedFunc(55);
 
-m.schema(z.number().positive().int()); // matches any positive integer
-m.schema(z.string().email()); // matches any email string
+verifyThat(mockedFunc).wasCalledWith(m.validate((actual) => actual > 50));
+```
+
+validate also accepts a Zod schema, which will be used to validate the actual value.
+
+```ts
+const mockedFunc = Mock(original);
+mockedFunc(55);
+
+verifyThat(mockedFunc).wasCalledWith(m.validate(z.number().positive().gt(50)));
 ```
 
 ## Structure-based matchers
@@ -627,7 +635,7 @@ Mockit matchers are functions, which means you can compose them together to buil
  * This will match any object that has an age property that is a positive integer, and a hobbies property that is an array of email strings.
  */
 m.objectContaining({
-  age: m.schema(z.number().positive().int()),
-  hobbies: m.arrayContaining([m.schema().string().email()]),
+  age: m.validates(z.number().positive().int()),
+  hobbies: m.arrayContaining([m.validates().string().email()]),
 });
 ```

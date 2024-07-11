@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-import { schema } from "../behaviours/matchers";
 import { compare } from "./compare";
 import { m } from "..";
+import { validates } from "../behaviours/matchers";
 
 it("should compare numbers", () => {
   expect(compare(2, 2)).toBe(true);
@@ -120,8 +120,8 @@ it("should compare undefined & null values", () => {
 });
 
 it("should accept schemas", () => {
-  expect(compare(1, schema(z.number().int().positive()))).toBe(true);
-  expect(compare(1, schema(z.number().int().negative()))).toBe(false);
+  expect(compare(1, validates(z.number().int().positive()))).toBe(true);
+  expect(compare(1, validates(z.number().int().negative()))).toBe(false);
 });
 
 it("should compare schemas in objects", () => {
@@ -136,7 +136,7 @@ it("should compare schemas in objects", () => {
       {
         key: 1,
         z: {
-          z: schema(z.number()),
+          z: validates(z.number()),
         },
       }
     )
@@ -153,7 +153,7 @@ it("should compare schemas in objects", () => {
       {
         key: 1,
         z: {
-          z: schema(z.string()),
+          z: validates(z.string()),
         },
       }
     )
@@ -161,9 +161,9 @@ it("should compare schemas in objects", () => {
 });
 
 it("should compare schemas in arrays", () => {
-  expect(compare([1, 2, 3], [1, 2, schema(z.number())])).toBe(true);
+  expect(compare([1, 2, 3], [1, 2, validates(z.number())])).toBe(true);
 
-  expect(compare([1, 2, 3], [1, 2, schema(z.string())])).toBe(false);
+  expect(compare([1, 2, 3], [1, 2, validates(z.string())])).toBe(false);
 });
 
 it("should compare schemas in maps", () => {
@@ -171,11 +171,11 @@ it("should compare schemas in maps", () => {
   map1.set("key", 1);
 
   const map2 = new Map();
-  map2.set("key", schema(z.number()));
+  map2.set("key", validates(z.number()));
 
   expect(compare(map1, map2)).toBe(true);
 
-  map2.set("key2", schema(z.string()));
+  map2.set("key2", validates(z.string()));
 
   expect(compare(map1, map2)).toBe(false);
 });
@@ -185,11 +185,11 @@ it("should compare schemas in sets", () => {
   set1.add(1);
 
   const set2 = new Set();
-  set2.add(schema(z.number()));
+  set2.add(validates(z.number()));
 
   expect(compare(set1, set2)).toBe(true);
 
-  set2.add(schema(z.string()));
+  set2.add(validates(z.string()));
 
   expect(compare(set1, set2)).toBe(false);
 });
@@ -209,9 +209,9 @@ it("should compare a mix of all the above", () => {
     compare(actual, {
       key: [
         1,
-        schema(z.number().positive()),
+        validates(z.number().positive()),
         {
-          key: new Map([["key", schema(z.set(z.number().positive()))]]),
+          key: new Map([["key", validates(z.set(z.number().positive()))]]),
         },
       ],
     })
@@ -221,10 +221,10 @@ it("should compare a mix of all the above", () => {
     compare(actual, {
       key: [
         1,
-        schema(z.number().positive()),
+        validates(z.number().positive()),
         {
           key: new Map([
-            ["key", schema(z.set(z.number().negative()))], // changed to negative
+            ["key", validates(z.set(z.number().negative()))], // changed to negative
           ]),
         },
       ],
@@ -342,11 +342,11 @@ it("should accept schemas in containingDeep", () => {
       m.arrayContainingDeep([
         1,
         2,
-        schema(z.string()),
+        validates(z.string()),
         { z: { z: { z: 2 } } },
         4,
         5,
-        schema(z.number().refine((n) => n === 6)),
+        validates(z.number().refine((n) => n === 6)),
       ])
     )
   ).toBe(true);
@@ -357,11 +357,11 @@ it("should accept schemas in containingDeep", () => {
       m.arrayContainingDeep([
         1,
         2,
-        schema(z.string()),
+        validates(z.string()),
         { z: { z: { z: 2 } } },
         4,
         5,
-        schema(z.number().refine((n) => n === 7)),
+        validates(z.number().refine((n) => n === 7)),
       ]) // 6 !== 7 => should fail
     )
   ).toBe(false);
@@ -381,7 +381,7 @@ it("should combine nested containing ", () => {
       {
         x: m.objectContaining({
           w: m.objectContaining([
-            schema(z.number().int().positive()),
+            validates(z.number().int().positive()),
             m.objectContaining({ name: "Victor" }),
           ]),
         }),
@@ -403,7 +403,7 @@ it("should combine work the same way with containingDeep ", () => {
       },
       {
         x: m.objectContainingDeep({
-          w: [schema(z.number().int().positive()), { name: "Victor" }],
+          w: [validates(z.number().int().positive()), { name: "Victor" }],
         }),
       }
     )

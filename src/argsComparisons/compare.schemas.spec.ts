@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { schema } from "../behaviours/matchers";
 import { compare } from "./compare";
+import { validates } from "../behaviours/matchers";
 
 describe("compare.schema", () => {
   it("should compare schema and values", () => {
     const actual = "hello world";
-    const expected = schema(z.string());
+    const expected = validates(z.string());
 
     expect(compare(actual, expected)).toBe(true);
 
@@ -13,7 +13,7 @@ describe("compare.schema", () => {
   });
 
   it("should compare schemas in objects", () => {
-    const expected = { a: 1, b: schema(z.string()) };
+    const expected = { a: 1, b: validates(z.string()) };
 
     expect(compare({ a: 1, b: "hello world" }, expected)).toBe(true);
 
@@ -21,7 +21,7 @@ describe("compare.schema", () => {
   });
 
   it("should compare schemas in arrays", () => {
-    const expected = [1, schema(z.string())];
+    const expected = [1, validates(z.string())];
 
     expect(compare([1, "hello world"], expected)).toBe(true);
 
@@ -36,7 +36,7 @@ describe("compare.schema", () => {
 
     const expected = new Map<string, any>([
       ["a", 1],
-      ["b", schema(z.string())],
+      ["b", validates(z.string())],
     ]);
 
     expect(compare(actual, expected)).toBe(true);
@@ -52,7 +52,7 @@ describe("compare.schema", () => {
   it("should compare schemas in sets", () => {
     const actual = new Set<any>([1, "hello world"]);
 
-    const expected = new Set<any>([1, schema(z.string())]);
+    const expected = new Set<any>([1, validates(z.string())]);
 
     expect(compare(actual, expected)).toBe(true);
 
@@ -68,7 +68,7 @@ describe("compare.schema", () => {
     };
 
     const expected = {
-      a: { b: { c: { d: { e: schema(z.number()) } } } },
+      a: { b: { c: { d: { e: validates(z.number()) } } } },
       x: "Victor",
     };
 
@@ -85,7 +85,7 @@ describe("compare.schema", () => {
   it("should work very deep in arrays", () => {
     const actual = [[[[[2]]]], "Victor"];
 
-    const expected = [[[[[schema(z.number())]]]], "Victor"];
+    const expected = [[[[[validates(z.number())]]]], "Victor"];
 
     expect(compare(actual, expected)).toBe(true);
 
@@ -104,7 +104,7 @@ describe("compare.schema", () => {
       [
         "a",
         new Map<string, any>([
-          ["b", new Map<string, any>([["c", schema(z.number())]])],
+          ["b", new Map<string, any>([["c", validates(z.number())]])],
         ]),
       ],
       ["x", "Victor"],
@@ -132,7 +132,7 @@ describe("compare.schema", () => {
     ]);
 
     const expected = new Set<any>([
-      new Set<any>([new Set<any>([new Set<any>([schema(z.number())])])]),
+      new Set<any>([new Set<any>([new Set<any>([validates(z.number())])])]),
       "Victor",
     ]);
 

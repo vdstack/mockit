@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { Mock, when, verifyThat, resetCompletely } from "../..";
-import { schema } from "../../behaviours/matchers";
+import { Mock, when, verifyThat, resetCompletely, m } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
@@ -17,7 +16,7 @@ test("resetCompletely should reset all behaviours and history", () => {
 
   // zod-based
   when(mockAdd)
-    .isCalledWith(schema(z.number().int().negative()), 2)
+    .isCalledWith(m.validates(z.number().int().negative()), 2)
     .thenReturn(22);
 
   expect(mockAdd(1, 2)).toBe(12);

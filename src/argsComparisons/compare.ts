@@ -29,6 +29,13 @@ export function compare(actual: any, expected: any) {
       return (expected.schema as Schema).safeParse(actual).success;
     }
 
+    const isValidate = Object.keys(expected).some((key) =>
+      key.endsWith("mockit__validate")
+    );
+    if (isValidate) {
+      return expected.validationFunction(actual);
+    }
+
     const isOneOf = Object.keys(expected).some((key) =>
       key.endsWith("mockit__isOneOf")
     );

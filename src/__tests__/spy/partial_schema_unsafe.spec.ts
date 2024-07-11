@@ -1,6 +1,6 @@
 import z from "zod";
 import { verifyThat } from "../../assertions";
-import { schema, unsafe } from "../../behaviours/matchers";
+import { validates, unsafe } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 import { m } from "../..";
 
@@ -35,13 +35,13 @@ test("wasCalledWith should accept partial construct", () => {
 
 test("wasCalledWith should accept zod schema construct", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    schema(
+    validates(
       z.object({
         address: z.string(),
       })
     )
   );
-  verifyThat(funcMock).wasNeverCalledWith(schema(z.string().uuid()));
+  verifyThat(funcMock).wasNeverCalledWith(validates(z.string().uuid()));
 });
 
 test("should accept unsafe construct", () => {
@@ -53,7 +53,7 @@ test("should accept partials in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     m.objectContaining({
       location: m.objectContaining({ lat: 123 }),
-      age: schema(z.number()),
+      age: validates(z.number()),
     })
   );
 });
@@ -62,7 +62,7 @@ test("should accept schemas in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     m.objectContaining({
       location: m.objectContaining({ lat: 123 }),
-      age: schema(z.number()),
+      age: validates(z.number()),
     })
   );
 });
@@ -78,7 +78,7 @@ test("should accept unsafe in partials", () => {
 test("should accept partials in objects", () => {
   verifyThat(funcMock).wasCalledOnceWith({
     location: m.objectContaining({ lat: 123 }),
-    age: schema(z.number()),
+    age: validates(z.number()),
     address: "123",
     name: "123",
   });

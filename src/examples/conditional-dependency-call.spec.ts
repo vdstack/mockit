@@ -59,7 +59,7 @@ it("should only call minor registration if user is minor", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verifyThat(minorRegistrationMock).wasCalledOnceWith(m.schema(minorSchema));
+  verifyThat(minorRegistrationMock).wasCalledOnceWith(m.validates(minorSchema));
   verifyThat(adultRegistrationMock).wasNeverCalled();
 });
 
@@ -77,6 +77,6 @@ it("should only call adult registration if user is adult", () => {
     { createAdult: adultRegistrationMock, createMinor: minorRegistrationMock }
   );
 
-  verifyThat(adultRegistrationMock).wasCalledOnceWith(m.schema(adultSchema));
+  verifyThat(adultRegistrationMock).wasCalledOnceWith(m.validates(adultSchema));
   verifyThat(minorRegistrationMock).wasNeverCalled();
 });

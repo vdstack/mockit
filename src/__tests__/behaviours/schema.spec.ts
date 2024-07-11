@@ -1,9 +1,10 @@
 import { randomUUID } from "crypto";
 import { z } from "zod";
 
-import { schema, unsafe } from "../../behaviours/matchers";
+import { unsafe } from "../../behaviours/matchers";
 import { when } from "../../behaviours";
 import { Mock, resetCompletely } from "../../mocks";
+import { m } from "../..";
 
 test("test new zod comparison", () => {
   function toTest(params: any) {}
@@ -12,7 +13,7 @@ test("test new zod comparison", () => {
   expect(mock({ name: -1 })).toBe(undefined);
 
   when(mock)
-    .isCalledWith({ name: schema(z.number().int().negative()) })
+    .isCalledWith({ name: m.validates(z.number().int().negative()) })
     .thenReturn(unsafe(999));
 
   expect(mock({ name: -1 })).toBe(999);
@@ -21,8 +22,8 @@ test("test new zod comparison", () => {
 
   when(mock)
     .isCalledWith({
-      x: schema(z.array(z.number().int().positive())),
-      y: schema(z.array(z.number().int().negative())),
+      x: m.validates(z.array(z.number().int().positive())),
+      y: m.validates(z.array(z.number().int().negative())),
       z: 2,
     })
     .thenReturn(unsafe("ding"));
@@ -36,8 +37,8 @@ test("test new zod comparison", () => {
 
   when(mock)
     .isCalledWith({
-      x: schema(z.set(z.number().int().positive())),
-      y: schema(z.set(z.number().int().negative())),
+      x: m.validates(z.set(z.number().int().positive())),
+      y: m.validates(z.set(z.number().int().negative())),
       z: 2,
     })
     .thenReturn(unsafe("ding"));
@@ -62,7 +63,7 @@ test("test new zod comparison", () => {
           z: {
             a: {
               b: {
-                c: schema(z.string().uuid()),
+                c: m.validates(z.string().uuid()),
               },
             },
           },

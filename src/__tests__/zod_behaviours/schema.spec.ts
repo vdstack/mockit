@@ -21,18 +21,18 @@
  * suggestions.
  */
 
-import { Mock, when } from "../..";
+import { m, Mock, when } from "../..";
 
 import { z } from "zod";
-import { schema, unsafe } from "../../behaviours/matchers";
+import { unsafe } from "../../behaviours/matchers";
 
 test("mock should accept zod schemas as arguments", () => {
   const mock = Mock((x: number, y: string) => {
     return y;
   });
 
-  when(mock).isCalledWith(1, schema(z.string())).thenReturn("world");
-  when(mock).isCalledWith(schema(z.number()), "hello").thenReturn("zod");
+  when(mock).isCalledWith(1, m.validates(z.string())).thenReturn("world");
+  when(mock).isCalledWith(m.validates(z.number()), "hello").thenReturn("zod");
   when(mock).isCalled.thenReturn(unsafe("default"));
 
   expect(mock(1, "hello")).toBe("world");
@@ -51,7 +51,7 @@ test("complex zod schema", () => {
 
   when(mock)
     .isCalledWith(
-      schema(
+      m.validates(
         z.object({
           x: z.number(),
           y: z.string(),

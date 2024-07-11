@@ -5,6 +5,7 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
+import { ZodSchema } from "zod";
 import { containing } from "./containing";
 import { containingDeep } from "./containing.deep";
 import { ProxyFactory } from "./matcher-proxy-factory";
@@ -15,8 +16,8 @@ import { ProxyFactory } from "./matcher-proxy-factory";
  *
  * @example
  * isOneOf([1, 2, 3]) // matches 1
- * isOneOf([m.schema(z.number().int().positive())]) // matches 1
- * isOneOf([m.schema(z.number().int().positive())]) // does not match (-1)
+ * isOneOf([m.validates(z.number().int().positive())]) // matches 1
+ * isOneOf([m.validates(z.number().int().positive())]) // does not match (-1)
  */
 export const isOneOf = <T, U>(options: U | NoInfer<T>[]): T => {
   return ProxyFactory<T>("isOneOf", { options: options });
@@ -25,31 +26,6 @@ export const isOneOf = <T, U>(options: U | NoInfer<T>[]): T => {
 export interface Schema {
   safeParse(value: any): { success: boolean };
 }
-
-/**
- *
- * @param schema a schema object that has a safeParse method.
- *
- * Use this to validate a value against a schema. zod schemas are compliant, but you can create your own,
- * or adapt existing ones to fit the schema interface.
- *
- * export interface Schema {
- *  safeParse(value: any): { success: boolean };
- * }
- *
- * @example
- * // zod schema
- * const schema = z.number().int().positive()
- * m.schema(z.number().int().positive()) // matches 1
- *
- * @example
- * // Custom matchers
- * m.schema({ safeParse: (_a) => ({ success: true }) }) // matches anything
- * m.schema({ safeParse: (a) => { return joi.string().uuid().validate(a) } }) // matches a uuid
- */
-export const schema = <T, U extends Schema>(schema: U | NoInfer<T>): T => {
-  return ProxyFactory<T>("isSchema", { schema });
-};
 
 /**
  *
@@ -357,9 +333,47 @@ export const or = <T, U>(...args: U[]): T => {
   return ProxyFactory<T>("or_operator", { options: args });
 };
 
+function add(a: string, b: string): string;
+
+function add(a: number, b: number): number;
+
+function add(a: any, b: any): any {
+  return a + b;
+}
+
+/**
+ *
+ * @param validationFunction Either a function that accepts a value and returns a boolean
+ * @returns a matcher that will validate the actual value against the provided validation function
+ *
+ * @example
+ * m.validate((value) => value > 0) // matches 1
+ * m.validate((value) => value < 0) // does not match 1
+ */
+export function validates<T>(validationFunction: (value: any) => boolean): T;
+/**
+ *
+ * @param validationFunction a Zod schema
+ * @returns a matcher that will validate the actual value against the provided Zod schema
+ *
+ * @example
+ * // Zod schema
+ * const schema = z.number().int().positive()
+ * m.validate(schema) // matches 1
+ */
+export function validates<T>(validationFunction: ZodSchema<any, any, any>): T;
+export function validates<T>(
+  validationFunction: ((value: any) => boolean) | ZodSchema<any, any, any>
+): T {
+  if (validationFunction instanceof ZodSchema) {
+    return ProxyFactory<T>("isSchema", { schema: validationFunction });
+  }
+
+  return ProxyFactory<T>("validate", { validationFunction });
+}
+
 export const matchers = {
   isOneOf,
-  schema,
   unsafe,
   objectContaining,
   arrayContaining,
@@ -375,6 +389,7 @@ export const matchers = {
   instanceOf,
   stringMatching,
   or,
+  validates,
 };
 
 export type NoInfer<T> = [T][T extends any ? 0 : never];

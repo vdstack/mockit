@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { when } from "../../behaviours";
-import { objectContaining, schema } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 import { randomUUID } from "crypto";
+import { m } from "../..";
 
 describe("behaviour setup: schema in partial", () => {
   function toTest(...args: any[]) {
@@ -15,10 +15,10 @@ describe("behaviour setup: schema in partial", () => {
 
     when(mock)
       .isCalledWith(
-        objectContaining({
+        m.objectContaining({
           identity: {
             id: 1,
-            uuid: schema(z.string().uuid()),
+            uuid: m.validates(z.string().uuid()),
           },
         })
       )
