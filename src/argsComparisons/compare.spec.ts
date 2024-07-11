@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-import { containing, schema, containingDeep } from "../behaviours/matchers";
+import { schema } from "../behaviours/matchers";
 import { compare } from "./compare";
+import { m } from "..";
 
 it("should compare numbers", () => {
   expect(compare(2, 2)).toBe(true);
@@ -232,15 +233,19 @@ it("should compare a mix of all the above", () => {
 });
 
 it("should accept Containing constructs", () => {
-  expect(compare({ key: 1, key2: 2 }, containing({ key: 1 }))).toEqual(true);
+  expect(compare({ key: 1, key2: 2 }, m.objectContaining({ key: 1 }))).toEqual(
+    true
+  );
 
-  expect(compare({ key: 1, key2: 2 }, containing({ key: 2 }))).toEqual(false);
+  expect(compare({ key: 1, key2: 2 }, m.objectContaining({ key: 2 }))).toEqual(
+    false
+  );
 });
 
 it("should accept containing in objects", () => {
-  expect(compare([1, 2, 3], containing([1, 2]))).toBe(true);
+  expect(compare([1, 2, 3], m.arrayContaining([1, 2]))).toBe(true);
 
-  expect(compare([1, 2, 3], containing([1, 4]))).toBe(false);
+  expect(compare([1, 2, 3], m.arrayContaining([1, 4]))).toBe(false);
 });
 
 it("should accept containing in maps", () => {
@@ -248,9 +253,9 @@ it("should accept containing in maps", () => {
   map.set("key", 1);
   map.set("key2", 2);
 
-  expect(compare(map, containing(new Map([["key", 1]])))).toBe(true);
+  expect(compare(map, m.mapContaining(new Map([["key", 1]])))).toBe(true);
 
-  expect(compare(map, containing(new Map([["key", 2]])))).toBe(false);
+  expect(compare(map, m.mapContaining(new Map([["key", 2]])))).toBe(false);
 });
 
 it("should accept containing in sets", () => {
@@ -258,23 +263,23 @@ it("should accept containing in sets", () => {
   set.add(1);
   set.add(2);
 
-  expect(compare(set, containing(new Set([1])))).toBe(true);
+  expect(compare(set, m.setContaining(new Set([1])))).toBe(true);
 
-  expect(compare(set, containing(new Set([3])))).toBe(false);
+  expect(compare(set, m.setContaining(new Set([3])))).toBe(false);
 });
 
 it("should accept containingDeep constructs in object", () => {
   expect(
     compare(
       { x: 1, y: 2, z: { z: { z: 2, y: 3 } } },
-      containingDeep({ z: { z: { z: 2 } } })
+      m.objectContainingDeep({ z: { z: { z: 2 } } })
     )
   ).toBe(true);
 
   expect(
     compare(
       { x: 1, y: 2, z: { z: { z: 2, y: 3 } } },
-      containingDeep({ z: { z: { z: 3 } } }) // z changed to 3, but provided a value of 2 => should fail
+      m.objectContainingDeep({ z: { z: { z: 3 } } }) // z changed to 3, but provided a value of 2 => should fail
     )
   ).toBe(false);
 });
@@ -283,14 +288,14 @@ it("should accept containingDeep constructs in arrays", () => {
   expect(
     compare(
       [1, 2, { z: { z: { z: 2 } } }, 4, 5, 6],
-      containingDeep([1, 2, { z: { z: { z: 2 } } }])
+      m.objectContainingDeep([1, 2, { z: { z: { z: 2 } } }])
     )
   ).toBe(true);
 
   expect(
     compare(
       [{ z: { z: { z: 2 } } }, 4, 5, 6], // 1 and 2 are not contained in the provided array => should fail
-      containingDeep([1, 2, { z: { z: { z: 2 } } }])
+      m.objectContainingDeep([1, 2, { z: { z: { z: 2 } } }])
     )
   ).toBe(false);
 });
@@ -303,7 +308,7 @@ it("should accept containingDeep constructs in maps", () => {
   expect(
     compare(
       map,
-      containingDeep(new Map([["key", { z: { z: { z: 2 } } }]])) // key2 is not contained in the containingDeepMap
+      m.mapContainingDeep(new Map([["key", { z: { z: { z: 2 } } }]])) // key2 is not contained in the containingDeepMap
       // BUT, the provided value is contained in the map => should pass (containing just checks if the provided value is contained in the map)
     )
   ).toBe(true);
@@ -311,7 +316,7 @@ it("should accept containingDeep constructs in maps", () => {
   expect(
     compare(
       map,
-      containingDeep(new Map([["key", { z: { z: { z: 3 } } }]])) // key2 is not contained in the map passed to containingDeepMap => should fail
+      m.mapContainingDeep(new Map([["key", { z: { z: { z: 3 } } }]])) // key2 is not contained in the map passed to containingDeepMap => should fail
     )
   ).toBe(false);
 });
@@ -321,20 +326,20 @@ it("should accept containingDeep constructs in sets", () => {
   set.add({ z: { z: { z: 2 } } });
   set.add({ z: { z: { z: 5 } } });
 
-  expect(compare(set, containingDeep(new Set([{ z: { z: { z: 2 } } }])))).toBe(
-    true
-  );
+  expect(
+    compare(set, m.setContainingDeep(new Set([{ z: { z: { z: 2 } } }])))
+  ).toBe(true);
 
-  expect(compare(set, containingDeep(new Set([{ z: { z: { z: 3 } } }])))).toBe(
-    false
-  );
+  expect(
+    compare(set, m.setContainingDeep(new Set([{ z: { z: { z: 3 } } }])))
+  ).toBe(false);
 });
 
 it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      containingDeep([
+      m.arrayContainingDeep([
         1,
         2,
         schema(z.string()),
@@ -349,7 +354,7 @@ it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      containingDeep([
+      m.arrayContainingDeep([
         1,
         2,
         schema(z.string()),
@@ -374,10 +379,10 @@ it("should combine nested containing ", () => {
         },
       },
       {
-        x: containing({
-          w: containing([
+        x: m.objectContaining({
+          w: m.objectContaining([
             schema(z.number().int().positive()),
-            containing({ name: "Victor" }),
+            m.objectContaining({ name: "Victor" }),
           ]),
         }),
       }
@@ -397,7 +402,7 @@ it("should combine work the same way with containingDeep ", () => {
         },
       },
       {
-        x: containingDeep({
+        x: m.objectContainingDeep({
           w: [schema(z.number().int().positive()), { name: "Victor" }],
         }),
       }

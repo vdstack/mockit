@@ -1,12 +1,8 @@
 import z from "zod";
 import { verifyThat } from "../../assertions";
-import {
-  schema,
-  unsafe,
-  containing,
-  containingDeep,
-} from "../../behaviours/matchers";
+import { schema, unsafe } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
+import { m } from "../..";
 
 function func(params: {
   name: string;
@@ -29,8 +25,12 @@ funcMock({
 });
 
 test("wasCalledWith should accept partial construct", () => {
-  verifyThat(funcMock).wasCalledOnceWith(containing({ address: "123" }));
-  verifyThat(funcMock).wasNeverCalledWith(containing({ address: "1234" }));
+  verifyThat(funcMock).wasCalledOnceWith(
+    m.objectContaining({ address: "123" })
+  );
+  verifyThat(funcMock).wasNeverCalledWith(
+    m.objectContaining({ address: "1234" })
+  );
 });
 
 test("wasCalledWith should accept zod schema construct", () => {
@@ -51,8 +51,8 @@ test("should accept unsafe construct", () => {
 
 test("should accept partials in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    containing({
-      location: containing({ lat: 123 }),
+    m.objectContaining({
+      location: m.objectContaining({ lat: 123 }),
       age: schema(z.number()),
     })
   );
@@ -60,8 +60,8 @@ test("should accept partials in partials", () => {
 
 test("should accept schemas in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    containing({
-      location: containing({ lat: 123 }),
+    m.objectContaining({
+      location: m.objectContaining({ lat: 123 }),
       age: schema(z.number()),
     })
   );
@@ -69,7 +69,7 @@ test("should accept schemas in partials", () => {
 
 test("should accept unsafe in partials", () => {
   verifyThat(funcMock).wasNeverCalledWith(
-    containing({
+    m.objectContaining({
       address: unsafe(2),
     })
   );
@@ -77,7 +77,7 @@ test("should accept unsafe in partials", () => {
 
 test("should accept partials in objects", () => {
   verifyThat(funcMock).wasCalledOnceWith({
-    location: containing({ lat: 123 }),
+    location: m.objectContaining({ lat: 123 }),
     age: schema(z.number()),
     address: "123",
     name: "123",
@@ -86,7 +86,7 @@ test("should accept partials in objects", () => {
 
 test("should accept partialDeep constructs", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    containingDeep({
+    m.objectContainingDeep({
       location: { lat: 123 },
     })
   );
@@ -94,14 +94,14 @@ test("should accept partialDeep constructs", () => {
 
 test("should accept partialDeep in partials", () => {
   verifyThat(funcMock).wasCalledOnceWith(
-    containing({
-      location: containingDeep({ lat: 123 }),
+    m.objectContaining({
+      location: m.objectContainingDeep({ lat: 123 }),
     })
   );
 
   verifyThat(funcMock).wasNeverCalledWith(
-    containing({
-      location: containingDeep({ lat: 1234 }),
+    m.objectContaining({
+      location: m.objectContainingDeep({ lat: 1234 }),
     })
   );
 });
@@ -109,7 +109,7 @@ test("should accept partialDeep in partials", () => {
 test("should acces partialDeep in unsafe", () => {
   verifyThat(funcMock).wasCalledOnceWith(
     unsafe({
-      location: containingDeep({ lat: 123 }),
+      location: m.objectContainingDeep({ lat: 123 }),
       address: "123",
       age: 123,
       name: "123",
@@ -118,7 +118,7 @@ test("should acces partialDeep in unsafe", () => {
 
   verifyThat(funcMock).wasNeverCalledWith(
     unsafe({
-      location: containingDeep({ lat: 1234 }),
+      location: m.objectContainingDeep({ lat: 1234 }),
       address: "123",
       age: 123,
       name: "123",
@@ -128,13 +128,13 @@ test("should acces partialDeep in unsafe", () => {
 
 test("should accept unsafe in partialDeep", () => {
   verifyThat(funcMock).wasNeverCalledWith(
-    containingDeep({
+    m.objectContainingDeep({
       location: unsafe({ lat: "Victor" }),
     })
   );
 
   verifyThat(funcMock).wasCalledOnceWith(
-    containingDeep({
+    m.objectContainingDeep({
       location: unsafe({
         lat: (() => {
           return 123;

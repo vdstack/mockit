@@ -5,6 +5,10 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
+import { containing } from "./containing";
+import { containingDeep } from "./containing.deep";
+import { ProxyFactory } from "./matcher-proxy-factory";
+
 /**
  *
  * @param options an array of options of which one element should be the value we want to match
@@ -62,10 +66,6 @@ export const schema = <T, U extends Schema>(schema: U | NoInfer<T>): T => {
  */
 export const unsafe = <T, U>(value: U | NoInfer<T>): T => {
   return value as T;
-};
-
-export const containing = <T, U extends any>(original: U | NoInfer<T>): T => {
-  return ProxyFactory<T>("isContaining", { original });
 };
 
 /**
@@ -206,10 +206,6 @@ export const setContainingDeep = <T, U extends Set<any>>(
   return containingDeep<T, U>(set);
 };
 
-export const containingDeep = <T, U>(mock: U | NoInfer<T>): T => {
-  return ProxyFactory<T>("isContainingDeep", { ...mock, original: mock });
-};
-
 /**
  *
  * @param s a string that should be at the beginning of the string we want to match
@@ -248,7 +244,7 @@ export const stringEndingWith = <T, U extends string>(s: U | NoInfer<T>): T => {
  * m.anyObject() // does not match [1, 2, 3]
  * m.anyObject() // does not match new Set([1, 2, 3])
  */
-export  const anyObject = <T, U>() => {
+export const anyObject = <T, U>() => {
   return ProxyFactory<T>("any", { what: "object" });
 };
 
@@ -356,21 +352,6 @@ export const instanceOf = <T, U>(original: U) => {
 export const stringMatching = <T>(regexp: RegExp) => {
   return ProxyFactory<T>("matchesRegex", { regexp });
 };
-
-function ProxyFactory<T>(suffix: string, content: Record<string, any>) {
-  return new Proxy(
-    {
-      [`mockit__${suffix}`]: true,
-      ...content,
-    },
-    {
-      get(target, prop) {
-        // @ts-expect-error - I don't know how to fix this yet
-        return target[prop];
-      },
-    }
-  ) as any as T;
-}
 
 export const or = <T, U>(...args: U[]): T => {
   return ProxyFactory<T>("or_operator", { options: args });

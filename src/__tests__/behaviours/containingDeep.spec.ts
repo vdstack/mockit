@@ -1,5 +1,5 @@
+import { m } from "../..";
 import { when } from "../../behaviours";
-import { containingDeep } from "../../behaviours/matchers";
 import { Mock, resetCompletely } from "../../mocks";
 
 describe("behaviour setup: partial", () => {
@@ -37,7 +37,7 @@ describe("behaviour setup: partial", () => {
 
     // Now, we're using partialDeep to setup the behaviour
     when(mock)
-      .isCalledWith(containingDeep({ identity: { id: 1 } }))
+      .isCalledWith(m.objectContainingDeep({ identity: { id: 1 } }))
       .thenReturn("hello world 1");
 
     expect(

@@ -1,5 +1,6 @@
 import { hasher } from "../hasher";
-import { Schema, containingDeep } from "../behaviours/matchers";
+import { Schema } from "../behaviours/matchers";
+import { containingDeep } from "../behaviours/containing.deep";
 
 // TODO: schemas in maps & sets & arrays
 export function compare(actual: any, expected: any) {

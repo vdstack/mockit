@@ -1,6 +1,6 @@
+import { m } from "..";
 import {
   arrayContainingDeep,
-  containingDeep,
   mapContainingDeep,
   setContainingDeep,
 } from "../behaviours/matchers";
@@ -19,13 +19,13 @@ describe("compare.containingDeep", () => {
       },
     };
 
-    const expected = containingDeep({
+    const expected = m.objectContainingDeep({
       b: {
         d: { e: 3 },
       },
     });
 
-    const expectedFalse = containingDeep({
+    const expectedFalse = m.objectContainingDeep({
       b: {
         d: { e: 4 },
       },
