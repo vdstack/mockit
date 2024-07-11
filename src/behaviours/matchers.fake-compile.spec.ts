@@ -1,6 +1,16 @@
 import { Mock } from "../mocks";
 import {
-  any,
+  anyArray,
+  anyBoolean,
+  anyFalsy,
+  anyFunction,
+  anyMap,
+  anyNullish,
+  anyNumber,
+  anyObject,
+  anySet,
+  anyString,
+  anyTruthy,
   arrayContaining,
   arrayContainingDeep,
   mapContaining,
@@ -26,7 +36,7 @@ it("should compile with any matcher", () => {
   const mock = Mock(toTest);
 
   when(mock).isCalledWith({
-    toReplace: any.map(),
+    toReplace: anyMap(),
   });
 
   when(mock).isCalledWith({
@@ -38,7 +48,7 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: any.set(),
+    toReplace: anySet(),
   });
 
   when(mock).isCalledWith({
@@ -50,7 +60,7 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: any.object(),
+    toReplace: anyObject(),
   });
 
   when(mock).isCalledWith({
@@ -62,7 +72,7 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: any.array(),
+    toReplace: anyArray(),
   });
 
   when(mock).isCalledWith({
@@ -74,11 +84,11 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: any.number(),
+    toReplace: anyNumber(),
   });
 
   when(mock).isCalledWith({
-    toReplace: any.string(),
+    toReplace: anyString(),
   });
 
   when(mock).isCalledWith({
@@ -94,23 +104,23 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: any.boolean(),
+    toReplace: anyBoolean(),
   });
 
   when(mock).isCalledWith({
-    toReplace: any.function(),
+    toReplace: anyFunction(),
   });
 
   when(mock).isCalledWith({
-    toReplace: any.falsy(),
+    toReplace: anyFalsy(),
   });
 
   when(mock).isCalledWith({
-    toReplace: any.truthy(),
+    toReplace: anyTruthy(),
   });
 
   when(mock).isCalledWith({
-    toReplace: any.nullish(),
+    toReplace: anyNullish(),
   });
 
   when(mock).isCalledWith({
@@ -118,7 +128,7 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: or(any.string(), any.number()),
+    toReplace: or(anyString(), anyNumber()),
   });
 });
 
