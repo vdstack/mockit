@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
-import { compareArgsWithZodSchemas } from "../argsComparisons/compareArgsWithZodSchemas";
+import { compare } from "../argsComparisons/compare";
 
 /**
  * This is the function mock, it is taking the place of the function that we want to mock.
@@ -24,15 +24,12 @@ export function mockFunction<T extends (...args: any[]) => any>(
       kind: Behaviours.Return,
       returnedValue: undefined,
     } as NewBehaviourParam<T>);
+
   const customBehaviours: Array<{
     args: any[];
     behaviour: NewBehaviourParam<T>;
   }> = [];
 
-  const zodBehaviours: Array<{
-    args: (any | z.ZodType)[];
-    behaviour: NewBehaviourParam<T>;
-  }> = [];
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
   return new Proxy(original, {
     apply: (original, _thisArg, callArgs) => {
@@ -70,22 +67,30 @@ export function mockFunction<T extends (...args: any[]) => any>(
         }
       }
 
-      const zodBehaviour = zodBehaviours.find((behaviour) => {
-        return compareArgsWithZodSchemas(callArgs, behaviour.args);
-      });
+      const constructBasedCustomBehaviour = customBehaviours.find(
+        (behaviour) => {
+          return compare(callArgs, behaviour.args);
+        }
+      );
 
-      if (zodBehaviour) {
-        switch (zodBehaviour.behaviour.kind) {
+      if (constructBasedCustomBehaviour) {
+        switch (constructBasedCustomBehaviour.behaviour.kind) {
           case Behaviours.Throw:
-            throw zodBehaviour.behaviour.error;
+            throw constructBasedCustomBehaviour.behaviour.error;
           case Behaviours.Call:
-            return zodBehaviour.behaviour.callback(...callArgs);
+            return constructBasedCustomBehaviour.behaviour.callback(
+              ...callArgs
+            );
           case Behaviours.Return:
-            return zodBehaviour.behaviour.returnedValue;
+            return constructBasedCustomBehaviour.behaviour.returnedValue;
           case Behaviours.Resolve:
-            return Promise.resolve(zodBehaviour.behaviour.resolvedValue);
+            return Promise.resolve(
+              constructBasedCustomBehaviour.behaviour.resolvedValue
+            );
           case Behaviours.Reject:
-            return Promise.reject(zodBehaviour.behaviour.rejectedValue);
+            return Promise.reject(
+              constructBasedCustomBehaviour.behaviour.rejectedValue
+            );
           case Behaviours.Preserve:
             return original(...callArgs);
           case Behaviours.Custom:
@@ -147,19 +152,10 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
-      if (prop === "newZodBehaviour") {
-        zodBehaviours.push(
-          value as {
-            args: (any | z.ZodType)[];
-            behaviour: NewBehaviourParam<T>;
-          }
-        );
-        return true;
-      }
 
-      if (prop === "resetBehaviour") {
+
+      if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;
-        zodBehaviours.length = 0;
         defaultBehaviour = {
           kind: Behaviours.Return,
           returnedValue: undefined,
@@ -167,7 +163,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
-      if (prop === "resetHistory") {
+      if (prop === "resetHistoryOf") {
         calls.length = 0;
         return true;
       }

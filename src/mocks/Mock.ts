@@ -1,12 +1,30 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
-import { resetBehaviour, resetHistory } from "./mockFunction.reset";
+import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
 
 /**
- * This function is used to create a mock of a class, abstract class or function.
- * You can also pass an interface / type in generic to create a mock of it.
+ * This function is used to create a mock of classes, abstract classes, functions, objects,
+ * types and interfaces.
+ * For types and interfaces, pass them in the generic slot to create a mock that respects the type.
  * @param _param anything that can be mocked: class, abstract class or function
  * @returns a mock of the provided parameter
+ *
+ * @example Class, Object, Abstract Class and Function
+ * ```ts
+ * const mockedVersion = Mock(original);
+ * // You can now use the mocked version as if it was the original
+ * ```
+ * @example Types and Interfaces
+ * ```ts
+ * type MyType = {
+ *   doSomething(): void;
+ *   doSomethingElse(): string;
+ * };
+ *
+ * const mockedType = Mock<MyType>();
+ * // You can now use the mocked version as if it was the original
+ * mockedType.doSomething(); // returns undefined
+ * ```
  */
 export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
   if (typeof _param === "function") {
@@ -22,49 +40,40 @@ export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
 }
 
 function ProxyMockBase<T>(
-  _param : Class<T> | AbstractClass<T> | T | void = undefined
+  _param: Class<T> | AbstractClass<T> | T | void = undefined
 ): T {
-  return new Proxy(
-    {} as any,
-    {
-      get(target, prop, receiver) {
-        if (prop === "isMockitMock") {
-          // Useful to reset a whole mock instead of just a function
-          // Will be used in the future
-          return true;
-        }
+  return new Proxy({} as any, {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        return Reflect.get(target, prop, receiver);
+      }
 
-        if (prop in target) {
-          return Reflect.get(target, prop, receiver);
-        }
-
-        if (typeof prop === "string") {
-          const mockedFunction = mockFunction(() => {});
-          Reflect.set(target, prop, mockedFunction, receiver);
-          return mockedFunction;
-        }
-      },
-      set(target, prop, _value, _receiver) {
-        if (prop === "resetBehaviour") {
-          for (const key in target) {
-            if (Reflect.get(target[key], "isMockitMock")) {
-              resetBehaviour(target[key]);
-            }
+      if (typeof prop === "string") {
+        const mockedFunction = mockFunction(() => {});
+        Reflect.set(target, prop, mockedFunction, receiver);
+        return mockedFunction;
+      }
+    },
+    set(target, prop, _value, _receiver) {
+      if (prop === "resetBehaviourOf") {
+        for (const key in target) {
+          if (Reflect.get(target[key], "isMockitMock")) {
+            resetBehaviourOf(target[key]);
           }
-          return true;
         }
+        return true;
+      }
 
-        if (prop === "resetHistory") {
-          for (const key in target) {
-            if (Reflect.get(target[key], "isMockitMock")) {
-              resetHistory(target[key]);
-            }
+      if (prop === "resetHistoryOf") {
+        for (const key in target) {
+          if (Reflect.get(target[key], "isMockitMock")) {
+            resetHistoryOf(target[key]);
           }
-          return true;
         }
-      },
-    }
-  ) as T;
+        return true;
+      }
+    },
+  }) as T;
 }
 
 // Source: https://stackoverflow.com/questions/30758961/how-to-check-if-a-variable-is-an-es6-class-declaration

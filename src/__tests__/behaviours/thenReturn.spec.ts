@@ -1,4 +1,4 @@
-import { Mock, when } from "../..";
+import { Mock, m, when } from "../..";
 
 function hello(...args: any[]) {
   return "hello world" as const;
@@ -21,9 +21,10 @@ describe("thenReturn", () => {
   });
 
   it("should combine default and custom behaviours", () => {
-    const mock = Mock(returnNumber);
-    when(mock).isCalled.thenReturn(999);
-    when(mock).isCalledWith(2).thenReturn(777);
+    const mock = m.Mock(returnNumber);
+
+    m.when(mock).isCalled.thenReturn(999);
+    m.when(mock).isCalledWith(2).thenReturn(777);
 
     expect(mock()).toBe(999);
     expect(mock(2)).toBe(777);

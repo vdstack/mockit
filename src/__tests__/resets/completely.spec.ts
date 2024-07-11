@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Reset, Mock, when, verifyThat } from "../..";
+import { Mock, when, verifyThat, resetCompletely, m } from "../..";
 
 function add(a: number, b: number): number {
   return a + b;
@@ -15,7 +15,9 @@ test("resetCompletely should reset all behaviours and history", () => {
   when(mockAdd).isCalledWith(1, 2).thenReturn(12);
 
   // zod-based
-  when(mockAdd).zod.isCalledWith(z.number().int().negative(), 2).thenReturn(22);
+  when(mockAdd)
+    .isCalledWith(m.validates(z.number().int().negative()), 2)
+    .thenReturn(22);
 
   expect(mockAdd(1, 2)).toBe(12);
   expect(mockAdd(3, 2)).toBe(999);
@@ -27,7 +29,7 @@ test("resetCompletely should reset all behaviours and history", () => {
   verifyThat(mockAdd).wasCalledWith(-1, 2);
   verifyThat(mockAdd).wasCalledNTimes(3);
 
-  Reset.completely(mockAdd);
+  resetCompletely(mockAdd);
 
   verifyThat(mockAdd).wasNeverCalled();
 

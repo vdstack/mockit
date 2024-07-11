@@ -1,22 +1,11 @@
-import { Reset, resetBehaviour, resetCompletely, resetHistory } from "./mocks";
-
-export { Mock, Reset, resetBehaviour, resetCompletely, resetHistory };
-
-import { when } from "./behaviours";
-export { when };
+export { Mock } from "./mocks/Mock";
+export { when } from "./behaviours";
+export { getMockHistory, verifyThat } from "./assertions";
+export { resetBehaviourOf, resetCompletely, resetHistoryOf } from "./mocks";
+import * as matchers from "./behaviours/matchers";
 
 import { Mock } from "./mocks/Mock";
-
-import { verifyThat, getMockHistory } from "./assertions";
-export { getMockHistory, verifyThat };
-
-export const Mockit = {
-  Reset,
-  resetBehaviour,
-  resetCompletely,
-  resetHistory,
-  Mock,
-  when,
-  verifyThat,
-  getMockHistory,
-};
+import * as resets from "./mocks/mockFunction.reset";
+import * as verifications from "./assertions";
+import { when } from "./behaviours";
+export const m = { ...matchers, ...resets, ...verifications, when, Mock };

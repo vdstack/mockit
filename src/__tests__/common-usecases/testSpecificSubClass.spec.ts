@@ -1,4 +1,4 @@
-import { Reset, Mock, verifyThat, when } from "../..";
+import { m, Mock, resetHistoryOf, verifyThat, when } from "../..";
 
 /**
  * This example comes from Clean Code Video series by Robert C. Martin
@@ -33,7 +33,7 @@ describe("Test specific subclass", () => {
   });
 
   beforeEach(() => {
-    Reset.historyOf(mockCheckSeal, mockPump);
+    resetHistoryOf(mockCheckSeal, mockPump);
   });
 
   class TestCowMilker extends CowMilker {

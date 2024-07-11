@@ -9,9 +9,9 @@
  * It does not reset the default, custom and zod-based behaviours.
  * @param mocks any number of mocked functions to reset the history of
  */
-export function resetHistory(...mocks: any[]) {
+export function resetHistoryOf(...mocks: any[]) {
   for (const mock of mocks) {
-    Reflect.set(mock, "resetHistory", []);
+    Reflect.set(mock, "resetHistoryOf", []);
   }
 }
 
@@ -21,9 +21,9 @@ export function resetHistory(...mocks: any[]) {
  * It does not reset the history of calls.
  * @param mocks any number of mocked functions to reset the behaviour of
  */
-export function resetBehaviour(...mocks: any) {
+export function resetBehaviourOf(...mocks: any) {
   for (const mock of mocks) {
-    Reflect.set(mock, "resetBehaviour", []);
+    Reflect.set(mock, "resetBehaviourOf", []);
   }
 }
 
@@ -34,13 +34,7 @@ export function resetBehaviour(...mocks: any) {
  */
 export function resetCompletely(...mocks: any[]) {
   for (const mock of mocks) {
-    resetBehaviour(mock);
-    resetHistory(mock);
+    resetBehaviourOf(mock);
+    resetHistoryOf(mock);
   }
 }
-
-export const Reset = {
-  behaviourOf: resetBehaviour,
-  historyOf: resetHistory,
-  completely: resetCompletely,
-};

@@ -2,8 +2,7 @@ export { mockFunction } from "./mockFunction";
 export { Mock } from "./Mock";
 
 export {
-  Reset,
-  resetBehaviour,
+  resetBehaviourOf,
   resetCompletely,
-  resetHistory,
+  resetHistoryOf,
 } from "./mockFunction.reset";

@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { Reset, Mock, when } from "../..";
+import { m, Mock, when } from "../..";
+import { resetBehaviourOf } from "../../mocks/mockFunction.reset";
 
 function add(a: number, b: number): number {
   return a + b;
 }
 
-test("resetBehaviour should reset all behaviours", () => {
+test("resetBehaviourOf should reset all behaviours", () => {
   const mockAdd = Mock(add);
 
   // default
@@ -15,13 +16,16 @@ test("resetBehaviour should reset all behaviours", () => {
   when(mockAdd).isCalledWith(1, 2).thenReturn(12);
 
   // zod-based
-  when(mockAdd).zod.isCalledWith(z.number().int().negative(), 2).thenReturn(22);
+
+  when(mockAdd)
+    .isCalledWith(m.validates(z.number().int().negative()), 2)
+    .thenReturn(22);
 
   expect(mockAdd(1, 2)).toBe(12);
-  expect(mockAdd(3, 2)).toBe(999);
+  expect(mockAdd(3, 3)).toBe(999);
   expect(mockAdd(-1, 2)).toBe(22);
 
-  Reset.behaviourOf(mockAdd);
+  resetBehaviourOf(mockAdd);
 
   expect(mockAdd(1, 2)).toBe(undefined);
   expect(mockAdd(3, 2)).toBe(undefined);

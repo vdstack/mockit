@@ -1,6 +1,6 @@
 [![npm version](https://badge.fury.io/js/@vdstack%2Fmockit.svg)](https://badge.fury.io/js/@vdstack%2Fmockit)
 
-Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. With its help, patterns like Strategy, or Ports & Adapters, become super easy to unit test. Its API was inspired by Java's Mockito package, but has now diverged. Mockito's knowledge is easily transferable though.
+Mockit solves the problem of [mocking the behaviour](https://martinfowler.com/articles/mocksArentStubs.html) of injected dependencies in Typescript. With its help, patterns like Strategy, or Ports & Adapters, become super easy to unit test. Its API was inspired by Java's Mockito package, but has diverged along the way. Mockito's knowledge is easily transferable though.
 
 Mockit API can mock any dependency:
 
@@ -10,7 +10,7 @@ Mockit API can mock any dependency:
 - Object modules: `Mock(originalObject)`
 - Types and interfaces: `Mock<Type>()` or `Mock<Interface>()`
 
-It provides a semantic API that is easy to use, as well as complete type-safety, which helps a LOT when writing tests, as it provides auto-completion and type-checking alerting you of any invalid test setup.
+It provides a semantic API that is easy to use, as well **as complete type-safety**, which helps a LOT when writing tests, as it provides auto-completion and type-checking alerting you of any invalid test setup.
 
 ```ts
 const mockedFunc = Mock(original);
@@ -36,7 +36,7 @@ verifyThat(mockedFunc).wasCalledNTimes(1);
 verifyThat(mockedFunc).wasCalledNTimes(2);
 ```
 
-These verifications are assertive, meaning they will throw a detailed error if the mock was not called the way you expected it to be. No assertion library necessary !
+These verifications are assertive, meaning your test will fail if the mock was not called the way you expected it to be. No assertion library necessary !
 They are agnostic of the test runner and assertion library you use.
 
 You can access more under-the-hood features like reading the history of calls.
@@ -48,24 +48,45 @@ mockedFunc("hello", "world");
 getMockHistory(mockedFunc).getCalls(); // [{ args: ["hello", "world"], date: a Date }]
 ```
 
-Finally, you can leverage the power of the [Zod](https://github.com/colinhacks/zod) library's schemas to make make assertions on the nature of the parameters passed to your mocks.
+Finally, you can leverage a whole suite of matchers: they're the recommended way to use Mockit, as they make your tests more resilient to changes in the implementation, and more focused on the logic you want to test. All in all, they make your tests easier to write and maintain.
+
+See the [Matchers](#matchers) section for detailed instructions on how to use them.
 
 ```ts
-const mockedFunc = Mock(original);
-mockedFunc({ name: "Victor", age: 42 }, "yoo");
+const response = mockedFunc({
+  name: "Victor",
+  age: 42,
+  email: "vic@vic.fr",
+  nationality: "French",
+  hobbies: ["coding", "reading", "making music", "video games"],
+});
 
-verifyThat(mockedFunc).zod.wasCalledOnceWith(
-  z.object({
-    name: z.string(),
-    age: z.number().positive().int(),
-  }),
-  "yoo"
+expect(response).toBe("adult");
+
+/**
+ * Here the matcher m.arrayContaining combined with m.any.string() can help you create a more resilient test: hobbies values are not important as long as they are an array of strings.
+ *
+ * Similarly, the m.objectContaining matcher is used to avoid checking properties that are not important for the test: you focus on the age and hobbies properties.
+ */
+verifyThat(mockedFunc).wasCalledOnceWith(
+  m.objectContaining({
+    age: m.validates(z.number().int().positive()),
+    hobbies: m.arrayContaining(m.any.string()),
+  })
 );
 ```
 
 Feel free to contribute :)
 
+Index:
+
 - [Mock](#Mock)
+  - [Functions](#Functions)
+  - [Classes](#Classes)
+  - [Abstract classes](#Abstract-classes)
+  - [Types and interfaces](#Types-and-interfaces)
+  - [Object modules](#Object-modules)
+  - [Interacting with the mocks](#Interacting-with-the-mocks)
 - [when](#when)
   - [Behaviours control](#Behaviours-control)
   - [Behaviours](#Behaviours)
@@ -73,11 +94,9 @@ Feel free to contribute :)
     - [thenThrow](#thenThrow)
     - [thenResolve](#thenResolve)
     - [thenReject](#thenReject)
-    - [thenCall](#thenCall)
     - [thenPreserve](#thenPreserve)
     - [thenBehaveLike](#thenBehaveLike)
-  - [unsafe alternatives](#unsafe-alternatives)
-  - [zod integration](#zod-integration)
+  - [Setup with matchers](#Setup-with-matchers)
 - [verifyThat](#verifyThat)
   - [Verifications](#Verifications)
     - [wasCalled](#wasCalled)
@@ -88,8 +107,28 @@ Feel free to contribute :)
     - [wasCalledNTimesWith](#wasCalledNTimesWith)
     - [wasNeverCalled](#wasNeverCalled)
     - [wasNeverCalledWith](#wasNeverCalledWith)
-  - [unsafe alternatives](#unsafe-alternatives-1)
-  - [zod integration](#zod-integration-1)
+- [Matchers](#Matchers)
+  - [Categorial matchers](#Categorial-matchers)
+    - [m.any](#m.any)
+    - [isOneOf](#isOneOf)
+    - [instanceOf](#instanceOf)
+    - [unsafe](#unsafe)
+  - [Rule-based matchers](#Rule-based-matchers)
+    - [m.validates](#m.validates)
+  - [Structure-based matchers](#Structure-based-matchers)
+    - [objectContaining](#objectContaining)
+    - [arrayContaining](#arrayContaining)
+    - [mapContaining](#mapContaining)
+    - [setContaining](#setContaining)
+    - [Deep matchers](#Deep-matchers)
+  - [String matchers](#String-matchers)
+    - [stringContaining](#stringContaining)
+    - [stringStartingWith](#stringStartingWith)
+    - [stringEndingWith](#stringEndingWith)
+    - [stringMatching](#stringMatching)
+  - [Combining matchers](#Combining-matchers)
+    - [or](#or)
+    - [Composition](#Composition)
 
 # Mock
 
@@ -158,7 +197,7 @@ const mockedObject = Mock(userRepository);
 ## Interacting with the mocks
 
 Functions mocks are the base of the library.
-Every other type of mock (class, abstract class, interface, type) is built on top of function mocks.
+Every other type of mock (class, abstract class, object, interface, type) is built on top of function mocks.
 
 For example, mocking a class is equivalent to mocking all of its public functions.
 ![Capture d'écran 2024-06-09 153630](https://github.com/vdstack/mockit/assets/6061078/3110cf6e-678c-4896-bd4d-8bcd4e288138)
@@ -171,39 +210,20 @@ You can control the mocked functions behaviour using the `when` API. It provides
 
 ## Behaviours control
 
-There are three main ways to control the mock's behaviour:
+There are two ways to control the mock's behaviour:
 
 - `when(mockedFunc).isCalled` will setup the default behaviour of the mock. If no behaviour is configured, the mock will return `undefined` by default.
-- `when(mockedFunc).isCalledWith(...args: arg[])` will setup the mock to return a value when called with specific arguments.
-- `when(mockedFunc).unsafe.isCalledWith(...args: any[])` will setup the mock to return a value when called with specific arguments, but without type-checking the arguments. This is useful for quick mocking but will not assist you in writing correct tests.
-- `when(mockedFunc).zod.isCalledWith(...(ZodSchema | arg)[])` will setup the mock to return a value when called with arguments that matches the privded zod schemas.
-
-You can also use a zod schema when you don't know the exact value of parameters (this can happen when your code is generating them midway) but want to control the mock when the arguments match a certain shape (like a date, a uuid or an object shape).
-
-```ts
-const mockedFunc = Mock(original);
-when(mockedFunc).isCalled.thenReturn(2);
-when(mockedFunc).isCalledWith("Victor").thenReturn(42);
-when(mockedFunc).isCalledWith("Nick").thenReturn(15);
-
-when(mockedFunc)
-  .isCalledWith(z.object({ name: z.string() }))
-  .thenReturn(66);
-
-mockedFunc(); // 2
-mockedFunc("Victor"); // 42
-mockedFunc("Nick"); // 15
-mockedFunc({ name: "Helen" }); // 66
-mockedFunc({ name: "Charles" }); // 66
-```
+- `when(mockedFunc).isCalledWith(...args)` will setup the mock to return a value when called with specific arguments.
 
 ## Behaviours
 
-This section lists all the behaviours you can setup with the `when` API's `isCalled`, `isCalledWith`, `unsafe.isCalledWith` and `zod.isCalledWith` methods.
+This section lists all the behaviours you can setup with the `when` API's `isCalled`, `isCalledWith` functions.
 
 ### thenReturn
 
-`when(mockedFunc).isCalled.thenReturn(value: any)` will make the mock return the value passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenReturn(safeValue)` will make the mock return the value passed as an argument when it is called.
+
+You can also pass an unsafe value by wrapping it in the `m.unsafe(...)` function: `when(mockedFunc).isCalled.thenReturn(m.unsafe(unsafeValue))`
 
 ```ts
 const mockedFunc = Mock(original);
@@ -223,7 +243,9 @@ mockedFunc(); // throws Error("yoo")
 
 ### thenResolve
 
-`when(mockedFunc).isCalled.thenResolve(value: any)` will make the mock return a resolved promise with the value passed as an argument when it is called.
+`when(mockedFunc).isCalled.thenResolve(safeValue)` will make the mock return a resolved promise with the value passed as an argument when it is called. This method is type-safe: it will hint you if the value you pass is not a valid return type for the function that is being mocked.
+
+You can also pass an unsafe value by wrapping it in the `m.unsafe(...)` function: `when(mockedFunc).isCalled.thenResolve(m.unsafe(unsafeValue))`
 
 ```ts
 const mockedFunc = Mock(original);
@@ -241,18 +263,6 @@ when(mockedFunc).isCalled.thenReject(new Error("yoo"));
 mockedFunc(); // Promise.rejects(Error("yoo"))
 ```
 
-### thenCall
-
-`when(mockedFunc).isCalled.thenCall((...args: any[]) => void)` will make the mock call the function passed as an argument when it is called.
-
-```ts
-const mockedFunc = Mock(original);
-when(mockedFunc).isCalled.thenCall((...args) => {
-  console.log(args);
-});
-mockedFunc("hiii"); // logs ["hiii"]
-```
-
 ### thenPreserve
 
 `when(mockedFunc).isCalled.thenPreserve()` will keep the original function's behaviour when it is called, but will register the call history so that you can verify it later.
@@ -265,6 +275,8 @@ const mockedFunc = Mock(double);
 when(mockedFunc).isCalled.thenPreserve();
 mockedFunc(4); // 8 : the original function behaviour is preserved
 ```
+
+This is only possible when you mocked a real module (like a function, a class, an object, etc...). If you mock a type or an interface, you can't use this behaviour since there is no original function to call.
 
 ### thenBehaveLike
 
@@ -287,76 +299,52 @@ mockedFunc(); // 2
 mockedFunc(); // throws Error("yoo")
 ```
 
-## unsafe alternatives
+## Setup with matchers
 
-If you don't care about the type of the returned value (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can use the `unsafe` alternatives: `unsafe.thenResolve` and `unsafe.thenReturn`.
+Matchers are a powerful tool to make your tests **more resilient to changes** in the implementation, and **more focused on the specific bits of logic** you want to test. **They're made with the intent to reduce the time needed to code and maintain your tests**.
+If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact, Mockit provides a lot more matchers than Jest does.
 
-```ts
-function takeNumber(x: Number) {
-  return x;
-}
-const mockedFunc = Mock(takeNumber);
+For setup, they can be used in place of any value passed to the isCalledWith function.
 
-when(mockedFunc)
-  .isCalledWith("Victor") // compiler will complain
-  .thenReturn(42);
-
-when(mockedFunc)
-  .unsafe.isCalledWith("Victor") // compiler will not complain: you can pass anything
-  .thenReturn(42);
-```
-
-## zod integration
-
-Mockit provides a powerful way to check if your mocked functions have been called with arguments matching a validation schema. This is especially useful when you want to check the nature of the arguments passed to your mocks, but don't know the exact value of them (this can happen when your code is generating them midway).
+For assertions, they can be used in place of the expected values in the `verifyThat(mock).wasCalledWith(...)` function.
 
 ```ts
+// In this test I only care about the age, and id properties of the object passed to the mocked function.
 when(mockedFunc)
   .isCalledWith(
-    z.object({
-      name: z.string(),
-      age: z.number().positive().int(),
-      id: z.string().uuid(),
-      date: z.date(),
+    m.objectContaining({
+      age: m.validates(z.number().positive().int()),
+      id: m.any.string(),
     })
   )
   .thenReturn(42);
 
-mockedFunc({
+// This will match the setup above, even though the name, hobbies, company & nationality properties
+// are not checked: the test is more resilient to changes in the implementation and focuses
+// on the properties that are important for the test.
+const response = mockedFunc({
   name: "Victor",
   age: 42,
-  id: randomUUID(),
-  date: new Date(),
+  id: "123e4567-e89b-12d3-a456-426614174000",
+  nationality: "French",
+  hobbies: ["coding", "reading", "making music", "video games"],
+  company: "VDStack",
 }); // 42
 ```
 
-You can still pass exact values instead of zod schemas, which are also type checked.
-
-Limitations: you cannot pass partial schemas, only complete schemas.
-But, you can still pass exact values to the zod schema with the following trick:
-
-```ts
-z.object({
-    name: z.string().refine((name) => name === "Victor"),
-    age: z.number().positive().int().refine((age) => age === 42)
-    id: z.string().uuid(),
-    date: z.date(),
-})
-
-// this execute the mock's behaviour if the arguments match the exact value of the name and age, and the shape of the id and date.
-```
+For more information about matchers, see the [Matchers](#matchers) section.
 
 # verifyThat
 
 You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify a function mock behaviour.
-It couples your test code with the module under test implementation though, so use it carefully, when it makes sense to verify a behaviour that cannot be tested by reading the module's returned value (for example, when testing side-effects).
-It can also be useful to test that a dependency was NOT called in a specific branch of your code.
+It couples your test code with the module under test implementation though, so use it carefully, when it makes sense to verify a behaviour that cannot be tested by reading the module's returned value (for example, when testing side-effects). **Matchers can help reduce this coupling** (see the [Matchers](#matchers) section).
+
+It can also be useful to test that a dependency was **NOT** called in a specific branch of your code.
 
 ## Verifications
 
 You get a wide range of verifications available to you, from checking the number of times the mock was called, to checking the arguments passed to it.
-
-![image (3)](https://github.com/vdstack/mockit/assets/6061078/29486252-be82-4124-8c0c-efc910a45f26)
+![image](https://github.com/vdstack/mockit/assets/6061078/60299ab4-0015-4274-b856-02af9f53f5fb)
 
 ### wasCalled
 
@@ -364,7 +352,7 @@ You get a wide range of verifications available to you, from checking the number
 
 ### wasCalledWith
 
-`verifyThat(mockedFunc).wasCalledWith(...args: any[])` will assert that the mock was called at least once with the specified arguments. These arguments are type-checked.
+`verifyThat(mockedFunc).wasCalledWith(...args: any[])` will assert that the mock was called at least once with the specified arguments. These arguments are type-checked, which prevent you from going blind when asserting.
 
 ### wasCalledOnce
 
@@ -372,7 +360,7 @@ You get a wide range of verifications available to you, from checking the number
 
 ### wasCalledOnceWith
 
-`verifyThat(mockedFunc).wasCalledOnceWith(...args: any[])` will assert that the mock was called exactly once with the specified arguments. These arguments are type-checked.
+`verifyThat(mockedFunc).wasCalledOnceWith(...args: any[])` will assert that the mock was called exactly once with the specified arguments. These arguments are type-checked, which prevent you from going blind when asserting.
 
 ### wasCalledNTimes
 
@@ -380,7 +368,7 @@ You get a wide range of verifications available to you, from checking the number
 
 ### wasCalledNTimesWith
 
-`verifyThat(mockedFunc).wasCalledNTimesWith(n: number, ...args: any[])` will assert that the mock was called exactly `n` times with the specified arguments. These arguments are type-checked.
+`verifyThat(mockedFunc).wasCalledNTimesWith(n: number, ...args: any[])` will assert that the mock was called exactly `n` times with the specified arguments. These arguments are type-checked, which prevent you from going blind when asserting.
 
 ### wasNeverCalled
 
@@ -388,107 +376,266 @@ You get a wide range of verifications available to you, from checking the number
 
 ### wasNeverCalledWith
 
-`verifyThat(mockedFunc).wasNeverCalledWith(...args: any[])` will assert that the mock was never called with the specified arguments. These arguments are type-checked.
+`verifyThat(mockedFunc).wasNeverCalledWith(...args: any[])` will assert that the mock was never called with the specified arguments. These arguments are type-checked, which prevent you from going blind when asserting.
 
-## unsafe alternatives
+# Matchers
 
-If you don't care about the type of the arguments passed to the mock (which is not recommended but can have perfectly valid reasons like avoiding setup complexity or testing theorically invalid cases), you can use the `unsafe` alternatives: `unsafe.wasCalledWith`, `unsafe.wasCalledOnceWith`, `unsafe.wasCalledNTimesWith`, `unsafe.wasNeverCalledWith`.
+**Matchers are the recommended way to use Mockit.** They help making tests more resilient to changes in the implementation, and more focused on the logic you want to test. They can be used both in the `when` and `verifyThat` functions.
+
+## What are matchers ?
+
+Using mocks in tests is very powerful, but can lead to very brittle tests if you're not careful. You can easily end up with tests that break every time you change the implementation of the module under test, even if the logic you're testing is still correct.
+
+One solution to this problem **is not to use mocks at all and focus on I/O testing (aka black-box testing)**, but that's not always possible, especially when you're testing complex logic that depends on external services or libraries, when you're testing side-effects, or when the module under test is hitting multiple data-sources.
+
+Another solution **is not to assert against specific values, but against more generic logic**.
+This is where matchers come in: they represent **categories of values** instead of specific ones, or **rules that the values must comply with** instead of the values themselves.
+
+For example, the `m.any.string()` matcher will match any string passed to the mocked function, or the `m.validates(z.number().positive().int())` matcher to match any positive integer (using the Zod library).
+If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact, Mockit provides a lot more matchers than Jest does.
+
+## How to use matchers ?
+
+Matchers are functions that you can call in place of any value passed to the `isCalledWith` function in the `when` API, or in place of the expected values passed to the `wasCalledWith` (and similar) functions in the `verifyThat` API.
+
+Matchers trick the compiler into accepting them as valid values, but are detected by Mockit and used to compare the actual values to the more generic rules defined by the matcher: that's a convoluted way of saying that **you can use them everywhere without worrying about the type-checking**.
 
 ```ts
 const mockedFunc = Mock(original);
-mockedFunc("hello", "world");
-
-verifyThat(mockedFunc).wasNeverCalledWith("something else"); // compiler will complain
-verifyThat(mockedFunc).unsafe.wasNeverCalledWith("something else"); // compiler will not complain
 ```
 
-## zod integration
+## Categorial matchers
 
-Mockit provides a powerful way to check if your mocked functions have been called with arguments matching a validation schema. This is especially useful when you want to check the nature of the arguments passed to your mocks, but don't know the exact value of them (this can happen when your code is generating them midway).
+### any
+
+`m.any` provides a wide range of matchers for each common category of values. It requires no dependency and is the most versatile set of matchers.
 
 ```ts
-verifyThat(mockedFunc).zod.wasCalledOnceWith(
-  z.object({
-    name: z.string(),
-    age: z.number().positive().int(),
-    id: z.string().uuid(),
-    date: z.date(),
-  }),
-  "yoo"
-);
+m.anyString(); // matches any string
+m.anyNumber(); // matches any number
+m.anyBoolean(); // matches any boolean
+m.anyArray(); // matches any array
+m.anyObject(); // matches any object: will not match arrays, Maps, Sets & null
+m.anyFunction(); // matches any function
+m.anyMap(); // matches any Map
+m.anySet(); // matches any Set
+m.anyNullish(); // matches anything x when (x == null)
+m.anyTruthy(); // matches anything x when (!!x)
+m.anyFalsy(); // matches anything x when (!x)
 ```
 
-You can still pass exact values instead of zod schemas, which are also type checked.
+### isOneOf
 
-Limitations: you cannot pass partial schemas, only complete schemas.
-But, you can still pass exact values to the zod schema with the following trick:
+`m.isOneOf` is a matcher that accepts an array of values, and matches any value that is in the array. This is useful when you know in advance the possible values that can be passed, often when you're testing enums.
 
 ```ts
-z.object({
-    name: z.string().refine((name) => name === "Victor"),
-    age: z.number().positive().int().refine((age) => age === 42)
-    id: z.string().uuid(),
-    date: z.date(),
-})
+const Directions = {
+  UP: "UP",
+  DOWN: "DOWN",
+  LEFT: "LEFT",
+  RIGHT: "RIGHT",
+} as const;
 
-// this will check for the exact value of the name and age, and the shape of the id and date.
+verifyThat(mockedFunc).wasCalledWith(m.isOneOf(Object.values(Directions)));
 ```
 
-# Examples
+### instanceOf
 
-All he other structures (classes, abstract classes, interfaces, types) are built on top of function mocks. This means that the same API is available for all their functions.
-
-# Class
+`m.instanceOf` is a matcher that accepts a class, and matches any instance of that class. This makes your tests resistant to changes by avoiding checking some properties of the object, and focusing on the class itself.
 
 ```ts
-class Hello {
-  sayHello() {
-    return "hello";
-  }
+class Person {
+  constructor(public name: string, public age: number) {}
 }
 
-const mockedClass = Mock(Hello);
-
-// You're still manipulating functions
-when(mockedClass.sayHello).isCalled.thenReturn("hello");
-when(mockedClass.sayHello).isCalledWith("Victor").thenReturn("hello victor");
-
-mockedClass.sayHello(); // "hello"
-mockedClass.sayHello("Victor"); // "hello victor"
+verifyThat(mockedFunc).wasCalledWith(m.instanceOf(Person));
 ```
 
-# mockAbstractClass
+### unsafe
+
+You might need to escape from the type-safety of Mockit. This is not recommended, but has its use-cases.
 
 ```ts
-abstract class Hello {
-  abstract sayHello(): string;
-  abstract sayHi(): string;
+function takesNumber(n: number) {
+  return n;
 }
 
-const mockedClass = mockAbstractClass(Hello);
-
-when(mockedClass.sayHello).isCalled.thenReturn("hello");
-when(mockedClass.sayHi).isCalled.thenReturn("hi");
+const mockedFunc = Mock(takesNumber);
+when(mockedFunc).isCalledWith(m.unsafe("42")).thenReturn(42);
+mockedFunc(42); // 42
 ```
 
-# mockType & mockInterface
+## Rule-based matchers
 
-You can mock types and interfaces using the `mockType` API.
-The main difference with `mockAbstractClass` is that you need to pass the type as a generic parameter (since types disappear at runtime).
+### validate
+
+You can provide a custom validation function thanks to the `validate` matcher.
+It accepts a function that will be called with the actual value and the expected value.
+It should return `true` if the actual value matches the expected value, and `false` otherwise.
 
 ```ts
-interface Hello {
-  sayHello(): string;
-  sayHi(): string;
-}
+const mockedFunc = Mock(original);
+mockedFunc(55);
 
-const mockedType = mockType<Hello>();
-
-when(mockedType.sayHello).isCalled.thenReturn("hello");
-when(mockedType.sayHi).isCalled.thenReturn("hi");
+verifyThat(mockedFunc).wasCalledWith(m.validate((actual) => actual > 50));
 ```
 
-### TODO
+validate also accepts a Zod schema, which will be used to validate the actual value.
 
-- [x] Accept any mock in the Reset API (easy to implement now that mocks are proxies)
-- [ ] Document the Reset API
+```ts
+const mockedFunc = Mock(original);
+mockedFunc(55);
+
+verifyThat(mockedFunc).wasCalledWith(m.validate(z.number().positive().gt(50)));
+```
+
+## Structure-based matchers
+
+Mockit provides a wide range of matchers to match the structure of objects, arrays, Maps, Sets, etc...
+These matchers are useful when you want to focus on specific properties of the object passed to the mocked function, and ignore the rest.
+
+### objectContaining
+
+`m.objectContaining` is a matcher that will focus on the properties you specify, and ignore any other properties of the object passed to the mocked function. This is a very common use-case, for example when you want to verify that a function was called with a specific ID, or that a specific property was parsed correctly.
+
+```ts
+type Deps = { save: (p: { id: string; age: string }) => void };
+function doesSomethingWithAge(age: string, deps: Deps) {
+  deps.save({
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    age: parseInt(age, 10),
+  });
+}
+
+test("it should save the parsed age", () => {
+  const mockedDeps = Mock<Deps>();
+  doesSomethingWithAge("42", mockedSave);
+
+  verifyThat(mockedDeps.save).wasCalledOnceWith(
+    m.objectContaining({
+      age: 42,
+    })
+  );
+});
+```
+
+### arrayContaining
+
+Similar to `m.objectContaining`, `m.arrayContaining` will focus on the elements you specify, and ignore any other elements of the array passed to the mocked function.
+
+```ts
+const forbiddenHobbies = ["gambling"];
+
+type Deps = { save: (p: { id: string; hobbies: string[] }) => void };
+function doesSomethingWithHobbies(hobbies: string[], deps: Deps) {
+  deps.save({
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    hobbies: hobbies.filter((hobby) => !forbiddenHobbies.includes(hobby)),
+  });
+}
+
+test("it should not save the forbidden hobbies", () => {
+  const mockedDeps = Mock<Deps>();
+  doesSomethingWithHobbies(["coding", "reading", "gambling"], mockedSave);
+
+  verifyThat(mockedDeps.save).wasCalledOnce();
+  verifyThat(mockedDeps.save).wasNeverCalledWith(
+    m.objectContaining({
+      hobbies: m.arrayContaining(["gambling"]),
+    })
+  );
+});
+```
+
+### mapContaining
+
+Similar to `m.objectContaining`, `m.mapContaining` will focus on the entries you specify, and ignore any other entries of the Map passed to the mocked function.
+Just pass a Map to the matcher that contains the entries you want to check.
+
+```ts
+m.mapContaining(new Map([["key1", "value1"]])); // matches any Map containing the entry ["key1", "value1"]
+```
+
+### setContaining
+
+Similar to `m.arrayContaining`, `m.setContaining` will focus on the elements you specify, and ignore any other elements of the Set passed to the mocked function.
+Litteraly pass a subset of the Set you want to check.
+
+```ts
+const actualSet = new Set(["value1", "value2"]);
+
+m.setContaining(new Set(["value1"])); // matches any Set containing the value "value1"
+```
+
+### Deep matchers
+
+`m.objectContaining`, `m.arrayContaining`, `m.mapContaining` and `m.setContaining` all have deep variants: `m.objectContainingDeep`, `m.arrayContainingDeep`, `m.mapContainingDeep` and `m.setContainingDeep`.
+
+These deep matchers will recursively check the structure of the object, array, Map or Set passed to the mocked function, and ignore any other properties or elements.
+
+This is **very** useful when you're dealing with deeply nested structures but simply want to focus on one specific property deep down the tree.
+
+```ts
+/**
+ * This will match any object that has a obj.x.y.z.a property equal to 42, and ignore any other properties of the object.
+ */
+m.objectContainingDeep({
+  x: {
+    y: {
+      z: {
+        a: 42,
+      },
+    },
+  },
+});
+
+/**
+ * This will match any array that matches at least once arr[i][j][k] === 42, and ignore any other elements of the array.
+ */
+
+m.arrayContainingDeep([[[[42]]]]);
+```
+
+## String matchers
+
+Mockit provides 4 matchers to match strings: `m.stringContaining`, `m.stringStartingWith`, `m.stringEndingWith` and `m.stringMatching`.
+
+### stringContaining
+
+`m.stringContaining("bubble")` will match any string that contains the substring "bubble".
+
+### stringStartingWith
+
+`m.stringStartingWith("bubble")` will match any string that starts with the substring "bubble".
+
+### stringEndingWith
+
+`m.stringEndingWith("bubble")` will match any string that ends with the substring "bubble".
+
+### stringMatching
+
+`m.stringMatching(reg:RegExp)` will match any string that matches the regular expression passed as an argument.
+
+## Combining matchers
+
+### or
+
+With the `m.or` matcher, you can build custom matchers that accept a wider range of values. For example, you can match any number that is either positive or negative, while rejecting zero.
+
+```ts
+m.or(m.any.number().positive(), m.any.number().negative());
+```
+
+### Composition
+
+Mockit matchers are functions, which means you can compose them together to build matchers that are more specific to your needs.
+
+```ts
+/**
+ * This will match any object that has an age property that is a positive integer, and a hobbies property that is an array of email strings.
+ */
+m.objectContaining({
+  age: m.validates(z.number().positive().int()),
+  hobbies: m.arrayContaining([m.validates().string().email()]),
+});
+```
