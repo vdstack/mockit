@@ -239,109 +239,109 @@ export const stringEndingWith = <T, U extends string>(s: U | NoInfer<T>): T => {
 /**
  *
  * NOTE THAT IT WILL NOT MATCH NULL, Maps, Sets and Arrays.
- * You any.nullish(), any.map(), any.set() and any.array() instead.
+ * You anyNullish(), anyMap(), anySet() and anyArray() instead.
  *
  * @example
- * m.any.object() // matches { key: "value" }
- * m.any.object() // does not match null
- * m.any.object() // does not match new Map([["key", "value"]])
- * m.any.object() // does not match [1, 2, 3]
- * m.any.object() // does not match new Set([1, 2, 3])
+ * m.anyObject() // matches { key: "value" }
+ * m.anyObject() // does not match null
+ * m.anyObject() // does not match new Map([["key", "value"]])
+ * m.anyObject() // does not match [1, 2, 3]
+ * m.anyObject() // does not match new Set([1, 2, 3])
  */
-export const anyObject = <T, U>() => {
+export  const anyObject = <T, U>() => {
   return ProxyFactory<T>("any", { what: "object" });
 };
 
 /**
  * @example
- * m.any.array() // matches [1, 2, 3]
- * m.any.array() // matches []
+ * m.anyArray() // matches [1, 2, 3]
+ * m.anyArray() // matches []
  */
-const anyArray = <T, U>() => {
+export const anyArray = <T, U>() => {
   return ProxyFactory<T>("any", { what: "array" });
 };
 
 /**
  * @example
- * m.any.function() // matches () => {}
- * m.any.function() // matches function() {}
+ * m.anyFunction() // matches () => {}
+ * m.anyFunction() // matches function() {}
  */
-const anyFunction = <T, U>() => {
+export const anyFunction = <T, U>() => {
   return ProxyFactory<T>("any", { what: "function" });
 };
 
 /**
  * @example
- * m.any.string() // matches "hello"
- * m.any.string() // matches ""
+ * m.anyString() // matches "hello"
+ * m.anyString() // matches ""
  */
-const anyString = <T, U>() => {
+export const anyString = <T, U>() => {
   return ProxyFactory<T>("any", { what: "string" });
 };
 
 /**
  * @example
- * m.any.number() // matches 1
- * m.any.number() // does not match "1"
- * m.any.number() // does not match NaN
+ * m.anyNumber() // matches 1
+ * m.anyNumber() // does not match "1"
+ * m.anyNumber() // does not match NaN
  */
-const anyNumber = <T, U>() => {
+export const anyNumber = <T, U>() => {
   return ProxyFactory<T>("any", { what: "number" });
 };
 
 /**
  * @example
- * m.any.boolean() // matches true
- * m.any.boolean() // matches false
- * m.any.boolean() // does not match "true", "false", 1, 0, null, undefined, "", {}
+ * m.anyBoolean() // matches true
+ * m.anyBoolean() // matches false
+ * m.anyBoolean() // does not match "true", "false", 1, 0, null, undefined, "", {}
  */
-const anyBoolean = <T, U>() => {
+export const anyBoolean = <T, U>() => {
   return ProxyFactory<T>("any", { what: "boolean" });
 };
 
 /**
  * @example
- * m.any.nullish() // matches null
- * m.any.nullish() // matches undefined
+ * m.anyNullish() // matches null
+ * m.anyNullish() // matches undefined
  */
-const anyNullish = <T, U>() => {
+export const anyNullish = <T, U>() => {
   return ProxyFactory<T>("any", { what: "nullish" });
 };
 
 /**
  * @example
- * m.any.falsy() // matches false
- * m.any.falsy() // matches null
- * m.any.falsy() // matches undefined
- * m.any.falsy() // matches 0
+ * m.anyFalsy() // matches false
+ * m.anyFalsy() // matches null
+ * m.anyFalsy() // matches undefined
+ * m.anyFalsy() // matches 0
  */
-const anyFalsy = <T, U>() => {
+export const anyFalsy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "falsy" });
 };
 
-const anyTruthy = <T, U>() => {
+export const anyTruthy = <T, U>() => {
   return ProxyFactory<T>("any", { what: "truthy" });
 };
 
 /**
  * @example
- * m.any.map() // matches new Map()
- * m.any.map() // does not match {}
+ * m.anyMap() // matches new Map()
+ * m.anyMap() // does not match {}
  */
-const anyMap = <T, U>() => {
+export const anyMap = <T, U>() => {
   return ProxyFactory<T>("any", { what: "map" });
 };
 
 /**
  * @example
- * m.any.set() // matches new Set()
- * m.any.set() // does not match {}
+ * m.anySet() // matches new Set()
+ * m.anySet() // does not match {}
  */
-const anySet = <T, U>() => {
+export const anySet = <T, U>() => {
   return ProxyFactory<T>("any", { what: "set" });
 };
 
-const instanceOf = <T, U>(original: U) => {
+export const instanceOf = <T, U>(original: U) => {
   return ProxyFactory<T>("instanceOf", { class: original });
 };
 
@@ -350,10 +350,10 @@ const instanceOf = <T, U>(original: U) => {
  * @param regexp a regular expression that the string should match
  *
  * @example
- * m.stringMatchingRegex(/hello/) // matches "hello world"
- * m.stringMatchingRegex(/hello/) // does not match "world" (missing hello)
+ * m.stringMatching(/hello/) // matches "hello world"
+ * m.stringMatching(/hello/) // does not match "world" (missing hello)
  */
-export const stringMatchingRegex = <T>(regexp: RegExp) => {
+export const stringMatching = <T>(regexp: RegExp) => {
   return ProxyFactory<T>("matchesRegex", { regexp });
 };
 
@@ -376,25 +376,10 @@ export const or = <T, U>(...args: U[]): T => {
   return ProxyFactory<T>("or_operator", { options: args });
 };
 
-export const any = {
-  object: anyObject,
-  array: anyArray,
-  function: anyFunction,
-  string: anyString,
-  number: anyNumber,
-  boolean: anyBoolean,
-  nullish: anyNullish,
-  falsy: anyFalsy,
-  truthy: anyTruthy,
-  map: anyMap,
-  set: anySet,
-};
-
 export const matchers = {
   isOneOf,
   schema,
   unsafe,
-  containing,
   objectContaining,
   arrayContaining,
   stringContaining,
@@ -404,12 +389,10 @@ export const matchers = {
   arrayContainingDeep,
   mapContainingDeep,
   setContainingDeep,
-  containingDeep,
   stringStartingWith,
   stringEndingWith,
   instanceOf,
-  any,
-  stringMatchingRegex,
+  stringMatching,
   or,
 };
 

@@ -125,7 +125,7 @@ Index:
     - [stringContaining](#stringContaining)
     - [stringStartingWith](#stringStartingWith)
     - [stringEndingWith](#stringEndingWith)
-    - [stringMatchingRegex](#stringMatchingRegex)
+    - [stringMatching](#stringMatching)
   - [Combining matchers](#Combining-matchers)
     - [or](#or)
     - [Composition](#Composition)
@@ -412,17 +412,17 @@ const mockedFunc = Mock(original);
 `m.any` provides a wide range of matchers for each common category of values. It requires no dependency and is the most versatile set of matchers.
 
 ```ts
-m.any.string(); // matches any string
-m.any.number(); // matches any number
-m.any.boolean(); // matches any boolean
-m.any.array(); // matches any array
-m.any.object(); // matches any object: will not match arrays, Maps, Sets & null
-m.any.function(); // matches any function
-m.any.map(); // matches any Map
-m.any.set(); // matches any Set
-m.any.nullish(); // matches anything x when (x == null)
-m.any.truthy(); // matches anything x when (!!x)
-m.any.falsy(); // matches anything x when (!x)
+m.anyString(); // matches any string
+m.anyNumber(); // matches any number
+m.anyBoolean(); // matches any boolean
+m.anyArray(); // matches any array
+m.anyObject(); // matches any object: will not match arrays, Maps, Sets & null
+m.anyFunction(); // matches any function
+m.anyMap(); // matches any Map
+m.anySet(); // matches any Set
+m.anyNullish(); // matches anything x when (x == null)
+m.anyTruthy(); // matches anything x when (!!x)
+m.anyFalsy(); // matches anything x when (!x)
 ```
 
 ### isOneOf
@@ -590,7 +590,7 @@ m.arrayContainingDeep([[[[42]]]]);
 
 ## String matchers
 
-Mockit provides 4 matchers to match strings: `m.stringContaining`, `m.stringStartingWith`, `m.stringEndingWith` and `m.stringMatchingRegex`.
+Mockit provides 4 matchers to match strings: `m.stringContaining`, `m.stringStartingWith`, `m.stringEndingWith` and `m.stringMatching`.
 
 ### stringContaining
 
@@ -604,9 +604,9 @@ Mockit provides 4 matchers to match strings: `m.stringContaining`, `m.stringStar
 
 `m.stringEndingWith("bubble")` will match any string that ends with the substring "bubble".
 
-### stringMatchingRegex
+### stringMatching
 
-`m.stringMatchingRegex(reg:RegExp)` will match any string that matches the regular expression passed as an argument.
+`m.stringMatching(reg:RegExp)` will match any string that matches the regular expression passed as an argument.
 
 ## Combining matchers
 

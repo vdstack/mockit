@@ -11,7 +11,7 @@ import {
   setContaining,
   setContainingDeep,
   stringEndingWith,
-  stringMatchingRegex,
+  stringMatching,
   stringStartingWith,
   unsafe,
 } from "./matchers";
@@ -90,7 +90,7 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
-    toReplace: stringMatchingRegex(/a/),
+    toReplace: stringMatching(/a/),
   });
 
   when(mock).isCalledWith({

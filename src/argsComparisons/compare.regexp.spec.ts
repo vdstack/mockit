@@ -1,16 +1,16 @@
-import { stringMatchingRegex } from "../behaviours/matchers";
+import { stringMatching } from "../behaviours/matchers";
 import { compare } from "./compare";
 
-describe("compare.stringMatchingRegex", () => {
+describe("compare.stringMatching", () => {
   // TODO: get feedback: should I add a stringMatchesRegex matcher or keep the direct detection?
   it("should compare a string and a regex", () => {
-    expect(compare("hello world", stringMatchingRegex(/world/))).toBe(
+    expect(compare("hello world", stringMatching(/world/))).toBe(
       true
     );
-    expect(compare("hello world", stringMatchingRegex(/hello/))).toBe(
+    expect(compare("hello world", stringMatching(/hello/))).toBe(
       true
     );
-    expect(compare("hello world", stringMatchingRegex(/aaa/))).toBe(
+    expect(compare("hello world", stringMatching(/aaa/))).toBe(
       false
     );
   });
@@ -22,16 +22,16 @@ describe("compare.stringMatchingRegex", () => {
 
     expect(
       compare(actual, {
-        x: { y: { z: stringMatchingRegex(/world/) } },
+        x: { y: { z: stringMatching(/world/) } },
       })
     ).toBe(true);
     expect(
       compare(actual, {
-        x: { y: { z: stringMatchingRegex(/hello/) } },
+        x: { y: { z: stringMatching(/hello/) } },
       })
     ).toBe(true);
     expect(
-      compare(actual, { x: { y: { z: stringMatchingRegex(/aaa/) } } })
+      compare(actual, { x: { y: { z: stringMatching(/aaa/) } } })
     ).toBe(false);
   });
 });
