@@ -9,4 +9,3 @@ import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
 import { when } from "./behaviours";
 export const m = { ...matchers, ...resets, ...verifications, when, Mock };
-// TODO: take feedback on the export with everything at level 1 versus any.xxx for the anyXXX matchers.
