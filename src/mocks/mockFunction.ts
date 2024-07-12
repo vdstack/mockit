@@ -34,16 +34,19 @@ export function mockFunction<T extends (...args: any[]) => any>(
   return new Proxy(original, {
     apply: (original, _thisArg, callArgs) => {
       // What is thisArg ?
-      calls.push({
-        args: callArgs as unknown as Parameters<T>,
-        date: new Date(),
-      });
 
       const customBehaviour = customBehaviours.find(
         (behaviour) => hasher.hash(behaviour.args) === hasher.hash(callArgs)
       );
 
       if (customBehaviour) {
+        calls.push({
+          args: callArgs as unknown as Parameters<T>,
+          date: new Date(),
+          behaviour: customBehaviour.behaviour,
+          matched: customBehaviour.args,
+          isDefault: false,
+        });
         switch (customBehaviour.behaviour.kind) {
           case Behaviours.Throw:
             throw customBehaviour.behaviour.error;
@@ -74,6 +77,14 @@ export function mockFunction<T extends (...args: any[]) => any>(
       );
 
       if (constructBasedCustomBehaviour) {
+        calls.push({
+          args: callArgs as unknown as Parameters<T>,
+          date: new Date(),
+          behaviour: constructBasedCustomBehaviour.behaviour,
+          matched: constructBasedCustomBehaviour.args,
+          isDefault: false,
+        });
+
         switch (constructBasedCustomBehaviour.behaviour.kind) {
           case Behaviours.Throw:
             throw constructBasedCustomBehaviour.behaviour.error;
@@ -102,6 +113,13 @@ export function mockFunction<T extends (...args: any[]) => any>(
             );
         }
       }
+
+      calls.push({
+        args: callArgs as unknown as Parameters<T>,
+        date: new Date(),
+        behaviour: defaultBehaviour,
+        isDefault: true,
+      });
 
       switch (defaultBehaviour.kind) {
         case Behaviours.Throw:
@@ -151,8 +169,6 @@ export function mockFunction<T extends (...args: any[]) => any>(
         );
         return true;
       }
-
-
 
       if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NewBehaviourParam } from "./behaviours/behaviours";
 
 export type AbstractClass<T> = abstract new (...args: any[]) => T;
 export type Class<T> = new (...args: any[]) => T;
@@ -11,6 +12,9 @@ export type GetClassMethods<Class> = keyof BuildMethodsMap<Class, Function>;
 export type Call<T extends (...args: any) => any> = {
   args: Parameters<T>;
   date: Date;
+  behaviour: NewBehaviourParam<T>;
+  isDefault: boolean;
+  matched?: any[];
 };
 
 export type UnsafeCall = {

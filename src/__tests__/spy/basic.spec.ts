@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Mock, getMockHistory, m } from "../..";
+import { Behaviours } from "../../behaviours";
 
 test("spied function should give access to its calls", () => {
   const mock = Mock((x: number, y: string) => {});
@@ -11,8 +12,24 @@ test("spied function should give access to its calls", () => {
   mock(2, "world");
 
   expect(spy.getCalls()).toEqual([
-    { args: [1, "hello"], date: expect.any(Date) },
-    { args: [2, "world"], date: expect.any(Date) },
+    {
+      args: [1, "hello"],
+      date: expect.any(Date),
+      isDefault: true,
+      behaviour: {
+        kind: Behaviours.Return,
+        returnedValue: undefined,
+      },
+    },
+    {
+      args: [2, "world"],
+      date: expect.any(Date),
+      isDefault: true,
+      behaviour: {
+        kind: Behaviours.Return,
+        returnedValue: undefined,
+      },
+    },
   ]);
 });
 

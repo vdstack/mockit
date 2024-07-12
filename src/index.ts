@@ -7,5 +7,12 @@ import * as matchers from "./behaviours/matchers";
 import { Mock } from "./mocks/Mock";
 import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
-import { when } from "./behaviours";
-export const m = { ...matchers, ...resets, ...verifications, when, Mock };
+import { Behaviours, when } from "./behaviours";
+export const m = {
+  ...matchers,
+  ...resets,
+  ...verifications,
+  Behaviours,
+  when,
+  Mock,
+};
