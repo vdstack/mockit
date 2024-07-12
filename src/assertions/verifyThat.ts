@@ -1,3 +1,6 @@
+import { compare } from "../argsComparisons/compare";
+import { Behaviours } from "../behaviours";
+import { NewBehaviourParam } from "../behaviours/behaviours";
 import { getMockHistory } from "./getMockHistory";
 
 /**
@@ -30,6 +33,7 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
   }
 
   const mockHistory = getMockHistory(mockedFunction);
+  const calls = mockHistory.getCalls();
   return {
     /**
      * Asserts that the mocked function was called at least once.
@@ -64,6 +68,34 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
      * ```
      */
     wasCalledWith(...args: Parameters<TFunc>) {
+      const calledWithArgs = calls.filter((call) => compare(call.args, args));
+      if (calledWithArgs.length === 0) {
+        throw new Error(`
+Verification failed: function was not called with the following arguments:
+${JSON.stringify(args, null, 2)}
+
+Here is the calls history: ${calls.map(
+          (
+            call
+          ) => `\n_________________________________________________________________________________\n
+- Call number: ${calls.indexOf(call) + 1}
+- Date: ${call.date.toISOString()}
+- ${writeBehaviourDescription(call.behaviour)}
+- Matched: ${call.isDefault ? "Default" : writeMatched(call.matched)}
+- Arguments: [${call.args
+            .map((arg) => {
+              if (arg instanceof Error) {
+                return arg;
+              }
+
+              return JSON.stringify(arg, null, 2);
+            })
+            .join(", ")}]
+
+  `
+        )}
+          `);
+      }
       if (!mockHistory.wasCalledWith(...args)) {
         throw new Error(`Function was not called with parameters ${args}`);
       }
@@ -220,4 +252,39 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       }
     },
   };
+}
+
+function writeBehaviourDescription(behaviour: NewBehaviourParam<any>) {
+  switch (behaviour.kind) {
+    case Behaviours.Throw:
+      return `Behaviour: Thrown error: ${behaviour.error}`;
+    case Behaviours.Call:
+      return `Behaviour: Callback: ${behaviour.callback.toString()}`;
+    case Behaviours.Return:
+      return `Behaviour: Returned value: ${JSON.stringify(
+        behaviour.returnedValue,
+        null,
+        2
+      )}`;
+    case Behaviours.Resolve:
+      return `Behaviour: Resolved value: ${JSON.stringify(
+        behaviour.resolvedValue,
+        null,
+        2
+      )}`;
+    case Behaviours.Reject:
+      return `Behaviour: Rejected value: ${JSON.stringify(
+        behaviour.rejectedValue,
+        null,
+        2
+      )}`;
+    case Behaviours.Preserve:
+      return `Behaviour: Preserved from original`;
+    case Behaviours.Custom:
+      return `Behaviour: Custom behaviour: ${behaviour.customBehaviour.toString()}`;
+  }
+}
+
+function writeMatched(matched: any[]) {
+  return matched.map((match) => JSON.stringify(match, null, 2)).join("\n");
 }
