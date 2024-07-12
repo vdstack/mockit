@@ -59,20 +59,3 @@ export function getMockHistory<T extends (...args: any[]) => any>(
     },
   };
 }
-
-type wasUnsafe = {
-  wasCalledOnceWith: (...args: any[]) => boolean;
-  wasNeverCalledWith: (...args: any[]) => boolean;
-  wasCalledWith: (...args: any[]) => boolean;
-  wasCalledNTimesWith: (params: { howMuch: number; args: any[] }) => boolean;
-};
-
-type wasZod = {
-  wasCalledOnceWith: (...args: Array<ZodSchema | any>) => boolean;
-  wasNeverCalledWith: (...args: Array<ZodSchema | any>) => boolean;
-  wasCalledWith: (...z: Array<ZodSchema | any>) => boolean;
-  wasCalledNTimesWith: (params: {
-    howMuch: number;
-    args: Array<ZodSchema | any>;
-  }) => boolean;
-};
