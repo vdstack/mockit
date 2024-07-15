@@ -350,7 +350,7 @@ function add(a: any, b: any): any {
  * m.validate((value) => value > 0) // matches 1
  * m.validate((value) => value < 0) // does not match 1
  */
-export function validates<T>(validationFunction: (value: any) => boolean): T;
+export function validates<T>(validationFunction: (value: T) => boolean): T;
 /**
  *
  * @param validationFunction a Zod schema
@@ -363,7 +363,7 @@ export function validates<T>(validationFunction: (value: any) => boolean): T;
  */
 export function validates<T>(validationFunction: ZodSchema<any, any, any>): T;
 export function validates<T>(
-  validationFunction: ((value: any) => boolean) | ZodSchema<any, any, any>
+  validationFunction: ((value: T) => boolean) | ZodSchema<any, any, any>
 ): T {
   if (validationFunction instanceof ZodSchema) {
     return ProxyFactory<T>("isSchema", { schema: validationFunction });
