@@ -10,8 +10,9 @@
 
 import { Mock, when, verifyThat, m } from "..";
 
+type User = { id: number; name: string; email: string };
 interface UserRepository {
-  getUserById(id: number): Promise<{ id: number; email: string; name: string }>;
+  getUserById(id: number): Promise<User | undefined>;
 }
 
 interface EmailService {
@@ -42,13 +43,13 @@ async function sendWelcomeEmail(
  * In your case you would inject a real implementation connected to your DB.
  */
 class DBUserRepository implements UserRepository {
-  private users = [];
-  constructor(users: { id: number; email: string; name: string }[]) {
+  private users: Array<User>;
+  constructor(users: (User)[]) {
     // in reality you would probably connect to a DB here or receive a transaction of some sort.
     this.users = users;
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: number): Promise<User | undefined> {
     // Here you would query the DB.
     return this.users.find((u) => u.id === id);
   }

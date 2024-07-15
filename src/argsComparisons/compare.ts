@@ -2,8 +2,8 @@ import { hasher } from "../hasher";
 import { Schema } from "../behaviours/matchers";
 import { containingDeep } from "../behaviours/containing.deep";
 
-// TODO: schemas in maps & sets & arrays
-export function compare(actual: any, expected: any) {
+// TODO: remove @ts-expect-error comments with type guards
+export function compare(actual: any, expected: any): boolean {
   if (typeof expected === "object" && expected !== null) {
     // fyi, (typeof null) equals "object". I know. #javascript
 
@@ -11,6 +11,7 @@ export function compare(actual: any, expected: any) {
       key.endsWith("mockit__or_operator")
     );
     if (isOROperator) {
+      // @ts-expect-error
       return expected.options.some((option) => compare(actual, option));
     }
 
@@ -40,6 +41,7 @@ export function compare(actual: any, expected: any) {
       key.endsWith("mockit__isOneOf")
     );
     if (isOneOf) {
+      // @ts-expect-error
       return expected.options.some((option) => compare(actual, option));
     }
 
@@ -119,7 +121,9 @@ export function compare(actual: any, expected: any) {
     if (isContaining) {
       // arrayContaining
       if (Array.isArray(expected.original)) {
+        // @ts-expect-error
         return expected.original.every((item, index) => {
+          // @ts-expect-error
           return actual?.some((actualItem) => compare(actualItem, item));
         });
       }
@@ -169,7 +173,9 @@ export function compare(actual: any, expected: any) {
       }
 
       if (Array.isArray(expected.original)) {
+        // @ts-expect-error
         return expected.original.every((expectedValue) => {
+          // @ts-expect-error
           return actual?.some((actualValue) =>
             compare(actualValue, containingDeep(expectedValue))
           );
@@ -272,7 +278,7 @@ function containsMockitConstruct(
     | "mockit__isContaining"
     | "mockit__isPartialDeep"
     | "mockit__isContainingDeep"
-) {
+): boolean {
   if (typeof obj !== "object") {
     return false;
   }
