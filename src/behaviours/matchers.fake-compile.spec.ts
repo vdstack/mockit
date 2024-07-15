@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Mock } from "../mocks";
 import {
   anyArray,
@@ -24,6 +25,7 @@ import {
   stringMatching,
   stringStartingWith,
   unsafe,
+  validates,
 } from "./matchers";
 import { when } from "./when";
 /**
@@ -173,4 +175,24 @@ test("typesafe for array containing", () => {
   // Should auto-complete with the correct values
   when(mock).isCalledWith(arrayContaining(["a", "b"]));
   when(mock).isCalledWith(arrayContainingDeep(["a", "b", "c"]));
+});
+
+test("typesafe for validates", () => {
+  function toTest(params: {
+    x: number;
+    y: boolean;
+    z: string;
+  }) {}
+
+  const mock = Mock(toTest);
+
+  when(mock).isCalledWith(validates(( value ) => {
+    return value.x > 0 && value.y && value.z.startsWith("1");
+  }))
+
+  when(mock).isCalledWith(validates(z.object({
+    x: z.number().positive(),
+    y: z.boolean(),
+    z: z.string().startsWith("1"),
+  })))
 });
