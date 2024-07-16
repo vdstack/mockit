@@ -213,7 +213,9 @@ You can control the mocked functions behaviour using the `when` API. It provides
 There are two ways to control the mock's behaviour:
 
 - `when(mockedFunc).isCalled` will setup the default behaviour of the mock. If no behaviour is configured, the mock will return `undefined` by default.
-- `when(mockedFunc).isCalledWith(...args)` will setup the mock to return a value when called with specific arguments.
+- `when(mockedFunc).isCalledWith(...args)` will setup the mock to return a value when called with specific arguments. This is what we call **custom behaviours**.
+![image](https://github.com/user-attachments/assets/63c2aa4a-65f7-4b99-8948-12aa033c763e)
+
 
 ## Behaviours
 
@@ -356,7 +358,7 @@ You get a wide range of verifications available to you, from checking the number
 
 ### wasCalledOnce
 
-`verifyThat(mockedFunc).wasCalled()` will assert that the mock was called exactly once.
+`verifyThat(mockedFunc).wasCalledOnce()` will assert that the mock was called exactly once.
 
 ### wasCalledOnceWith
 
@@ -391,7 +393,7 @@ One solution to this problem **is not to use mocks at all and focus on I/O testi
 Another solution **is not to assert against specific values, but against more generic logic**.
 This is where matchers come in: they represent **categories of values** instead of specific ones, or **rules that the values must comply with** instead of the values themselves.
 
-For example, the `m.any.string()` matcher will match any string passed to the mocked function, or the `m.validates(z.number().positive().int())` matcher to match any positive integer (using the Zod library).
+For example, the `m.anyString()` matcher will match any string passed to the mocked function, or the `m.validates(z.number().positive().int())` matcher to match any positive integer (using the Zod library).
 If you know `jest.objectContaining`, you will feel right at home with Mockit's matchers. In fact, Mockit provides a lot more matchers than Jest does.
 
 ## How to use matchers ?
@@ -400,9 +402,6 @@ Matchers are functions that you can call in place of any value passed to the `is
 
 Matchers trick the compiler into accepting them as valid values, but are detected by Mockit and used to compare the actual values to the more generic rules defined by the matcher: that's a convoluted way of saying that **you can use them everywhere without worrying about the type-checking**.
 
-```ts
-const mockedFunc = Mock(original);
-```
 
 ## Categorial matchers
 
@@ -467,9 +466,9 @@ mockedFunc(42); // 42
 
 ## Rule-based matchers
 
-### validate
+### validates
 
-You can provide a custom validation function thanks to the `validate` matcher.
+You can provide a custom validation function thanks to the `validates` matcher.
 It accepts a function that will be called with the actual value and the expected value.
 It should return `true` if the actual value matches the expected value, and `false` otherwise.
 
@@ -477,16 +476,16 @@ It should return `true` if the actual value matches the expected value, and `fal
 const mockedFunc = Mock(original);
 mockedFunc(55);
 
-verifyThat(mockedFunc).wasCalledWith(m.validate((actual) => actual > 50));
+verifyThat(mockedFunc).wasCalledWith(m.validates((actual) => actual > 50));
 ```
 
-validate also accepts a Zod schema, which will be used to validate the actual value.
+validates also accepts a Zod schema, which will be used to validate the actual value.
 
 ```ts
 const mockedFunc = Mock(original);
 mockedFunc(55);
 
-verifyThat(mockedFunc).wasCalledWith(m.validate(z.number().positive().gt(50)));
+verifyThat(mockedFunc).wasCalledWith(m.validates(z.number().positive().gt(50)));
 ```
 
 ## Structure-based matchers
