@@ -45,6 +45,20 @@ export const unsafe = <T, U>(value: U | NoInfer<T>): T => {
 };
 
 /**
+ * 
+ * @param value any object
+ * @returns what you pass in, but with the type of the object you want to match
+ * 
+ * @example Your function expects a complex object, but for your test you're only interested in a few keys.
+ * const value: Partial<User> = { id: "1" }
+ * when(mockFunction).isCalled.thenResolve(m.partial(value));
+ */
+export const partial = <T>(value: PartialDeep<NoInfer<T>>): T => {
+  return value as T;
+};
+
+
+/**
  *
  * @param subObject an object that is a subset of the object we want to match
  *
@@ -375,6 +389,7 @@ export function validates<T>(
 export const matchers = {
   isOneOf,
   unsafe,
+  partial,
   objectContaining,
   arrayContaining,
   stringContaining,

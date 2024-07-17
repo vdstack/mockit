@@ -28,6 +28,7 @@ import {
   validates,
 } from "./matchers";
 import { when } from "./when";
+import { m } from "..";
 /**
  * This test suite is here to test that matchers can take the place of any type of value.
  * We're testing type compilation here, not features. => No assertions needed.
@@ -195,4 +196,19 @@ test("typesafe for validates", () => {
     y: z.boolean(),
     z: z.string().startsWith("1"),
   })))
+});
+
+test("typesafe thenReturn partial", () => {
+  function toTest(): { a: { b: number; c: string}, d: boolean } {
+    return { a: { b: 1, c: "1" }, d: true };
+  }
+
+  const mock = Mock(toTest);
+
+  when(mock).isCalled.thenReturn(m.partial({ a: { b: 1 } }));
+  expect(mock()).toEqual({ a: { b: 1 }});
+
+  when(mock).isCalled.thenReturn({ a: m.partial({ b: 1 }), d: true });
+
+  expect(mock()).toEqual({ a: { b: 1 }, d: true });
 });
