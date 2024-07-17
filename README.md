@@ -336,6 +336,36 @@ const response = mockedFunc({
 
 For more information about matchers, see the [Matchers](#matchers) section.
 
+## Returning a partial value
+In a lot of tests, you don't need to provide your mocks with a full object as a response, because you know that only a few keys will be used by the module under test. Mockit provides a way to return a partial object, using the `m.partial` matcher.
+
+TypeScript will help you by providing auto-completion and type-checking, but at the same time will not complain if you don't provide all the keys that would normally be required by the type of the object.
+
+```ts
+type User {
+  // .... a very big type
+}
+
+// You know that only the id property will be used by the module under test.
+
+const mockedFunc = Mock(original);
+when(mockedFunc).isCalled.thenReturn(m.partial({ id: "1" }));
+```
+
+This works with any object, and is functional deep down the object tree.
+
+```ts
+type Response = {
+  user: {
+    id: string;
+    // ... a very big type
+  }
+}
+
+const mockedFunc = Mock(original);
+when(mockedFunc).isCalled.thenReturn(m.partial({ user: { id: "1" } }));
+```
+
 # verifyThat
 
 You can verify how the mock was called using the `verifyThat` API. It provides a semantic way to verify a function mock behaviour.
