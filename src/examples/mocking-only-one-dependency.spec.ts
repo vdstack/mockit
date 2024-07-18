@@ -11,11 +11,13 @@
 import { Mock, when, verifyThat, m } from "..";
 
 interface UserRepository {
-  getUserById(id: number): Promise<{ id: number; email: string; name: string }>;
+  getUserById(
+    id: number
+  ): Promise<{ id: number; email: string; name: string } | undefined>;
 }
 
 interface EmailService {
-  sendEmail(p: {to: string[], content: string}): Promise<{ emailID: number }>;
+  sendEmail(p: { to: string[]; content: string }): Promise<{ emailID: number }>;
 }
 
 async function sendWelcomeEmail(
@@ -30,20 +32,21 @@ async function sendWelcomeEmail(
 
   const { emailID } = await deps.emailService.sendEmail({
     to: [user.email],
-    content: `Welcome ${user.name}!`
+    content: `Welcome ${user.name}!`,
   });
   if (!emailID) throw new Error("Email not sent");
 
   return emailID;
 }
 
+type User = { id: number; email: string; name: string };
 /**
  * For this example I will use an inMemory version of the UserRepository.
  * In your case you would inject a real implementation connected to your DB.
  */
 class DBUserRepository implements UserRepository {
-  private users = [];
-  constructor(users: { id: number; email: string; name: string }[]) {
+  private users: User[] = [];
+  constructor(users: User[]) {
     // in reality you would probably connect to a DB here or receive a transaction of some sort.
     this.users = users;
   }
@@ -86,7 +89,7 @@ test("it should send an email if the user exists and the mail ID", async () => {
   verifyThat(emailService.sendEmail).wasCalledWith(
     m.objectContaining({
       to: [user.email],
-      content: m.anyString() // changing the content won't break the test => it's more resilient to changes in the implementation
+      content: m.anyString(), // changing the content won't break the test => it's more resilient to changes in the implementation
     })
   );
 });

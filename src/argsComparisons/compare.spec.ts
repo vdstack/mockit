@@ -59,6 +59,7 @@ it("should compare deepArrays", () => {
 
   expect(compare(arr1, arr2)).toBe(true);
 
+  // @ts-expect-error
   arr2[1][1][1].push(5);
 
   expect(compare(arr1, arr2)).toBe(false);
@@ -70,6 +71,7 @@ it("should compare objects", () => {
 
   expect(compare(obj1, obj2)).toBe(true);
 
+  // @ts-expect-error
   obj2["key2"] = "value2";
 
   expect(compare(obj1, obj2)).toBe(false);
@@ -81,6 +83,7 @@ it("should compare deepObjects", () => {
 
   expect(compare(obj1, obj2)).toBe(true);
 
+  // @ts-expect-error
   obj2["key"]["key"]["key"]["key2"] = "value2";
 
   expect(compare(obj1, obj2)).toBe(false);
