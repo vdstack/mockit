@@ -78,7 +78,7 @@ verifyThat(mockedFunc).wasCalledOnceWith(
 
 Feel free to contribute :)
 
-Index:
+This documentation is very thoughrough, if you think you already know how Mockit works but are looking for concrete ideas on how to use it, head to the [tutorial section](https://github.com/vdstack/mockit/tree/master/src/tutorial)
 
 - [Mock](#Mock)
   - [Functions](#Functions)
