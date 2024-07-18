@@ -55,15 +55,13 @@ Finally, you can leverage a whole suite of matchers: they're the recommended way
 See the [Matchers](#matchers) section for detailed instructions on how to use them.
 
 ```ts
-const response = mockedFunc({
+mockedFunc({
   name: "Victor",
   age: 42,
   email: "vic@vic.fr",
   nationality: "French",
   hobbies: ["coding", "reading", "making music", "video games"],
 });
-
-expect(response).toBe("adult");
 
 /**
  * Here the matcher m.arrayContaining combined with m.any.string() can help you create a more resilient test: hobbies values are not important as long as they are an array of strings.
@@ -216,8 +214,7 @@ There are two ways to control the mock's behaviour:
 
 - `when(mockedFunc).isCalled` will setup the default behaviour of the mock. If no behaviour is configured, the mock will return `undefined` by default.
 - `when(mockedFunc).isCalledWith(...args)` will setup the mock to return a value when called with specific arguments. This is what we call **custom behaviours**.
-![image](https://github.com/user-attachments/assets/63c2aa4a-65f7-4b99-8948-12aa033c763e)
-
+  ![image](https://github.com/user-attachments/assets/63c2aa4a-65f7-4b99-8948-12aa033c763e)
 
 ## Behaviours
 
@@ -339,6 +336,7 @@ const response = mockedFunc({
 For more information about matchers, see the [Matchers](#matchers) section.
 
 ## Returning a partial value
+
 In a lot of tests, you don't need to provide your mocks with a full object as a response, because you know that only a few keys will be used by the module under test. Mockit provides a way to return a partial object, using the `m.partial` matcher.
 
 TypeScript will help you by providing auto-completion and type-checking, but at the same time will not complain if you don't provide all the keys that would normally be required by the type of the object.
@@ -361,8 +359,8 @@ type Response = {
   user: {
     id: string;
     // ... a very big type
-  }
-}
+  };
+};
 
 const mockedFunc = Mock(original);
 when(mockedFunc).isCalled.thenReturn(m.partial({ user: { id: "1" } }));
@@ -433,7 +431,6 @@ If you know `jest.objectContaining`, you will feel right at home with Mockit's m
 Matchers are functions that you can call in place of any value passed to the `isCalledWith` function in the `when` API, or in place of the expected values passed to the `wasCalledWith` (and similar) functions in the `verifyThat` API.
 
 Matchers trick the compiler into accepting them as valid values, but are detected by Mockit and used to compare the actual values to the more generic rules defined by the matcher: that's a convoluted way of saying that **you can use them everywhere without worrying about the type-checking**.
-
 
 ## Categorial matchers
 
