@@ -14,7 +14,7 @@ export type Behaviour = typeof Behaviours[keyof typeof Behaviours];
  * This is a discriminated union type that will be used to define behaviours, either
  * by default or for a call with a specific set of arguments.
  */
-export type NewBehaviourParam<T extends (...args) => any> =
+export type NewBehaviourParam<T extends (...args: any[]) => any> =
   | { kind: typeof Behaviours.Throw; error?: any }
   | { kind: typeof Behaviours.Call; callback: (...args: any[]) => any }
   | { kind: typeof Behaviours.Return; returnedValue: any }

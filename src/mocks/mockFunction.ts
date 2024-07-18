@@ -167,6 +167,8 @@ export function mockFunction<T extends (...args: any[]) => any>(
         calls.length = 0;
         return true;
       }
+
+      return false;
     },
   });
 }
