@@ -72,6 +72,8 @@ function ProxyMockBase<T>(
         }
         return true;
       }
+
+      return false;
     },
   }) as T;
 }

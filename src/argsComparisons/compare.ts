@@ -3,7 +3,7 @@ import { Schema } from "../behaviours/matchers";
 import { containingDeep } from "../behaviours/containing.deep";
 
 // TODO: schemas in maps & sets & arrays
-export function compare(actual: any, expected: any) {
+export function compare(actual: any, expected: any): boolean {
   if (typeof expected === "object" && expected !== null) {
     // fyi, (typeof null) equals "object". I know. #javascript
 
@@ -11,7 +11,7 @@ export function compare(actual: any, expected: any) {
       key.endsWith("mockit__or_operator")
     );
     if (isOROperator) {
-      return expected.options.some((option) => compare(actual, option));
+      return expected.options.some((option: any) => compare(actual, option));
     }
 
     const isInstanceOf = Object.keys(expected).some((key) =>
@@ -40,7 +40,7 @@ export function compare(actual: any, expected: any) {
       key.endsWith("mockit__isOneOf")
     );
     if (isOneOf) {
-      return expected.options.some((option) => compare(actual, option));
+      return expected.options.some((option: unknown) => compare(actual, option));
     }
 
     const isStartsWith = Object.keys(expected).some((key) =>
@@ -119,15 +119,15 @@ export function compare(actual: any, expected: any) {
     if (isContaining) {
       // arrayContaining
       if (Array.isArray(expected.original)) {
-        return expected.original.every((item, index) => {
-          return actual?.some((actualItem) => compare(actualItem, item));
+        return expected.original.every((item: unknown, index: number) => {
+          return actual?.some((actualItem: unknown) => compare(actualItem, item));
         });
       }
 
       // mapContaining
       if (expected.original instanceof Map) {
         return Array.from(
-          ((expected?.original as Map<any, any>) ?? []).entries()
+          ((expected?.original as Map<unknown, unknown>) ?? []).entries()
         ).every(([key, value]) => {
           return compare(actual.get(key), value);
         });
@@ -136,7 +136,7 @@ export function compare(actual: any, expected: any) {
       // setContaining
       if (expected.original instanceof Set) {
         return Array.from(
-          ((expected?.original as Set<any>) ?? []).values()
+          ((expected?.original as Set<unknown>) ?? []).values()
         ).every((value) => {
           return Array.from(actual?.values?.() ?? []).some((actualValue) =>
             compare(actualValue, value)
@@ -169,8 +169,8 @@ export function compare(actual: any, expected: any) {
       }
 
       if (Array.isArray(expected.original)) {
-        return expected.original.every((expectedValue) => {
-          return actual?.some((actualValue) =>
+        return expected.original.every((expectedValue: unknown) => {
+          return actual?.some((actualValue: unknown) =>
             compare(actualValue, containingDeep(expectedValue))
           );
         });
@@ -272,7 +272,7 @@ function containsMockitConstruct(
     | "mockit__isContaining"
     | "mockit__isPartialDeep"
     | "mockit__isContainingDeep"
-) {
+): boolean {
   if (typeof obj !== "object") {
     return false;
   }
