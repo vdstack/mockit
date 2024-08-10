@@ -7,6 +7,11 @@ export function ProxyFactory<T>(suffix: string, content: Record<string, any>) {
     {
       get(target, prop) {
         // @ts-expect-error - I don't know how to fix this yet
+        if (target === "mockitSuffix") {
+          return () => suffix;
+        }
+
+        // @ts-expect-error - I don't know how to fix this yet
         return target[prop];
       },
     }

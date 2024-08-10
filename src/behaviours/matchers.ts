@@ -331,6 +331,8 @@ export const instanceOf = <T, U>(original: U) => {
   return ProxyFactory<T>("instanceOf", { class: original });
 };
 
+export type anyWhat = "string" | "object" | "number" | "boolean" | "array" | "function" | "nullish" | "falsy" | "truthy" | "map" | "set";
+
 /**
  *
  * @param regexp a regular expression that the string should match
@@ -427,3 +429,4 @@ export type PartialDeep<T> = T extends (...args: any[]) => any
 export type PartialDeepObject<ObjectType extends object> = {
   [KeyType in keyof ObjectType]?: PartialDeep<ObjectType[KeyType]>;
 };
+
