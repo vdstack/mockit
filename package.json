@@ -38,6 +38,8 @@
     "node-object-hash": "^2.3.10"
   },
   "peerDependencies": {
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "@anatine/zod-mock": "^3.13.4",
+    "@faker-js/faker": "^8.4.1"
   }
 }
