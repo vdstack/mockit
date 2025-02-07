@@ -22,6 +22,10 @@ class Assertion<T> {
       );
     }
   }
+
+  toEqual(expected: T): void {
+    return this.equals(expected);
+  }
 }
 
 export const m = {
@@ -31,6 +35,7 @@ export const m = {
   when,
   Mock,
   assert: <T>(actual: T) => new Assertion(actual),
+  expect: <T>(actual: T) => new Assertion(actual),
 };
 
 m.assert({
