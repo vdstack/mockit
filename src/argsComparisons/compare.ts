@@ -1,5 +1,10 @@
 import { hasher } from "../hasher";
-import { Schema } from "../behaviours/matchers";
+import {
+  NoInfer,
+  PartialDeep,
+  Schema,
+  validates,
+} from "../behaviours/matchers";
 import { containingDeep } from "../behaviours/containing.deep";
 
 // TODO: schemas in maps & sets & arrays
@@ -40,7 +45,9 @@ export function compare(actual: any, expected: any): boolean {
       key.endsWith("mockit__isOneOf")
     );
     if (isOneOf) {
-      return expected.options.some((option: unknown) => compare(actual, option));
+      return expected.options.some((option: unknown) =>
+        compare(actual, option)
+      );
     }
 
     const isStartsWith = Object.keys(expected).some((key) =>
@@ -120,7 +127,9 @@ export function compare(actual: any, expected: any): boolean {
       // arrayContaining
       if (Array.isArray(expected.original)) {
         return expected.original.every((item: unknown, index: number) => {
-          return actual?.some((actualItem: unknown) => compare(actualItem, item));
+          return actual?.some((actualItem: unknown) =>
+            compare(actualItem, item)
+          );
         });
       }
 
@@ -305,4 +314,20 @@ function containsMockitConstruct(
 
     return false;
   });
+}
+
+export function assertEqual<T>(actual: T, expected: NoInfer<T>): expected is T {
+  if (compare(actual, expected)) {
+    return true;
+  }
+
+  throw new Error("Values are not equal");
+}
+
+export function assertNotEqual<T>(actual: T, expected: T) {
+  if (!compare(actual, expected)) {
+    return;
+  }
+
+  throw new Error("Values are equal");
 }

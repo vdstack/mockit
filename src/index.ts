@@ -8,4 +8,5 @@ import { Mock } from "./mocks/Mock";
 import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
 import { when } from "./behaviours";
-export const m = { ...matchers, ...resets, ...verifications, when, Mock };
+import { assertEqual, assertNotEqual } from "./argsComparisons/compare";
+export const m = { ...matchers, ...resets, ...verifications, when, Mock, assertEqual, assertNotEqual };
