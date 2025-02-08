@@ -50,16 +50,20 @@ const result = someFunction();
 
 m.expect(result).toEqual(m.anyString());
 
-// This will only check that result.user.properties.id is a valid uuid => test is resilient to changes unless the specific property under test is changed.
-m.expect(result).toEqual(
-  m.objectContainingDeep({
-    user: {
-      properties: {
-        id: m.validates(z.string().uuid()),
+test("new user should have a uuid as id and a createdAt property", async () => {
+  const result = await createUser(...someProperties);
+  // This will only check that result.user.properties.id is a valid uuid and that result.user.properties.createdAt is a date => test is resilient to changes in createUser, unless the specific properties under test are changed.
+  m.expect(result).toEqual(
+    m.objectContainingDeep({
+      user: {
+        properties: {
+          id: m.validates(z.string().uuid()),
+          createdAt: m.anyDate(),
+        },
       },
-    },
-  })
-);
+    })
+  );
+});
 ```
 
 ## Documentation
