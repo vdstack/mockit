@@ -44,6 +44,8 @@ By focusing on patterns and behaviors rather than exact data matching, you creat
 - [Array Matchers](#array-matchers)
 - [String Matchers](#string-matchers)
 - [Type Matchers](#type-matchers)
+- [Error Assertions](#error-assertions)
+- [Collection Assertions](#collection-assertions)
 - [Custom Validation](#custom-validation)
 - [Best Practices](#best-practices)
 
@@ -229,6 +231,76 @@ m.expect(42).toEqual(m.anyNumber());
 m.expect(true).toEqual(m.anyBoolean());
 m.expect({}).toEqual(m.anyObject());
 m.expect([]).toEqual(m.anyArray());
+```
+
+## Error Assertions
+
+The `toThrow` matcher works identically to Jest's `toThrow`, allowing you to verify that a function throws an error when executed. The function must be wrapped in another function or arrow function to prevent the error from being thrown immediately:
+
+```typescript
+// ❌ Wrong - this will throw immediately
+m.expect(throwingFunction()).toThrow();
+
+// ✅ Correct - wrap in a function
+m.expect(() => throwingFunction()).toThrow();
+
+// Real-world examples
+function divide(a: number, b: number) {
+  if (b === 0) {
+    throw new Error("Cannot divide by zero");
+  }
+  return a / b;
+}
+
+// ✅ Correct - verifying error is thrown
+m.expect(() => divide(10, 0)).toThrow();
+
+// ❌ Incorrect - function doesn't throw (test will fail)
+m.expect(() => divide(10, 2)).toThrow();
+```
+
+## Collection Assertions
+
+The `toContain` matcher provides a flexible way to verify that an array or object contains specific elements or properties. It supports both array elements and object property matching.
+
+### Array Containment
+
+```typescript
+// Basic array containment
+m.expect([1, 2, 3]).toContain(2);
+m.expect(["apple", "banana", "orange"]).toContain("banana");
+
+// Object in array
+const users = [
+  { id: 1, name: "John" },
+  { id: 2, name: "Jane" },
+];
+m.expect(users).toContain({ id: 1, name: "John" });
+```
+
+### Object Containment
+
+```typescript
+// Partial object matching
+const user = {
+  id: 1,
+  name: "John",
+  email: "john@example.com",
+  settings: {
+    theme: "dark",
+    notifications: true,
+  },
+};
+
+// Match subset of properties
+m.expect(user).toContain({ name: "John", email: "john@example.com" });
+
+// Match nested properties
+m.expect(user).toContain({
+  settings: {
+    theme: "dark",
+  },
+});
 ```
 
 ## Custom Validation
