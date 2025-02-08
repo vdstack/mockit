@@ -33,15 +33,20 @@ export class Assertion<T> {
       );
     }
 
+    let didThrow = false;
+    let result: unknown;
     try {
-      const result = this.actual();
+      result = this.actual();
+    } catch (err) {
+      didThrow = true;
+    }
+
+    if (!didThrow) {
       throw new Error(
         `Expected a function to throw: the function did not throw but returned: ${JSON.stringify(
           result
         )}`
       );
-    } catch (err) {
-      this.error = err;
     }
 
     return this;
