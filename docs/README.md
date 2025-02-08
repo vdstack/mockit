@@ -4,7 +4,11 @@ Welcome to the Mockit documentation. This directory contains comprehensive docum
 
 ## Available Documentation
 
-- [Assertion Library](./assertions.md) - Complete guide to Mockit's powerful assertion capabilities
+- [Creating Mocks](./mocking.md) - Learn how to mock functions, classes, interfaces and more
+- [Controlling Mock Behavior](./when.md) - Define how your mocks should respond using the `when` API
+- [Verifying Mock Interactions](./verify.md) - Validate how your code interacts with mocks using the `verifyThat` API
+- [Writing Resilient Tests with Matchers](./matchers.md) - Use matchers to create maintainable, change-resistant tests
+- [Assertion Library](./assertions.md) - Write clear and powerful assertions for your tests
 
 ## Documentation Structure
 
