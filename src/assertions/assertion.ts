@@ -75,6 +75,62 @@ export class Assertion<T> {
     }
   }
 
+  // async toResolve(
+  //   expected: T extends Promise<infer U>
+  //     ? U
+  //     : T extends (...args: any[]) => Promise<infer U>
+  //     ? U
+  //     : T
+  // ): Promise<void> {
+  //   let result: unknown;
+
+  //   if (isPromise(this.actual)) {
+  //     result = await this.actual;
+  //   } else if (typeof this.actual === "function") {
+  //     result = await this.actual();
+  //   } else {
+  //     throw new Error("Expected a function or a promise");
+  //   }
+
+  //   if (!compare(result, expected)) {
+  //     throw new Error(
+  //       `Expected ${JSON.stringify(result)} to equal ${JSON.stringify(
+  //         expected
+  //       )}`
+  //     );
+  //   }
+  // }
+
+  // async toReject(expected: unknown): Promise<void> {
+  //   if (isPromise(this.actual)) {
+  //     try {
+  //       await this.actual;
+  //     } catch (err) {
+  //       if (!compare(err, expected)) {
+  //         throw new Error(
+  //           `Expected ${JSON.stringify(err)} to equal ${JSON.stringify(
+  //             expected
+  //           )}`
+  //         );
+  //       }
+  //     }
+  //   } else if (typeof this.actual === "function") {
+  //     try {
+  //       await this.actual();
+  //     } catch (err) {
+  //       if (!compare(err, expected)) {
+  //         throw new Error(
+  //           `Expected ${JSON.stringify(err)} to equal ${JSON.stringify(
+  //             expected
+  //           )}`
+  //         );
+  //       }
+  //     }
+  //   } else {
+  //     throw new Error("Expected a function or a promise");
+  //   }
+  // }
+
   // toContainDeep(expected: T): void {
   //   let wrapped: unknown;
   //   if (Array.isArray(expected)) {
@@ -99,4 +155,8 @@ export class Assertion<T> {
   //     );
   //   }
   // }
+}
+
+function isPromise(value: unknown): value is Promise<unknown> {
+  return typeof value === "object" && value !== null && "then" in value;
 }
