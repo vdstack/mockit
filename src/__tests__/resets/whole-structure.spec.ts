@@ -1,5 +1,5 @@
 import { Mock } from "../../mocks";
-import { verifyThat } from "../../assertions";
+import { verifyThat } from "../../assertions/verifyThat";
 import { when } from "../../behaviours";
 import { m } from "../..";
 

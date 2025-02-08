@@ -1,5 +1,5 @@
 import z from "zod";
-import { verifyThat } from "../../assertions";
+import { verifyThat } from "../../assertions/verifyThat";
 import { validates, unsafe } from "../../behaviours/matchers";
 import { Mock } from "../../mocks";
 import { m } from "../..";
