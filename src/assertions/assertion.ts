@@ -1,3 +1,4 @@
+import { m } from "..";
 import { compare } from "../argsComparisons/compare";
 
 export class Assertion<T> {
@@ -51,4 +52,51 @@ export class Assertion<T> {
 
     return this;
   }
+
+  toContain(expected: T extends Array<infer U> ? U : Partial<T>): void {
+    if (Array.isArray(this.actual)) {
+      if (!compare(this.actual, m.arrayContaining([expected]))) {
+        throw new Error(
+          `Expected ${JSON.stringify(this.actual)} to contain ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
+    } else if (typeof this.actual === "object") {
+      if (!compare(this.actual, m.objectContaining(expected))) {
+        throw new Error(
+          `Expected ${JSON.stringify(this.actual)} to contain ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
+    } else {
+      throw new Error(`Expected ${JSON.stringify(this.actual)} to be an array`);
+    }
+  }
+
+  // toContainDeep(expected: T): void {
+  //   let wrapped: unknown;
+  //   if (Array.isArray(expected)) {
+  //     wrapped = m.arrayContainingDeep(expected);
+  //   }
+
+  //   if (typeof expected === "object") {
+  //     wrapped = m.objectContainingDeep(expected);
+  //   }
+
+  //   if (!wrapped) {
+  //     throw new Error(
+  //       `Expected ${JSON.stringify(expected)} to be an array or an object`
+  //     );
+  //   }
+
+  //   if (!compare(this.actual, wrapped)) {
+  //     throw new Error(
+  //       `Expected ${JSON.stringify(this.actual)} to contain ${JSON.stringify(
+  //         expected
+  //       )}`
+  //     );
+  //   }
+  // }
 }
