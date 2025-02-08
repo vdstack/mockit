@@ -46,9 +46,7 @@ They are agnostic of the test runner and assertion library you use.
 Finally, you can create powerful and robust assertions to make your tests more readable and maintainable.
 
 ```ts
-const result = someFunction();
-
-m.expect(result).toEqual(m.anyString());
+import { createUser } from "./userService";
 
 test("new user should have a uuid as id and a createdAt property", async () => {
   const result = await createUser(...someProperties);
