@@ -43,14 +43,35 @@ verifyThat(mockedFunc).wasCalledNTimes(2);
 These verifications are assertive, meaning your test will fail if the mock was not called the way you expected it to be. No assertion library necessary!
 They are agnostic of the test runner and assertion library you use.
 
+Finally, you can create powerful and robust assertions to make your tests more readable and maintainable.
+
+```ts
+const result = someFunction();
+
+m.expect(result).toEqual(m.anyString());
+
+// This will only check that result.user.properties.id is a valid uuid => test is resilient to changes unless the specific property under test is changed.
+m.expect(result).toEqual(
+  m.objectContainingDeep({
+    user: {
+      properties: {
+        id: m.validates(z.string().uuid()),
+      },
+    },
+  })
+);
+```
+
 ## Documentation
 
-For detailed documentation on all features, please see the [documentation directory](./docs/README.md):
+Start with our [comprehensive documentation guide](./docs/README.md) to learn all about Mockit's features and best practices.
 
-- [Mocking Guide](./docs/mocking.md)
-- [When API](./docs/when.md)
-- [Verify API](./docs/verify.md)
-- [Matchers](./docs/matchers.md)
+Individual documentation sections:
+
+- [Creating Mocks](./docs/mocking.md)
+- [Controlling Mock Behavior](./docs/when.md)
+- [Verifying Mock Interactions](./docs/verify.md)
+- [Writing Resilient Tests with Matchers](./docs/matchers.md)
 - [Assertions](./docs/assertions.md)
 
 Feel free to contribute :)
