@@ -1,6 +1,7 @@
 export { Mock } from "./mocks/Mock";
 export { when } from "./behaviours";
-export { getMockHistory, verifyThat } from "./assertions";
+export { getMockHistory } from "./assertions/getMockHistory";
+export { verifyThat } from "./assertions/verifyThat";
 export { resetBehaviourOf, resetCompletely, resetHistoryOf } from "./mocks";
 import * as matchers from "./behaviours/matchers";
 
@@ -9,6 +10,8 @@ import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
 import { when } from "./behaviours";
 import { compare } from "./argsComparisons/compare";
+import { getMockHistory } from "./assertions/getMockHistory";
+import { verifyThat } from "./assertions/verifyThat";
 
 class Assertion<T> {
   constructor(private readonly actual: T) {}
@@ -32,13 +35,14 @@ export const m = {
   ...matchers,
   ...resets,
   ...verifications,
+  getMockHistory,
+  verifyThat,
   when,
   Mock,
-  assert: <T>(actual: T) => new Assertion(actual),
   expect: <T>(actual: T) => new Assertion(actual),
 };
 
-m.assert({
+m.expect({
   x: 1,
   y: {
     z: [1, 2, 3],

@@ -3,49 +3,49 @@ import { m } from "..";
 describe("m.assert", () => {
   describe("primitive values", () => {
     test("exact matches", () => {
-      expect(() => m.assert(42).equals(42)).not.toThrow();
-      expect(() => m.assert("hello").equals("hello")).not.toThrow();
-      expect(() => m.assert(true).equals(true)).not.toThrow();
-      expect(() => m.assert(null).equals(null)).not.toThrow();
-      expect(() => m.assert(undefined).equals(undefined)).not.toThrow();
+      expect(() => m.expect(42).toEqual(42)).not.toThrow();
+      expect(() => m.expect("hello").toEqual("hello")).not.toThrow();
+      expect(() => m.expect(true).toEqual(true)).not.toThrow();
+      expect(() => m.expect(null).toEqual(null)).not.toThrow();
+      expect(() => m.expect(undefined).toEqual(undefined)).not.toThrow();
     });
 
     test("mismatches", () => {
-      expect(() => m.assert(42).equals(43)).toThrow();
-      expect(() => m.assert("hello").equals("world")).toThrow();
-      expect(() => m.assert(true).equals(false)).toThrow();
-      expect(() => m.assert(null).equals(m.unsafe(undefined))).toThrow();
+      expect(() => m.expect(42).toEqual(43)).toThrow();
+      expect(() => m.expect("hello").toEqual("world")).toThrow();
+      expect(() => m.expect(true).toEqual(false)).toThrow();
+      expect(() => m.expect(null).toEqual(m.unsafe(undefined))).toThrow();
     });
   });
 
   describe("any matchers", () => {
     test("anyString", () => {
-      expect(() => m.assert("hello").equals(m.anyString())).not.toThrow();
-      expect(() => m.assert(42).equals(m.anyString())).toThrow();
+      expect(() => m.expect("hello").toEqual(m.anyString())).not.toThrow();
+      expect(() => m.expect(42).toEqual(m.anyString())).toThrow();
     });
 
     test("anyNumber", () => {
-      expect(() => m.assert(42).equals(m.anyNumber())).not.toThrow();
-      expect(() => m.assert("42").equals(m.anyNumber())).toThrow();
+      expect(() => m.expect(42).toEqual(m.anyNumber())).not.toThrow();
+      expect(() => m.expect("42").toEqual(m.anyNumber())).toThrow();
     });
 
     test("anyBoolean", () => {
-      expect(() => m.assert(true).equals(m.anyBoolean())).not.toThrow();
-      expect(() => m.assert(false).equals(m.anyBoolean())).not.toThrow();
-      expect(() => m.assert("true").equals(m.anyBoolean())).toThrow();
+      expect(() => m.expect(true).toEqual(m.anyBoolean())).not.toThrow();
+      expect(() => m.expect(false).toEqual(m.anyBoolean())).not.toThrow();
+      expect(() => m.expect("true").toEqual(m.anyBoolean())).toThrow();
     });
 
     test("anyObject", () => {
-      expect(() => m.assert({}).equals(m.anyObject())).not.toThrow();
-      expect(() => m.assert({ x: 1 }).equals(m.anyObject())).not.toThrow();
-      expect(() => m.assert([]).equals(m.anyObject())).toThrow();
-      expect(() => m.assert(null).equals(m.anyObject())).toThrow();
+      expect(() => m.expect({}).toEqual(m.anyObject())).not.toThrow();
+      expect(() => m.expect({ x: 1 }).toEqual(m.anyObject())).not.toThrow();
+      expect(() => m.expect([]).toEqual(m.anyObject())).toThrow();
+      expect(() => m.expect(null).toEqual(m.anyObject())).toThrow();
     });
 
     test("anyArray", () => {
-      expect(() => m.assert([]).equals(m.anyArray())).not.toThrow();
-      expect(() => m.assert([1, 2, 3]).equals(m.anyArray())).not.toThrow();
-      expect(() => m.assert({}).equals(m.anyArray())).toThrow();
+      expect(() => m.expect([]).toEqual(m.anyArray())).not.toThrow();
+      expect(() => m.expect([1, 2, 3]).toEqual(m.anyArray())).not.toThrow();
+      expect(() => m.expect({}).toEqual(m.anyArray())).toThrow();
     });
   });
 
@@ -68,7 +68,7 @@ describe("m.assert", () => {
 
     test("objectContaining - shallow", () => {
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContaining({
             id: "123",
           })
@@ -76,7 +76,7 @@ describe("m.assert", () => {
       ).not.toThrow();
 
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContaining({
             id: "456",
           })
@@ -86,7 +86,7 @@ describe("m.assert", () => {
 
     test("objectContaining - nested", () => {
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContaining({
             user: m.objectContaining({
               name: "John",
@@ -96,7 +96,7 @@ describe("m.assert", () => {
       ).not.toThrow();
 
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContaining({
             user: m.objectContaining({
               name: "Jane",
@@ -108,7 +108,7 @@ describe("m.assert", () => {
 
     test("objectContainingDeep", () => {
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContainingDeep({
             user: { contacts: { email: "john@example.com" } },
           })
@@ -116,7 +116,7 @@ describe("m.assert", () => {
       ).not.toThrow();
 
       expect(() =>
-        m.assert(complexObject).equals(
+        m.expect(complexObject).toEqual(
           m.objectContainingDeep({
             user: { contacts: { email: "jane@example.com" } },
           })
@@ -135,28 +135,28 @@ describe("m.assert", () => {
     test("arrayContaining", () => {
       expect(() =>
         m
-          .assert(users)
-          .equals(m.arrayContaining([m.objectContaining({ id: "1" })]))
+          .expect(users)
+          .toEqual(m.arrayContaining([m.objectContaining({ id: "1" })]))
       ).not.toThrow();
 
       expect(() =>
         m
-          .assert(users)
-          .equals(m.arrayContaining([m.objectContaining({ id: "4" })]))
+          .expect(users)
+          .toEqual(m.arrayContaining([m.objectContaining({ id: "4" })]))
       ).toThrow();
     });
 
     test("arrayContainingDeep", () => {
       expect(() =>
         m
-          .assert(users)
-          .equals(m.arrayContainingDeep([{ id: "1", name: "John" }]))
+          .expect(users)
+          .toEqual(m.arrayContainingDeep([{ id: "1", name: "John" }]))
       ).not.toThrow();
 
       expect(() =>
         m
-          .assert(users)
-          .equals(m.arrayContainingDeep([{ id: "1", name: "Jane" }]))
+          .expect(users)
+          .toEqual(m.arrayContainingDeep([{ id: "1", name: "Jane" }]))
       ).toThrow();
     });
   });
@@ -164,37 +164,37 @@ describe("m.assert", () => {
   describe("string matchers", () => {
     test("stringContaining", () => {
       expect(() =>
-        m.assert("hello world").equals(m.stringContaining("world"))
+        m.expect("hello world").toEqual(m.stringContaining("world"))
       ).not.toThrow();
       expect(() =>
-        m.assert("hello world").equals(m.stringContaining("moon"))
+        m.expect("hello world").toEqual(m.stringContaining("moon"))
       ).toThrow();
     });
 
     test("stringStartingWith", () => {
       expect(() =>
-        m.assert("hello world").equals(m.stringStartingWith("hello"))
+        m.expect("hello world").toEqual(m.stringStartingWith("hello"))
       ).not.toThrow();
       expect(() =>
-        m.assert("hello world").equals(m.stringStartingWith("world"))
+        m.expect("hello world").toEqual(m.stringStartingWith("world"))
       ).toThrow();
     });
 
     test("stringEndingWith", () => {
       expect(() =>
-        m.assert("hello world").equals(m.stringEndingWith("world"))
+        m.expect("hello world").toEqual(m.stringEndingWith("world"))
       ).not.toThrow();
       expect(() =>
-        m.assert("hello world").equals(m.stringEndingWith("hello"))
+        m.expect("hello world").toEqual(m.stringEndingWith("hello"))
       ).toThrow();
     });
 
     test("stringMatching", () => {
       expect(() =>
-        m.assert("hello world").equals(m.stringMatching(/^hello/))
+        m.expect("hello world").toEqual(m.stringMatching(/^hello/))
       ).not.toThrow();
       expect(() =>
-        m.assert("hello world").equals(m.stringMatching(/^world/))
+        m.expect("hello world").toEqual(m.stringMatching(/^world/))
       ).toThrow();
     });
   });
@@ -202,9 +202,9 @@ describe("m.assert", () => {
   describe("validation matchers", () => {
     test("validates with function", () => {
       expect(() =>
-        m.assert(42).equals(m.validates((x) => x > 40))
+        m.expect(42).toEqual(m.validates((x) => x > 40))
       ).not.toThrow();
-      expect(() => m.assert(42).equals(m.validates((x) => x < 40))).toThrow();
+      expect(() => m.expect(42).toEqual(m.validates((x) => x < 40))).toThrow();
     });
 
     test("validates with complex objects", () => {
@@ -215,7 +215,7 @@ describe("m.assert", () => {
       };
 
       expect(() =>
-        m.assert(user).equals(
+        m.expect(user).toEqual(
           m.objectContaining({
             age: m.validates((age) => age !== undefined && age >= 18),
             email: m.validates(
@@ -226,7 +226,7 @@ describe("m.assert", () => {
       ).not.toThrow();
 
       expect(() =>
-        m.assert(user).equals(
+        m.expect(user).toEqual(
           m.objectContaining({
             age: m.validates((age) => age !== undefined && age >= 30),
             email: m.validates(
@@ -251,49 +251,124 @@ describe("m.assert", () => {
       },
     };
 
-    // test("complex nested assertions", () => {
-    //   expect(() =>
-    //     m.assert(complexData).equals(
-    //       m.objectContaining({
-    //         id: m.anyString(),
-    //         users: m.arrayContaining([
-    //           m.objectContaining({
-    //             name: m.stringContaining("John"),
-    //             age: m.validates((age) => age >= 18),
-    //           }),
-    //         ]),
-    //         metadata: m.objectContaining({
-    //           tags: m.arrayContaining(["important"]),
-    //         }),
-    //       })
-    //     )
-    //   ).not.toThrow();
+    test("complex nested assertions", () => {
+      expect(() =>
+        m.expect(complexData).toEqual(
+          m.objectContaining({
+            id: m.anyString(),
+            users: m.arrayContaining([
+              m.objectContaining({
+                name: m.stringContaining("John"),
+                age: m.validates((age) => typeof age === "number" && age >= 18),
+              }),
+            ]),
+            metadata: m.objectContaining({
+              tags: m.arrayContaining(["important"]),
+            }),
+          })
+        )
+      ).not.toThrow();
 
-    //   expect(() =>
-    //     m.assert(complexData).equals(
-    //       m.objectContaining({
-    //         users: m.arrayContaining([
-    //           m.objectContaining({
-    //             name: m.stringContaining("Alice"),
-    //             age: m.validates((age) => age >= 18),
-    //           }),
-    //         ]),
-    //       })
-    //     )
-    //   ).toThrow();
-    // });
+      expect(() =>
+        m.expect(complexData).toEqual(
+          m.objectContaining({
+            users: m.arrayContaining([
+              m.objectContaining({
+                name: m.stringContaining("Alice"),
+                age: m.validates((age) => typeof age === "number" && age >= 18),
+              }),
+            ]),
+          })
+        )
+      ).toThrow();
+    });
   });
 
   describe("error messages", () => {
     test("provides helpful error messages", () => {
-      const error = () => m.assert({ x: 1, y: 2 }).equals({ x: 1, y: 3 });
+      const error = () => m.expect({ x: 1, y: 2 }).toEqual({ x: 1, y: 3 });
       expect(error).toThrow();
       expect(error).toThrow(/Expected.*to equal/);
     });
   });
 });
 
+describe("comparison of matching styles", () => {
+  const complexNested = {
+    user: {
+      profile: {
+        name: "John",
+        settings: {
+          theme: "dark",
+          notifications: true,
+        },
+      },
+      stats: {
+        lastLogin: "2024-01-01",
+        loginCount: 42,
+      },
+    },
+  };
+
+  test("demonstrates different matching styles", () => {
+    // 1. Direct equality - most strict, requires exact match
+    expect(() =>
+      m.expect(complexNested).toEqual({
+        user: {
+          profile: {
+            name: "John",
+            settings: {
+              theme: "dark",
+              notifications: true,
+            },
+          },
+          stats: {
+            lastLogin: "2024-01-01",
+            loginCount: 42,
+          },
+        },
+      })
+    ).not.toThrow();
+
+    // 2. Nested objectContaining - flexible but verbose
+    expect(() =>
+      m.expect(complexNested).toEqual(
+        m.objectContaining({
+          user: m.objectContaining({
+            profile: m.objectContaining({
+              name: "John",
+              settings: m.objectContaining({
+                theme: "dark",
+              }),
+            }),
+          }),
+        })
+      )
+    ).not.toThrow();
+
+    // 3. objectContainingDeep - most concise
+    expect(() =>
+      m.expect(complexNested).toEqual(
+        m.objectContainingDeep({
+          user: {
+            profile: {
+              name: "John",
+              settings: {
+                theme: "dark",
+              },
+            },
+          },
+        })
+      )
+    ).not.toThrow();
+  });
+});
+
 it("should work", () => {
   m.expect("Victor").toEqual(m.stringMatching(/victor/i));
   m.expect({ x: 1, y: "azeaze" }).toEqual(m.objectContaining({}));
+  m.expect([
+    [1, 2],
+    [3, 4],
+  ]).toEqual(m.arrayContainingDeep([[2]]));
 });
