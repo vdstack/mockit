@@ -1,161 +1,75 @@
 import { Assertion } from "./assertion";
 
 describe("Assertion.toThrow", () => {
-  describe("basic functionality", () => {
-    it("should pass when function throws", () => {
-      const throwingFn = () => {
-        throw new Error("test error");
-      };
-
-      // This should not throw
-      new Assertion(throwingFn).toThrow();
-    });
-
-    it("should fail when function does not throw", () => {
-      const nonThrowingFn = () => "some result";
-
-      let didThrow = false;
-      try {
-        new Assertion(nonThrowingFn).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            'Expected a function to throw: the function did not throw but returned: "some result"'
-          );
-        }
-      }
-
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-    });
-
-    it("should fail when not given a function", () => {
-      let didThrow = false;
-      try {
-        new Assertion("not a function").toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            "Expected a function to throw: you did not provide a function"
-          );
-        }
-      }
-
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-    });
+  it("throws an error if the actual value is not a function", () => {
+    expect(() => {
+      // Pass a non-function value
+      new Assertion(123).toThrow();
+    }).toThrow("Expected a function to throw: you did not provide a function");
   });
 
-  describe("error handling", () => {
-    it("should handle different error types", () => {
-      const typeErrorFn = () => {
-        throw new TypeError("type error");
-      };
-
-      // This should not throw
-      new Assertion(typeErrorFn).toThrow();
-
-      const customErrorFn = () => {
-        throw { custom: "error" };
-      };
-
-      // This should not throw
-      new Assertion(customErrorFn).toThrow();
-    });
-
-    it("should handle functions returning different values", () => {
-      const returnUndefined = () => undefined;
-      let didThrow = false;
-      try {
-        new Assertion(returnUndefined).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            "Expected a function to throw: the function did not throw but returned: undefined"
-          );
-        }
-      }
-
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-
-      const returnNull = () => null;
-      didThrow = false;
-      try {
-        new Assertion(returnNull).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            "Expected a function to throw: the function did not throw but returned: null"
-          );
-        }
-      }
-
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-
-      const returnObject = () => ({ test: "value" });
-      didThrow = false;
-      try {
-        new Assertion(returnObject).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            'Expected a function to throw: the function did not throw but returned: {"test":"value"}'
-          );
-        }
-      }
-
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-    });
+  it("throws an error if the function does not throw", () => {
+    const fnThatReturns = () => 42;
+    const expectedError = "Some error message";
+    expect(() => {
+      new Assertion(fnThatReturns).toThrow(expectedError);
+    }).toThrow(/Expected the function to throw error matching/);
   });
 
-  describe("edge cases", () => {
-    it("should handle undefined input", () => {
-      let didThrow = false;
-      try {
-        new Assertion(undefined).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            "Expected a function to throw: you did not provide a function"
-          );
-        }
-      }
+  it("passes when the function throws and no expected error is provided", () => {
+    const errorFn = () => {
+      throw new Error("oops");
+    };
 
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-    });
+    // The assertion should not throw.
+    expect(() => {
+      const assertion = new Assertion(errorFn).toThrow();
+      expect(assertion).toBeInstanceOf(Assertion);
+    }).not.toThrow();
+  });
 
-    it("should handle null input", () => {
-      let didThrow = false;
-      try {
-        new Assertion(null).toThrow();
-      } catch (error) {
-        didThrow = true;
-        if (error instanceof Error) {
-          new Assertion(error.message).equals(
-            "Expected a function to throw: you did not provide a function"
-          );
-        }
-      }
+  it("throws an error if the thrown error does not match the expected error", () => {
+    // Throw a string error
+    const errorFn = () => {
+      throw "oops";
+    };
+    const expectedError = "not oops";
+    expect(() => {
+      new Assertion(errorFn).toThrow(expectedError);
+    }).toThrow(/the function threw "oops" but expected "not oops"/);
+  });
 
-      if (!didThrow) {
-        throw new Error("Expected assertion to throw but it did not");
-      }
-    });
+  it("passes when the thrown error matches the expected error", () => {
+    // Throw a string error
+    const errorFn = () => {
+      throw "oops";
+    };
+    const expectedError = "oops";
+    expect(() => {
+      new Assertion(errorFn).toThrow(expectedError);
+    }).not.toThrow();
+  });
+
+  it("handles undefined expected error correctly", () => {
+    // Case 1: No argument provided (arguments.length === 0)
+    const throwUndefined = () => {
+      throw undefined;
+    };
+    expect(() => {
+      new Assertion(throwUndefined).toThrow();
+    }).not.toThrow();
+
+    // Case 2: undefined is explicitly passed (arguments.length > 0)
+    expect(() => {
+      new Assertion(throwUndefined).toThrow(undefined);
+    }).not.toThrow();
+
+    // Case 3: function throws a value that is not undefined when undefined is expected
+    const throwError = () => {
+      throw "error";
+    };
+    expect(() => {
+      new Assertion(throwError).toThrow(undefined);
+    }).toThrow(/the function threw "error" but expected undefined/);
   });
 });

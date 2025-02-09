@@ -27,7 +27,7 @@ export class Assertion<T> {
     return this.equals(expected);
   }
 
-  toThrow() {
+  toThrow(expectedError?: unknown) {
     if (typeof this.actual !== "function") {
       throw new Error(
         "Expected a function to throw: you did not provide a function"
@@ -36,18 +36,33 @@ export class Assertion<T> {
 
     let didThrow = false;
     let result: unknown;
+    let err: unknown;
     try {
       result = this.actual();
-    } catch (err) {
+    } catch (e) {
       didThrow = true;
+      err = e;
     }
 
     if (!didThrow) {
       throw new Error(
-        `Expected a function to throw: the function did not throw but returned: ${JSON.stringify(
-          result
-        )}`
+        `Expected the function to throw error matching ${JSON.stringify(
+          expectedError
+        )}, but it returned: ${JSON.stringify(result)}`
       );
+    }
+
+    // arguments.length > 0 is better because expectedError could have undefined value.
+    // toThrow() => arguments.length === 0
+    // toThrow(undefined) => arguments.length === 1
+    if (arguments.length > 0) {
+      if (!compare(err, expectedError)) {
+        throw new Error(
+          `Expected a function to throw: the function threw ${JSON.stringify(
+            err
+          )} but expected ${JSON.stringify(expectedError)}`
+        );
+      }
     }
 
     return this;
@@ -101,60 +116,55 @@ export class Assertion<T> {
   //   }
   // }
 
-  // async toReject(expected: unknown): Promise<void> {
-  //   if (isPromise(this.actual)) {
-  //     try {
-  //       await this.actual;
-  //     } catch (err) {
-  //       if (!compare(err, expected)) {
-  //         throw new Error(
-  //           `Expected ${JSON.stringify(err)} to equal ${JSON.stringify(
-  //             expected
-  //           )}`
-  //         );
-  //       }
-  //     }
-  //   } else if (typeof this.actual === "function") {
-  //     try {
-  //       await this.actual();
-  //     } catch (err) {
-  //       if (!compare(err, expected)) {
-  //         throw new Error(
-  //           `Expected ${JSON.stringify(err)} to equal ${JSON.stringify(
-  //             expected
-  //           )}`
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     throw new Error("Expected a function or a promise");
-  //   }
-  // }
+  async toReject<R = unknown>(expectedRejection?: R): Promise<Assertion<T>> {
+    let didReject = false;
+    let caughtRejection: unknown;
+    let actualType: "promise" | "function" | "unknown" = "unknown"; // Track the type
 
-  // toContainDeep(expected: T): void {
-  //   let wrapped: unknown;
-  //   if (Array.isArray(expected)) {
-  //     wrapped = m.arrayContainingDeep(expected);
-  //   }
+    if (isPromise(this.actual)) {
+      actualType = "promise";
+      try {
+        await this.actual;
+      } catch (err) {
+        didReject = true;
+        caughtRejection = err;
+      }
+    } else if (typeof this.actual === "function") {
+      actualType = "function";
+      try {
+        await this.actual();
+      } catch (err) {
+        didReject = true;
+        caughtRejection = err;
+      }
+    } else {
+      throw new Error("Expected a function or a promise for .toReject()");
+    }
 
-  //   if (typeof expected === "object") {
-  //     wrapped = m.objectContainingDeep(expected);
-  //   }
+    if (!didReject) {
+      const typeDescription =
+        actualType === "promise"
+          ? "promise"
+          : actualType === "function"
+          ? "function returning a promise"
+          : "value";
+      throw new Error(
+        `Expected a ${typeDescription} to reject, but it resolved.`
+      );
+    }
 
-  //   if (!wrapped) {
-  //     throw new Error(
-  //       `Expected ${JSON.stringify(expected)} to be an array or an object`
-  //     );
-  //   }
+    if (arguments.length > 0) {
+      if (!compare(caughtRejection, expectedRejection)) {
+        throw new Error(
+          `Expected promise to reject with value matching ${JSON.stringify(
+            expectedRejection
+          )}, but it rejected with ${JSON.stringify(caughtRejection)}`
+        );
+      }
+    }
 
-  //   if (!compare(this.actual, wrapped)) {
-  //     throw new Error(
-  //       `Expected ${JSON.stringify(this.actual)} to contain ${JSON.stringify(
-  //         expected
-  //       )}`
-  //     );
-  //   }
-  // }
+    return this;
+  }
 }
 
 function isPromise(value: unknown): value is Promise<unknown> {
