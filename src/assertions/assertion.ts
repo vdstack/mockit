@@ -5,7 +5,7 @@ export class Assertion<T> {
   private error: unknown;
   constructor(private readonly actual: T) {}
 
-  equals(expected: T): void {
+  private equals(expected: T): void {
     if (!compare(this.actual, expected)) {
       throw new Error(
         `Expected ${JSON.stringify(this.actual)} to equal ${JSON.stringify(
