@@ -90,31 +90,33 @@ export class Assertion<T> {
     }
   }
 
-  // async toResolve(
-  //   expected: T extends Promise<infer U>
-  //     ? U
-  //     : T extends (...args: any[]) => Promise<infer U>
-  //     ? U
-  //     : T
-  // ): Promise<void> {
-  //   let result: unknown;
+  async toResolve(
+    expected?: T extends Promise<infer U>
+      ? U
+      : T extends (...args: any[]) => Promise<infer U>
+      ? U
+      : T
+  ): Promise<void> {
+    let result: unknown;
 
-  //   if (isPromise(this.actual)) {
-  //     result = await this.actual;
-  //   } else if (typeof this.actual === "function") {
-  //     result = await this.actual();
-  //   } else {
-  //     throw new Error("Expected a function or a promise");
-  //   }
+    if (isPromise(this.actual)) {
+      result = await this.actual;
+    } else if (typeof this.actual === "function") {
+      result = await this.actual();
+    } else {
+      throw new Error("Expected a function or a promise");
+    }
 
-  //   if (!compare(result, expected)) {
-  //     throw new Error(
-  //       `Expected ${JSON.stringify(result)} to equal ${JSON.stringify(
-  //         expected
-  //       )}`
-  //     );
-  //   }
-  // }
+    if (arguments.length > 0) {
+      if (!compare(result, expected)) {
+        throw new Error(
+          `Expected ${JSON.stringify(result)} to equal ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
+    }
+  }
 
   async toReject<R = unknown>(expectedRejection?: R): Promise<Assertion<T>> {
     let didReject = false;

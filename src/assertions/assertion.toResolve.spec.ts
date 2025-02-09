@@ -1,4 +1,4 @@
-/** import { Assertion } from "./assertion";
+import { Assertion } from "./assertion";
 import { m } from "..";
 
 describe("Assertion.toResolve", () => {
@@ -116,6 +116,19 @@ describe("Assertion.toResolve", () => {
     });
   });
 
+  describe("with no argument passed to toResolve", () => {
+    it("should pass when function resolves", async () => {
+      const fn = async () => "hello";
+      const failingFn = async () => {
+        throw new Error("failed");
+      };
+      await new Assertion(() => fn()).toResolve();
+      expect(() =>
+        new Assertion(() => failingFn()).toResolve()
+      ).rejects.toThrow();
+    });
+  });
+
   describe("error cases", () => {
     it("should throw when given a non-function, non-promise value", async () => {
       const nonFunction: () => Promise<string> = "not a function" as any;
@@ -166,6 +179,3 @@ describe("Assertion.toResolve", () => {
     });
   });
 });
-
-
-**/
