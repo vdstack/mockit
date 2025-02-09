@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { compare } from "./compare";
-import { validates } from "../behaviours/matchers";
+import { validates } from "../../behaviours/matchers";
 
 describe("compare.schema", () => {
   it("should compare schema and values", () => {

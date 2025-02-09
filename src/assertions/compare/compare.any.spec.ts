@@ -1,4 +1,16 @@
-import { anyArray, anyBoolean, anyFalsy, anyFunction, anyMap, anyNullish, anyNumber, anyObject, anySet, anyString, anyTruthy } from "../behaviours/matchers";
+import {
+  anyArray,
+  anyBoolean,
+  anyFalsy,
+  anyFunction,
+  anyMap,
+  anyNullish,
+  anyNumber,
+  anyObject,
+  anySet,
+  anyString,
+  anyTruthy,
+} from "../../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.any", () => {

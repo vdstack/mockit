@@ -1,7 +1,7 @@
 import { ZodSchema, z } from "zod";
 
 import { Call, UnsafeCall } from "../types";
-import { compare } from "../argsComparisons/compare";
+import { compare } from "./compare/compare";
 
 // This spies the mocked functions only !
 

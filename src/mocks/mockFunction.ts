@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
-import { compare } from "../argsComparisons/compare";
+import { compare } from "../assertions/compare/compare";
 
 /**
  * This is the function mock, it is taking the place of the function that we want to mock.
@@ -151,8 +151,6 @@ export function mockFunction<T extends (...args: any[]) => any>(
         );
         return true;
       }
-
-
 
       if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;

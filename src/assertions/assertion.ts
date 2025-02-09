@@ -1,5 +1,5 @@
 import { m } from "..";
-import { compare } from "../argsComparisons/compare";
+import { compare } from "./compare/compare";
 
 export class Assertion<T> {
   private error: unknown;

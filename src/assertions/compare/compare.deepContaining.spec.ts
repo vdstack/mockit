@@ -1,9 +1,10 @@
-import { m } from "..";
+import { m } from "../../";
 import {
   arrayContainingDeep,
   mapContainingDeep,
   setContainingDeep,
-} from "../behaviours/matchers";
+} from "../../behaviours/matchers";
+
 import { compare } from "./compare";
 
 describe("compare.containingDeep", () => {

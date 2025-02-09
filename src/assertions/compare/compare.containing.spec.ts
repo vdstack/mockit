@@ -4,7 +4,8 @@ import {
   objectContaining,
   setContaining,
   stringContaining,
-} from "../behaviours/matchers";
+} from "../../behaviours/matchers";
+
 import { compare } from "./compare";
 
 describe("compare.containing", () => {
