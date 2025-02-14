@@ -1,4 +1,5 @@
-import { z } from "zod";
+import { z, ZodSchema } from "zod";
+import { generateMock } from "@anatine/zod-mock";
 
 import { Call } from "../types";
 import { hasher } from "../hasher";
@@ -50,7 +51,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
           case Behaviours.Call:
             return customBehaviour.behaviour.callback(...callArgs);
           case Behaviours.Return:
-            return customBehaviour.behaviour.returnedValue;
+            return handleThenReturn(customBehaviour.behaviour.returnedValue);
           case Behaviours.Resolve:
             return Promise.resolve(customBehaviour.behaviour.resolvedValue);
           case Behaviours.Reject:
@@ -82,7 +83,9 @@ export function mockFunction<T extends (...args: any[]) => any>(
               ...callArgs
             );
           case Behaviours.Return:
-            return constructBasedCustomBehaviour.behaviour.returnedValue;
+            return handleThenReturn(
+              constructBasedCustomBehaviour.behaviour.returnedValue
+            );
           case Behaviours.Resolve:
             return Promise.resolve(
               constructBasedCustomBehaviour.behaviour.resolvedValue
@@ -109,7 +112,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
         case Behaviours.Call:
           return defaultBehaviour.callback(...callArgs);
         case Behaviours.Return:
-          return defaultBehaviour.returnedValue;
+          return handleThenReturn(defaultBehaviour.returnedValue);
         case Behaviours.Resolve:
           return Promise.resolve(defaultBehaviour.resolvedValue);
         case Behaviours.Reject:
@@ -169,4 +172,77 @@ export function mockFunction<T extends (...args: any[]) => any>(
       return false;
     },
   });
+}
+
+function handleThenReturn(returnedValue: unknown) {
+  // @Todo: there is a performance hit here, due to the if() checks. Investigate.
+  // 1sec hit on the whole test suite.
+  // I narrowed it down to the check themselves (even doing nothing inside the if(){} causes the issue).
+  // There might be some strange deoptimisation going on here due to the fact that we're working in a Proxy apply
+  // This could be changed by adding a new kind of behaviour under the hood when providing a matcher in the when() function.
+  // => No if when it's time to return, just on setup.
+  if (narrowToZodValidationMatcher(returnedValue)) {
+    return generateMock(returnedValue.schema);
+  }
+
+  if (narrowToAnyMatcher(returnedValue)) {
+    switch (returnedValue.what) {
+      case "string":
+        return generateMock(z.string());
+      case "object":
+        return generateMock(z.object({}));
+      case "number":
+        return generateMock(z.number());
+      case "boolean":
+        return generateMock(z.boolean());
+      case "array":
+        return generateMock(z.array(z.any()));
+      case "falsy":
+        return generateMock(
+          z.union([z.literal(0), z.literal(false), z.literal("")])
+        );
+      case "truthy":
+        return generateMock(z.union([z.literal(1), z.literal(true)]));
+      case "function":
+        return () => {};
+      case "map":
+        return generateMock(z.map(z.any(), z.any()));
+      case "set":
+        return new Set([1, 2, 3]);
+      case "nullish":
+        return generateMock(z.union([z.null(), z.undefined()]));
+      default:
+        throw new Error(`Invalid any matcher ${returnedValue.what}`);
+    }
+  }
+
+  return returnedValue;
+}
+
+function narrowToZodValidationMatcher(
+  value: any
+): value is { schema: ZodSchema } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "mockit__isSchema" in value &&
+    value.mockit__isSchema
+  );
+}
+
+export type anyWhat =
+  | "string"
+  | "object"
+  | "number"
+  | "boolean"
+  | "array"
+  | "function"
+  | "nullish"
+  | "falsy"
+  | "truthy"
+  | "map"
+  | "set";
+
+function narrowToAnyMatcher(value: any): value is { what: anyWhat } {
+  return typeof value === "object" && value !== null && "mockit__any" in value;
 }

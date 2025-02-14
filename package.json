@@ -20,6 +20,8 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@anatine/zod-mock": "^3.13.5",
+    "@faker-js/faker": "^9.5.0",
     "@changesets/cli": "^2.27.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.13.1",
@@ -38,6 +40,8 @@
     "node-object-hash": "^2.3.10"
   },
   "peerDependencies": {
+    "@anatine/zod-mock": "^3.13.5",
+    "@faker-js/faker": "^9.5.0",
     "zod": "^3.21.4"
   }
 }
