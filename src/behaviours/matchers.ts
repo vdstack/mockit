@@ -166,7 +166,7 @@ export const setContaining = <T, U extends Set<any>>(
 /**
  *
  * @param deepSubObject an object that is a deep subset of the object we want to match
- *
+ * @deprecated Use objectMatching instead
  * @example
  * m.objectContainingDeep({ key: "value" }) // matches { key: "value", otherKey: "otherValue" }
  * m.objectContainingDeep({ x: { y: { z: 1 } } }) // matches { x: { y: { z: 1, w: 2 } }, a: 2 }
@@ -183,6 +183,9 @@ export const objectMatching = <T, U>(pattern: U | NoInfer<T>): T => {
   return containingDeep(pattern);
 };
 
+/**
+ * @deprecated Use arrayMatching instead
+ */
 export const arrayContainingDeep = <T, U extends Array<T>>(
   values: U | NoInfer<T>
 ): T => {
