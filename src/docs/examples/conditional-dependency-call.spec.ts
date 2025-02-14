@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { m, Mock, verifyThat } from "..";
+import { m, Mock, verifyThat } from "../..";
 
 function registerAdultAccount(...args: any[]) {}
 function registerMinorAccount(...args: any[]) {}
