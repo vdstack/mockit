@@ -109,7 +109,7 @@ describe("m.assert", () => {
     test("objectContainingDeep", () => {
       expect(() =>
         m.expect(complexObject).toEqual(
-          m.objectContainingDeep({
+          m.objectMatching({
             user: { contacts: { email: "john@example.com" } },
           })
         )
@@ -117,7 +117,7 @@ describe("m.assert", () => {
 
       expect(() =>
         m.expect(complexObject).toEqual(
-          m.objectContainingDeep({
+          m.objectMatching({
             user: { contacts: { email: "jane@example.com" } },
           })
         )
@@ -146,17 +146,13 @@ describe("m.assert", () => {
       ).toThrow();
     });
 
-    test("arrayContainingDeep", () => {
+    test("arrayMatching", () => {
       expect(() =>
-        m
-          .expect(users)
-          .toEqual(m.arrayContainingDeep([{ id: "1", name: "John" }]))
+        m.expect(users).toEqual(m.arrayMatching([{ id: "1", name: "John" }]))
       ).not.toThrow();
 
       expect(() =>
-        m
-          .expect(users)
-          .toEqual(m.arrayContainingDeep([{ id: "1", name: "Jane" }]))
+        m.expect(users).toEqual(m.arrayMatching([{ id: "1", name: "Jane" }]))
       ).toThrow();
     });
   });
@@ -370,5 +366,5 @@ it("should work", () => {
   m.expect([
     [1, 2],
     [3, 4],
-  ]).toEqual(m.arrayContainingDeep([[2]]));
+  ]).toEqual(m.arrayMatching([[2]]));
 });

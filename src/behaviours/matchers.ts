@@ -179,7 +179,17 @@ export const objectContainingDeep = <T, U>(
   return containingDeep(deepSubObject);
 };
 
+export const objectMatching = <T, U>(pattern: U | NoInfer<T>): T => {
+  return containingDeep(pattern);
+};
+
 export const arrayContainingDeep = <T, U extends Array<T>>(
+  values: U | NoInfer<T>
+): T => {
+  return containingDeep(values);
+};
+
+export const arrayMatching = <T, U extends Array<T>>(
   values: U | NoInfer<T>
 ): T => {
   return containingDeep(values);

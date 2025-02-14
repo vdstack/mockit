@@ -342,7 +342,7 @@ it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      m.arrayContainingDeep([
+      m.arrayMatching([
         1,
         2,
         validates(z.string()),
@@ -357,7 +357,7 @@ it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      m.arrayContainingDeep([
+      m.arrayMatching([
         1,
         2,
         validates(z.string()),

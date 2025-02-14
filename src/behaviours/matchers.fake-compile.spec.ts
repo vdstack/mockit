@@ -14,10 +14,12 @@ import {
   anyTruthy,
   arrayContaining,
   arrayContainingDeep,
+  arrayMatching,
   mapContaining,
   mapContainingDeep,
   objectContaining,
   objectContainingDeep,
+  objectMatching,
   or,
   setContaining,
   setContainingDeep,
@@ -75,6 +77,10 @@ it("should compile with any matcher", () => {
   });
 
   when(mock).isCalledWith({
+    toReplace: objectMatching({ a: 1 }),
+  });
+
+  when(mock).isCalledWith({
     toReplace: anyArray(),
   });
 
@@ -84,6 +90,10 @@ it("should compile with any matcher", () => {
 
   when(mock).isCalledWith({
     toReplace: arrayContainingDeep(["1"]),
+  });
+
+  when(mock).isCalledWith({
+    toReplace: arrayMatching(["1"]),
   });
 
   when(mock).isCalledWith({
@@ -179,34 +189,36 @@ test("typesafe for array containing", () => {
 });
 
 test("typesafe for validates", () => {
-  function toTest(params: {
-    x: number;
-    y: boolean;
-    z: string;
-  }) {}
+  function toTest(params: { x: number; y: boolean; z: string }) {}
 
   const mock = Mock(toTest);
 
-  when(mock).isCalledWith(validates(( value ) => {
-    return value.x > 0 && value.y && value.z.startsWith("1");
-  }))
+  when(mock).isCalledWith(
+    validates((value) => {
+      return value.x > 0 && value.y && value.z.startsWith("1");
+    })
+  );
 
-  when(mock).isCalledWith(validates(z.object({
-    x: z.number().positive(),
-    y: z.boolean(),
-    z: z.string().startsWith("1"),
-  })))
+  when(mock).isCalledWith(
+    validates(
+      z.object({
+        x: z.number().positive(),
+        y: z.boolean(),
+        z: z.string().startsWith("1"),
+      })
+    )
+  );
 });
 
 test("typesafe thenReturn partial", () => {
-  function toTest(): { a: { b: number; c: string}, d: boolean } {
+  function toTest(): { a: { b: number; c: string }; d: boolean } {
     return { a: { b: 1, c: "1" }, d: true };
   }
 
   const mock = Mock(toTest);
 
   when(mock).isCalled.thenReturn(m.partial({ a: { b: 1 } }));
-  expect(mock()).toEqual({ a: { b: 1 }});
+  expect(mock()).toEqual({ a: { b: 1 } });
 
   when(mock).isCalled.thenReturn({ a: m.partial({ b: 1 }), d: true });
 
