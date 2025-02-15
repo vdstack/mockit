@@ -45,10 +45,10 @@ export const unsafe = <T, U>(value: U | NoInfer<T>): T => {
 };
 
 /**
- * 
+ *
  * @param value any object
  * @returns what you pass in, but with the type of the object you want to match
- * 
+ *
  * @example Your function expects a complex object, but for your test you're only interested in a few keys.
  * const value: Partial<User> = { id: "1" }
  * when(mockFunction).isCalled.thenResolve(m.partial(value));
@@ -56,7 +56,6 @@ export const unsafe = <T, U>(value: U | NoInfer<T>): T => {
 export const partial = <T>(value: PartialDeep<NoInfer<T>>): T => {
   return value as T;
 };
-
 
 /**
  *
@@ -95,6 +94,8 @@ export const objectContaining = <T, U>(
  * // To match the above, you should use arrayContainingDeep
  */
 export const arrayContaining = <T, U extends Array<T>>(
+  // @todo here if undefined: breaks composition. Find a way to make it avoid the
+  // undefined case for inference.
   subArray: (U | NoInfer<T>)[]
 ): T => {
   return containing(subArray);
@@ -165,7 +166,7 @@ export const setContaining = <T, U extends Set<any>>(
 /**
  *
  * @param deepSubObject an object that is a deep subset of the object we want to match
- *
+ * @deprecated Use objectMatching instead
  * @example
  * m.objectContainingDeep({ key: "value" }) // matches { key: "value", otherKey: "otherValue" }
  * m.objectContainingDeep({ x: { y: { z: 1 } } }) // matches { x: { y: { z: 1, w: 2 } }, a: 2 }
@@ -178,7 +179,20 @@ export const objectContainingDeep = <T, U>(
   return containingDeep(deepSubObject);
 };
 
+export const objectMatching = <T, U>(pattern: U | NoInfer<T>): T => {
+  return containingDeep(pattern);
+};
+
+/**
+ * @deprecated Use arrayMatching instead
+ */
 export const arrayContainingDeep = <T, U extends Array<T>>(
+  values: U | NoInfer<T>
+): T => {
+  return containingDeep(values);
+};
+
+export const arrayMatching = <T, U extends Array<T>>(
   values: U | NoInfer<T>
 ): T => {
   return containingDeep(values);

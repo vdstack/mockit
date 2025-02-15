@@ -1,4 +1,4 @@
-import { stringEndingWith, stringStartingWith } from "../behaviours/matchers";
+import { stringEndingWith } from "../../behaviours/matchers";
 import { compare } from "./compare";
 
 describe("compare.endsWith", () => {

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 import { compare } from "./compare";
-import { m } from "..";
-import { validates } from "../behaviours/matchers";
+import { m } from "../../";
+import { validates } from "../../behaviours/matchers";
 
 it("should compare numbers", () => {
   expect(compare(2, 2)).toBe(true);
@@ -342,7 +342,7 @@ it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      m.arrayContainingDeep([
+      m.arrayMatching([
         1,
         2,
         validates(z.string()),
@@ -357,7 +357,7 @@ it("should accept schemas in containingDeep", () => {
   expect(
     compare(
       [1, 2, "Victor", { z: { z: { z: 2 } } }, 4, 5, 6],
-      m.arrayContainingDeep([
+      m.arrayMatching([
         1,
         2,
         validates(z.string()),

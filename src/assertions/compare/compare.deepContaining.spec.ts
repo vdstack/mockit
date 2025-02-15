@@ -1,9 +1,10 @@
-import { m } from "..";
+import { m } from "../../";
 import {
-  arrayContainingDeep,
+  arrayMatching,
   mapContainingDeep,
   setContainingDeep,
-} from "../behaviours/matchers";
+} from "../../behaviours/matchers";
+
 import { compare } from "./compare";
 
 describe("compare.containingDeep", () => {
@@ -38,7 +39,7 @@ describe("compare.containingDeep", () => {
   it("should accept containing in deep arrays", () => {
     const actual = [1, [2, 3, [4, 5]]];
 
-    const expected = arrayContainingDeep([[[5]]]);
+    const expected = arrayMatching([[[5]]]);
 
     const expectedFalse = [[[6]]];
 

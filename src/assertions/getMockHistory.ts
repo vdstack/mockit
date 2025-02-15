@@ -1,10 +1,19 @@
 import { ZodSchema, z } from "zod";
 
 import { Call, UnsafeCall } from "../types";
-import { compare } from "../argsComparisons/compare";
+import { compare } from "./compare/compare";
 
-// This spies the mocked functions only !
-
+/**
+ * @description This function will provide you with a history of the calls made to the mocked function, as well as raw assertions on the history.
+ * There are two types of calls:
+ * - type-safe calls history with `getCalls()`
+ * - unsafe calls history with `getUnsafeCalls()`
+ *
+ * Both can be useful depending on your problem. Type-safe is here to help you but it can sometimes be a pain in the ***, so getUnsafeCalls() is here
+ * is here to give you a call with args: any[]
+ * @param mockedFunction
+ * @returns
+ */
 export function getMockHistory<T extends (...args: any[]) => any>(
   mockedFunction: T
 ): {

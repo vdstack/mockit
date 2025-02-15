@@ -1,6 +1,6 @@
-import { hasher } from "../hasher";
-import { Schema } from "../behaviours/matchers";
-import { containingDeep } from "../behaviours/containing.deep";
+import { hasher } from "../../hasher";
+import { Schema } from "../../behaviours/matchers";
+import { containingDeep } from "../../behaviours/containing.deep";
 
 // TODO: schemas in maps & sets & arrays
 export function compare(actual: any, expected: any): boolean {
@@ -40,7 +40,9 @@ export function compare(actual: any, expected: any): boolean {
       key.endsWith("mockit__isOneOf")
     );
     if (isOneOf) {
-      return expected.options.some((option: unknown) => compare(actual, option));
+      return expected.options.some((option: unknown) =>
+        compare(actual, option)
+      );
     }
 
     const isStartsWith = Object.keys(expected).some((key) =>
@@ -120,7 +122,9 @@ export function compare(actual: any, expected: any): boolean {
       // arrayContaining
       if (Array.isArray(expected.original)) {
         return expected.original.every((item: unknown, index: number) => {
-          return actual?.some((actualItem: unknown) => compare(actualItem, item));
+          return actual?.some((actualItem: unknown) =>
+            compare(actualItem, item)
+          );
         });
       }
 
@@ -263,7 +267,7 @@ export function compare(actual: any, expected: any): boolean {
   return hasher.hash(actual) === hasher.hash(expected);
 }
 
-function containsMockitConstruct(
+export function containsMockitConstruct(
   obj: any,
   construct:
     | "mockit__"

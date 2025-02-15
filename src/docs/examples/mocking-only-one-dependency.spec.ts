@@ -8,7 +8,7 @@
  * In this case, Mockit can help you by mocking only the email service and verifying that it was called correctly.
  */
 
-import { Mock, when, verifyThat, m } from "..";
+import { Mock, when, verifyThat, m } from "../..";
 
 interface UserRepository {
   getUserById(

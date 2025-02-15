@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { compare } from "./compare";
-import { m } from "..";
+import { m } from "../../";
 
 describe("compare.or", () => {
   it("should be able to apply the 'or' operator when comparing values", () => {

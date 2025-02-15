@@ -1,5 +1,5 @@
 import { compare } from "./compare";
-import { m } from "..";
+import { m } from "../../";
 
 class User {}
 class SubUser extends User {}
