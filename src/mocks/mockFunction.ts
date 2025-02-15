@@ -4,7 +4,10 @@ import { generateMock } from "@anatine/zod-mock";
 import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
-import { compare } from "../assertions/compare/compare";
+import {
+  compare,
+  containsMockitConstruct,
+} from "../assertions/compare/compare";
 import { containingDeep } from "../behaviours/containing.deep";
 
 /**
@@ -54,7 +57,9 @@ export function mockFunction<T extends (...args: any[]) => any>(
           case Behaviours.Return:
             return handleThenReturn(customBehaviour.behaviour.returnedValue);
           case Behaviours.Resolve:
-            return Promise.resolve(customBehaviour.behaviour.resolvedValue);
+            return Promise.resolve(
+              handleThenReturn(customBehaviour.behaviour.resolvedValue)
+            );
           case Behaviours.Reject:
             return Promise.reject(customBehaviour.behaviour.rejectedValue);
           case Behaviours.Custom:
@@ -89,7 +94,9 @@ export function mockFunction<T extends (...args: any[]) => any>(
             );
           case Behaviours.Resolve:
             return Promise.resolve(
-              constructBasedCustomBehaviour.behaviour.resolvedValue
+              handleThenReturn(
+                constructBasedCustomBehaviour.behaviour.resolvedValue
+              )
             );
           case Behaviours.Reject:
             return Promise.reject(
@@ -115,7 +122,9 @@ export function mockFunction<T extends (...args: any[]) => any>(
         case Behaviours.Return:
           return handleThenReturn(defaultBehaviour.returnedValue);
         case Behaviours.Resolve:
-          return Promise.resolve(defaultBehaviour.resolvedValue);
+          return Promise.resolve(
+            handleThenReturn(defaultBehaviour.resolvedValue)
+          );
         case Behaviours.Reject:
           return Promise.reject(defaultBehaviour.rejectedValue);
         case Behaviours.Preserve:
@@ -221,6 +230,15 @@ function handleThenReturn(returnedValue: unknown) {
     return handleSomeOtherMatcher(returnedValue as Record<string, unknown>);
   }
 
+  if (
+    typeof returnedValue === "object" &&
+    containsMockitConstruct(returnedValue, "mockit__")
+  ) {
+    // This means that it's an object/array containing at some level of hierarchy a matcher.
+    // => switching to containingDeep behaviour.
+    return handleThenReturn(containingDeep(returnedValue));
+  }
+
   return returnedValue;
 }
 
@@ -272,9 +290,7 @@ function handleSomeOtherMatcher(value: Record<string, unknown>): unknown {
     if (typeof value.original === "object" && value.original !== null) {
       let mock: Record<string, unknown> = {};
       for (const key in value.original) {
-        console.log("value[key]", value[key]);
         if (typeof value[key] === "object" && value[key] !== null) {
-          console.log("value[key]", value[key]);
           mock[key] = handleThenReturn(
             containingDeep(
               Array.isArray(value[key]) ? [value[key]] : value[key]
