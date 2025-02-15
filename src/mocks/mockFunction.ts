@@ -184,7 +184,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
   });
 }
 
-function handleThenReturn(returnedValue: unknown) {
+function handleThenReturn(returnedValue: unknown): unknown {
   // @Todo: there is a performance hit here, due to the if() checks. Investigate.
   // 1sec hit on the whole test suite.
   // I narrowed it down to the check themselves (even doing nothing inside the if(){} causes the issue).
@@ -234,9 +234,32 @@ function handleThenReturn(returnedValue: unknown) {
     typeof returnedValue === "object" &&
     containsMockitConstruct(returnedValue, "mockit__")
   ) {
-    // This means that it's an object/array containing at some level of hierarchy a matcher.
-    // => switching to containingDeep behaviour.
-    return handleThenReturn(containingDeep(returnedValue));
+    if (Array.isArray(returnedValue)) {
+      return returnedValue.map((item) => {
+        return handleThenReturn(item);
+      });
+    }
+
+    if (returnedValue instanceof Map) {
+      return new Map(
+        Array.from(returnedValue.entries()).map(([key, value]) => [
+          key,
+          handleThenReturn(value),
+        ])
+      );
+    }
+
+    if (returnedValue instanceof Set) {
+      return new Set(
+        Array.from(returnedValue).map((value) => handleThenReturn(value))
+      );
+    }
+    let mock: Record<string, unknown> = {};
+    for (const key in returnedValue) {
+      // @ts-expect-error
+      mock[key] = handleThenReturn(returnedValue[key]);
+    }
+    return mock;
   }
 
   return returnedValue;
