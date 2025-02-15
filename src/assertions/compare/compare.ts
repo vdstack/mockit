@@ -267,7 +267,7 @@ export function compare(actual: any, expected: any): boolean {
   return hasher.hash(actual) === hasher.hash(expected);
 }
 
-function containsMockitConstruct(
+export function containsMockitConstruct(
   obj: any,
   construct:
     | "mockit__"
