@@ -68,6 +68,30 @@ export class Assertion<T> {
     return this;
   }
 
+  toMatch(
+    expected: T extends Array<infer U> ? Array<Partial<U>> : Partial<T>
+  ): void {
+    if (Array.isArray(this.actual)) {
+      if (!compare(this.actual, m.arrayMatching(expected))) {
+        throw new Error(
+          `Expected ${JSON.stringify(this.actual)} to match ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
+    } else if (typeof this.actual === "object") {
+      if (!compare(this.actual, m.objectMatching(expected))) {
+        throw new Error(
+          `Expected ${JSON.stringify(this.actual)} to match ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
+    } else {
+      throw new Error("Expected an array or an object");
+    }
+  }
+
   toContain(expected: T extends Array<infer U> ? U : Partial<T>): void {
     if (Array.isArray(this.actual)) {
       if (!compare(this.actual, m.arrayContaining([expected]))) {
