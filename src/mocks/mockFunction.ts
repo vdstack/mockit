@@ -5,6 +5,7 @@ import { Call } from "../types";
 import { hasher } from "../hasher";
 import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
 import { compare } from "../assertions/compare/compare";
+import { containingDeep } from "../behaviours/containing.deep";
 
 /**
  * This is the function mock, it is taking the place of the function that we want to mock.
@@ -216,6 +217,10 @@ function handleThenReturn(returnedValue: unknown) {
     }
   }
 
+  if (narrowSomeOtherMatcher(returnedValue)) {
+    return handleSomeOtherMatcher(returnedValue as Record<string, unknown>);
+  }
+
   return returnedValue;
 }
 
@@ -245,4 +250,45 @@ export type anyWhat =
 
 function narrowToAnyMatcher(value: any): value is { what: anyWhat } {
   return typeof value === "object" && value !== null && "mockit__any" in value;
+}
+
+function narrowSomeOtherMatcher(value: any) {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.keys(value).some((key) => key.startsWith("mockit__"))
+  );
+}
+
+function handleSomeOtherMatcher(value: Record<string, unknown>): unknown {
+  if ("mockit__isContainingDeep" in value) {
+    // <=> arrayMatching or objectMatching
+    if (Array.isArray(value.original)) {
+      return value.original.map((item: unknown) => {
+        return handleThenReturn(containingDeep(item));
+      });
+    }
+
+    if (typeof value.original === "object" && value.original !== null) {
+      let mock: Record<string, unknown> = {};
+      for (const key in value.original) {
+        console.log("value[key]", value[key]);
+        if (typeof value[key] === "object" && value[key] !== null) {
+          console.log("value[key]", value[key]);
+          mock[key] = handleThenReturn(
+            containingDeep(
+              Array.isArray(value[key]) ? [value[key]] : value[key]
+            )
+          );
+        } else {
+          mock[key] = handleThenReturn(value[key]);
+        }
+      }
+      return mock;
+    }
+  }
+
+  throw new Error(
+    `This matcher is not supported as a dummy-data generator: ${value}`
+  );
 }
