@@ -1,4 +1,5 @@
 import { m } from "..";
+import { PartialDeep } from "../behaviours/matchers";
 import { compare } from "./compare/compare";
 
 export class Assertion<T> {
@@ -69,7 +70,7 @@ export class Assertion<T> {
   }
 
   toMatch(
-    expected: T extends Array<infer U> ? Array<Partial<U>> : Partial<T>
+    expected: T extends Array<infer U> ? Array<PartialDeep<U>> : PartialDeep<T>
   ): void {
     if (Array.isArray(this.actual)) {
       if (!compare(this.actual, m.arrayMatching(expected))) {
