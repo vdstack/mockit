@@ -198,7 +198,7 @@ export function compare(actual: any, expected: any): boolean {
         });
       }
 
-      if (typeof expected.original !== "object") {
+      if (typeof expected.original !== "object" || expected.original === null) {
         // For simple values that were stuck in the containingDeep regression
         return compare(actual, expected.original);
       }
