@@ -88,6 +88,14 @@ export class Assertion<T> {
           )}`
         );
       }
+    } else if (typeof this.actual === "string") {
+      if (!compare(this.actual, expected)) {
+        throw new Error(
+          `Expected ${JSON.stringify(this.actual)} to match ${JSON.stringify(
+            expected
+          )}`
+        );
+      }
     } else {
       throw new Error("Expected an array or an object");
     }
