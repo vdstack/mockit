@@ -205,12 +205,16 @@ export function compare(actual: any, expected: any): boolean {
 
       return Object.keys(expected.original).every((key) => {
         const expectedValue = expected.original[key];
-        // If the value is a direct matcher (not a complex object containing matchers), don't wrap it again
+        // If the value is a direct matcher, don't wrap it again
         if (typeof expectedValue === "object" && expectedValue !== null && 
             Object.keys(expectedValue).some(k => k.startsWith("mockit__")) &&
             !Array.isArray(expectedValue) && 
             !(expectedValue instanceof Map) && 
             !(expectedValue instanceof Set)) {
+          return compare(actual[key], expectedValue);
+        }
+        // If the value is a built-in object (Date, RegExp, etc.), compare directly
+        if (expectedValue instanceof Date || expectedValue instanceof RegExp) {
           return compare(actual[key], expectedValue);
         }
         return compare(actual[key], containingDeep(expectedValue));
