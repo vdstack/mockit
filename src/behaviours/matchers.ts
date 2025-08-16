@@ -113,6 +113,9 @@ export const arrayContaining = <T, U extends Array<T>>(
  *
  * @example
  * m.stringContaining("VIC") // does not match "vic" (case sensitive)
+ *
+ * @example
+ * m.stringContaining(/vic/i) // Matches both "vic" and "VIC" thanks to regex /i flag
  */
 export const stringContaining = <T>(subString: string): T => {
   return containing(subString);
