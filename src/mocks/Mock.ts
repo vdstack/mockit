@@ -1,7 +1,7 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
-import { FnOptions, ObjectConfig, MockedFunction } from "../types/inline-api.types";
+import { FnOptions, ObjectConfig, MockedFunction, MockedObject } from "../types/inline-api.types";
 import { optionsToBehaviour } from "../behaviours/helpers";
 
 /**
@@ -37,7 +37,7 @@ export function Mock<T extends (...args: any[]) => any>(fn: T): MockedFunction<T
 export function Mock<T>(
   classRef: Class<T> | AbstractClass<T>,
   config: ObjectConfig<T>
-): T;
+): MockedObject<T>;
 
 /**
  * Creates a mock of a class.
@@ -46,7 +46,16 @@ export function Mock<T>(
  * const mock = Mock(UserService);
  * ```
  */
-export function Mock<T>(classRef: Class<T> | AbstractClass<T>): T;
+export function Mock<T>(classRef: Class<T> | AbstractClass<T>): MockedObject<T>;
+
+/**
+ * Creates a mock from a plain object.
+ * @example
+ * ```ts
+ * const mock = Mock({ getUser: () => user });
+ * ```
+ */
+export function Mock<T extends object>(obj: T): MockedObject<T>;
 
 /**
  * Creates a mock from a type/interface with optional method configuration.
@@ -55,7 +64,7 @@ export function Mock<T>(classRef: Class<T> | AbstractClass<T>): T;
  * const mock = Mock<UserService>({ getUser: { returns: userData } });
  * ```
  */
-export function Mock<T>(config: ObjectConfig<T>): T;
+export function Mock<T>(config: ObjectConfig<T>): MockedObject<T>;
 
 /**
  * Creates a mock from a type/interface.
@@ -64,7 +73,7 @@ export function Mock<T>(config: ObjectConfig<T>): T;
  * const mock = Mock<UserService>();
  * ```
  */
-export function Mock<T>(): T;
+export function Mock<T>(): MockedObject<T>;
 
 /**
  * Implementation that handles all overloads.

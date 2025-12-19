@@ -21,7 +21,11 @@ export function optionsToBehaviour<T extends (...args: any[]) => any>(
     return { kind: Behaviours.Throw, error: options.throws };
   }
   if ("calls" in options) {
-    return { kind: Behaviours.Custom, customBehaviour: options.calls };
+    return {
+      kind: Behaviours.Custom,
+      // @ts-expect-error - The type says params tuple but the API uses spread args
+      customBehaviour: options.calls,
+    };
   }
 
   // This should never happen if TypeScript is enforcing the FnOptions type

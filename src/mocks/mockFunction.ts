@@ -24,6 +24,7 @@ function executeBehaviour<T extends (...args: any[]) => any>(
     case Behaviours.Reject:
       return Promise.reject(behaviour.rejectedValue);
     case Behaviours.Custom:
+      // @ts-expect-error - The type says params but the API expects spread args
       return behaviour.customBehaviour(...callArgs);
     case Behaviours.Preserve:
       return original(...callArgs);
