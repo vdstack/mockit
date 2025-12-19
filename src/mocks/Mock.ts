@@ -1,57 +1,158 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
+import { FnOptions, ObjectConfig, MockedFunction } from "../types/inline-api.types";
+import { optionsToBehaviour } from "../behaviours/helpers";
 
 /**
- * This function is used to create a mock of classes, abstract classes, functions, objects,
- * types and interfaces.
- * For types and interfaces, pass them in the generic slot to create a mock that respects the type.
- * @param _param anything that can be mocked: class, abstract class or function
- * @returns a mock of the provided parameter
- *
- * @example Class, Object, Abstract Class and Function
+ * Creates a mock of a function with optional configuration.
+ * @example
  * ```ts
- * const mockedVersion = Mock(original);
- * // You can now use the mocked version as if it was the original
- * ```
- * @example Types and Interfaces
- * ```ts
- * type MyType = {
- *   doSomething(): void;
- *   doSomethingElse(): string;
- * };
- *
- * const mockedType = Mock<MyType>();
- * // You can now use the mocked version as if it was the original
- * mockedType.doSomething(); // returns undefined
+ * const fn = Mock(someFunc, { returns: 42 });
+ * fn.mockReturnValueOnce(1).mockReturnValue(99);
  * ```
  */
-export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
+export function Mock<T extends (...args: any[]) => any>(
+  fn: T,
+  options: FnOptions<T>
+): MockedFunction<T>;
+
+/**
+ * Creates a mock of a function.
+ * @example
+ * ```ts
+ * const fn = Mock(someFunc);
+ * fn.mockReturnValue(42);
+ * ```
+ */
+export function Mock<T extends (...args: any[]) => any>(fn: T): MockedFunction<T>;
+
+/**
+ * Creates a mock of a class with optional method configuration.
+ * @example
+ * ```ts
+ * const mock = Mock(UserService, { getUser: { returns: userData } });
+ * ```
+ */
+export function Mock<T>(
+  classRef: Class<T> | AbstractClass<T>,
+  config: ObjectConfig<T>
+): T;
+
+/**
+ * Creates a mock of a class.
+ * @example
+ * ```ts
+ * const mock = Mock(UserService);
+ * ```
+ */
+export function Mock<T>(classRef: Class<T> | AbstractClass<T>): T;
+
+/**
+ * Creates a mock from a type/interface with optional method configuration.
+ * @example
+ * ```ts
+ * const mock = Mock<UserService>({ getUser: { returns: userData } });
+ * ```
+ */
+export function Mock<T>(config: ObjectConfig<T>): T;
+
+/**
+ * Creates a mock from a type/interface.
+ * @example
+ * ```ts
+ * const mock = Mock<UserService>();
+ * ```
+ */
+export function Mock<T>(): T;
+
+/**
+ * Implementation that handles all overloads.
+ */
+export function Mock<T>(_param?: any, _options?: any): T {
+  // Case: Mock<Type>() - no arguments, create object mock
+  if (_param === undefined) {
+    return ProxyMockBase<T>();
+  }
+
+  // Case: Mock<Type>({ config }) - first param is an ObjectConfig
+  if (isObjectConfig(_param)) {
+    return ProxyMockBase<T>(undefined, _param as ObjectConfig<T>);
+  }
+
+  // Case: function or class
   if (typeof _param === "function") {
-    // Issue in JS is that both functions & classes have "function" as typeof
     if (isClass(_param)) {
-      return ProxyMockBase<T>(_param);
+      // Class or Abstract Class with optional config
+      return ProxyMockBase<T>(_param, _options as ObjectConfig<T> | undefined);
     }
 
-    // @ts-expect-error
+    // Regular function with optional FnOptions
+    if (_options) {
+      const behaviour = optionsToBehaviour(_options as FnOptions<any>);
+      return mockFunction(_param, { defaultBehaviour: behaviour }) as T;
+    }
     return mockFunction(_param) as T;
   }
+
+  // Case: plain object
   return ProxyMockBase<T>(_param);
 }
 
+/**
+ * Checks if a value looks like an ObjectConfig (method configs).
+ * ObjectConfig values are objects with { returns, resolves, rejects, throws, calls }.
+ */
+function isObjectConfig(value: any): boolean {
+  if (typeof value !== "object" || value === null) return false;
+
+  const configKeys = ["returns", "resolves", "rejects", "throws", "calls"];
+
+  // Check if any value in the object is a config-like object
+  return Object.values(value).some(
+    (v) =>
+      typeof v === "object" &&
+      v !== null &&
+      configKeys.some((key) => key in (v as object))
+  );
+}
+
 function ProxyMockBase<T>(
-  _param: Class<T> | AbstractClass<T> | T | void = undefined
+  _param: Class<T> | AbstractClass<T> | T | void = undefined,
+  config?: ObjectConfig<T>
 ): T {
+  // Pre-create mocked functions for configured methods
+  const preconfiguredMethods: Record<string, any> = {};
+
+  if (config) {
+    for (const [methodName, methodConfig] of Object.entries(config)) {
+      if (methodConfig) {
+        const behaviour = optionsToBehaviour(methodConfig as FnOptions<any>);
+        preconfiguredMethods[methodName] = mockFunction(() => {}, {
+          defaultBehaviour: behaviour,
+        });
+      }
+    }
+  }
+
   return new Proxy({} as any, {
     get(target, prop, receiver) {
+      // Check preconfigured methods first
+      if (typeof prop === "string" && prop in preconfiguredMethods) {
+        if (!(prop in target)) {
+          Reflect.set(target, prop, preconfiguredMethods[prop], receiver);
+        }
+        return preconfiguredMethods[prop];
+      }
+
       if (prop in target) {
         return Reflect.get(target, prop, receiver);
       }
 
       if (typeof prop === "string") {
-        const mockedFunction = mockFunction(() => {});
-        Reflect.set(target, prop, mockedFunction, receiver);
-        return mockedFunction;
+        const mockedFn = mockFunction(() => {});
+        Reflect.set(target, prop, mockedFn, receiver);
+        return mockedFn;
       }
     },
     set(target, prop, _value, _receiver) {

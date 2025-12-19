@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+// Re-export inline API types
+export type {
+  FnOptions,
+  ObjectConfig,
+  MockedFunction,
+  MockedObject,
+  MockFunctionMethods,
+} from "./types/inline-api.types";
+
 export type AbstractClass<T> = abstract new (...args: any[]) => T;
 export type Class<T> = new (...args: any[]) => T;
 export type BuildMethodsMap<Class, V> = {

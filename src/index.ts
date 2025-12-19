@@ -4,6 +4,15 @@ export { getMockHistory, verifyThat } from "./assertions";
 export { resetBehaviourOf, resetCompletely, resetHistoryOf } from "./mocks";
 import * as matchers from "./behaviours/matchers";
 
+// Export inline API types
+export type {
+  FnOptions,
+  ObjectConfig,
+  MockedFunction,
+  MockedObject,
+  MockFunctionMethods,
+} from "./types";
+
 import { Mock } from "./mocks/Mock";
 import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
