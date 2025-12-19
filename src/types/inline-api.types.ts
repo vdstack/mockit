@@ -17,11 +17,9 @@ export type FnOptions<T extends (...args: any[]) => any> =
  * Only methods (functions) can be configured, not regular properties.
  */
 export type ObjectConfig<T> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any ? K : never]?: T[K] extends (
-    ...args: any[]
-  ) => any
-    ? FnOptions<T[K]>
-    : never;
+  [K in keyof T as T[K] extends (...args: any[]) => any
+    ? K
+    : never]?: T[K] extends (...args: any[]) => any ? FnOptions<T[K]> : never;
 };
 
 /**
@@ -33,13 +31,17 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   mockReturnValue(value: ReturnType<T>): MockedFunction<T>;
   mockResolvedValue(value: Awaited<ReturnType<T>>): MockedFunction<T>;
   mockRejectedValue(value: any): MockedFunction<T>;
-  mockImplementation(fn: (...args: Parameters<T>) => ReturnType<T>): MockedFunction<T>;
+  mockImplementation(
+    fn: (...args: Parameters<T>) => ReturnType<T>
+  ): MockedFunction<T>;
 
   // Once behaviors (FIFO queue, then fallback to default)
   mockReturnValueOnce(value: ReturnType<T>): MockedFunction<T>;
   mockResolvedValueOnce(value: Awaited<ReturnType<T>>): MockedFunction<T>;
   mockRejectedValueOnce(value: any): MockedFunction<T>;
-  mockImplementationOnce(fn: (...args: Parameters<T>) => ReturnType<T>): MockedFunction<T>;
+  mockImplementationOnce(
+    fn: (...args: Parameters<T>) => ReturnType<T>
+  ): MockedFunction<T>;
 
   // Reset methods
   mockClear(): MockedFunction<T>; // Clears call history
@@ -55,11 +57,14 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
  * This allows the mock to be used anywhere the original function is expected,
  * while also providing the mock configuration methods.
  */
-export type MockedFunction<T extends (...args: any[]) => any> = T & MockFunctionMethods<T>;
+export type MockedFunction<T extends (...args: any[]) => any> = T &
+  MockFunctionMethods<T>;
 
 /**
  * A mocked object where each method is a MockedFunction.
  */
 export type MockedObject<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any ? MockedFunction<T[K]> : T[K];
+  [K in keyof T]: T[K] extends (...args: any[]) => any
+    ? MockedFunction<T[K]>
+    : T[K];
 };

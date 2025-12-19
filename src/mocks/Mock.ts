@@ -1,8 +1,37 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
-import { FnOptions, ObjectConfig, MockedFunction, MockedObject } from "../types/inline-api.types";
+import {
+  FnOptions,
+  ObjectConfig,
+  MockedFunction,
+  MockedObject,
+} from "../types/inline-api.types";
 import { optionsToBehaviour } from "../behaviours/helpers";
+
+/**
+ * Creates a standalone mock function, similar to jest.fn().
+ * Accepts an optional implementation function.
+ * @example
+ * ```ts
+ * const fn = fn();
+ * fn.mockReturnValue(42);
+ * fn(); // returns 42
+ *
+ * // With implementation
+ * const fn2 = fn((x: number) => x * 2);
+ * fn2(5); // returns 10
+ * ```
+ */
+export function fn<T extends (...args: any[]) => any = (...args: any[]) => any>(
+  implementation?: T
+): MockedFunction<T> {
+  const mock = mockFunction(() => {}) as MockedFunction<T>;
+  if (implementation) {
+    mock.mockImplementation(implementation);
+  }
+  return mock;
+}
 
 /**
  * Creates a mock of a function with optional configuration.
@@ -25,7 +54,9 @@ export function Mock<T extends (...args: any[]) => any>(
  * fn.mockReturnValue(42);
  * ```
  */
-export function Mock<T extends (...args: any[]) => any>(fn: T): MockedFunction<T>;
+export function Mock<T extends (...args: any[]) => any>(
+  fn: T
+): MockedFunction<T>;
 
 /**
  * Creates a mock of a class with optional method configuration.
