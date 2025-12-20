@@ -48,6 +48,10 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   mockClear(): MockedFunction<T>; // Clears call history
   mockReset(): MockedFunction<T>; // Clears history + behaviors
 
+  // Naming (for debugging)
+  mockName(name: string): MockedFunction<T>;
+  getMockName(): string;
+
   // Existing mockit properties
   readonly calls: Call<T>[];
   readonly lastCall: Parameters<T> | undefined;

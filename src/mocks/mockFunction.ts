@@ -64,6 +64,9 @@ export function mockFunction<T extends (...args: any[]) => any>(
   // FIFO queue for "once" behaviors - consumed in order, then fallback to default
   const onceBehaviours: NewBehaviourParam<T>[] = [];
 
+  // Mock name for debugging
+  let mockName = "mockit.fn()";
+
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
   const proxy = new Proxy(original, {
     apply: (original, thisArg, callArgs) => {
@@ -118,6 +121,15 @@ export function mockFunction<T extends (...args: any[]) => any>(
       }
       if (prop === "isMockitMock") {
         return true;
+      }
+      if (prop === "getMockName") {
+        return () => mockName;
+      }
+      if (prop === "mockName") {
+        return (newName: string) => {
+          mockName = newName;
+          return proxy;
+        };
       }
 
       // Chainable methods for default behavior (Jest-style API)
