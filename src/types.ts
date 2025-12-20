@@ -17,14 +17,20 @@ export type BuildMethodsMap<Class, V> = {
 
 export type GetClassMethods<Class> = keyof BuildMethodsMap<Class, Function>;
 
+export type CallResult<T> =
+  | { kind: "return"; value: T }
+  | { kind: "throw"; error: any };
+
 export type Call<T extends (...args: any) => any> = {
   args: Parameters<T>;
   date: Date;
+  result: CallResult<ReturnType<T>>;
 };
 
 export type UnsafeCall = {
   args: any[];
   date: Date;
+  result: CallResult<any>;
 };
 
 /**

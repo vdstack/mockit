@@ -67,40 +67,54 @@ export function mockFunction<T extends (...args: any[]) => any>(
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
   const proxy = new Proxy(original, {
     apply: (original, thisArg, callArgs) => {
-      calls.push({
-        args: callArgs as unknown as Parameters<T>,
-        date: new Date(),
-      });
+      const callDate = new Date();
 
-      // 1. Check once behaviours first (FIFO - consume from front)
+      // Determine which behaviour to use
+      let behaviourToExecute = defaultBehaviour;
+
       if (onceBehaviours.length > 0) {
-        const onceBehaviour = onceBehaviours.shift()!;
-        return executeBehaviour(onceBehaviour, callArgs, original, thisArg);
+        behaviourToExecute = onceBehaviours.shift()!;
+      } else {
+        const customBehaviour = customBehaviours.find(
+          (b) => hasher.hash(b.args) === hasher.hash(callArgs)
+        );
+        if (customBehaviour) {
+          behaviourToExecute = customBehaviour.behaviour;
+        } else {
+          const matcherBehaviour = customBehaviours.find(
+            (b) => compare(callArgs, b.args)
+          );
+          if (matcherBehaviour) {
+            behaviourToExecute = matcherBehaviour.behaviour;
+          }
+        }
       }
 
-      // 2. Check custom behaviours by exact args (hash comparison)
-      const customBehaviour = customBehaviours.find(
-        (behaviour) => hasher.hash(behaviour.args) === hasher.hash(callArgs)
-      );
-      if (customBehaviour) {
-        return executeBehaviour(customBehaviour.behaviour, callArgs, original, thisArg);
+      // Execute and record result
+      try {
+        const value = executeBehaviour(behaviourToExecute, callArgs, original, thisArg);
+        calls.push({
+          args: callArgs as Parameters<T>,
+          date: callDate,
+          result: { kind: "return", value },
+        });
+        return value;
+      } catch (error) {
+        calls.push({
+          args: callArgs as Parameters<T>,
+          date: callDate,
+          result: { kind: "throw", error },
+        });
+        throw error;
       }
-
-      // 3. Check custom behaviours by matcher comparison
-      const constructBasedCustomBehaviour = customBehaviours.find(
-        (behaviour) => compare(callArgs, behaviour.args)
-      );
-      if (constructBasedCustomBehaviour) {
-        return executeBehaviour(constructBasedCustomBehaviour.behaviour, callArgs, original, thisArg);
-      }
-
-      // 4. Fallback to default behaviour
-      return executeBehaviour(defaultBehaviour, callArgs, original, thisArg);
     },
     get: (target, prop, receiver) => {
       // Existing properties
       if (prop === "calls") {
         return calls;
+      }
+      if (prop === "lastCall") {
+        return calls.length > 0 ? calls[calls.length - 1].args : undefined;
       }
       if (prop === "isMockitMock") {
         return true;

@@ -50,6 +50,7 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
 
   // Existing mockit properties
   readonly calls: Call<T>[];
+  readonly lastCall: Parameters<T> | undefined;
   readonly isMockitMock: true;
 }
 
