@@ -34,6 +34,7 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   mockImplementation(
     fn: (...args: Parameters<T>) => ReturnType<T>
   ): MockedFunction<T>;
+  mockReturnThis(): MockedFunction<T>;
 
   // Once behaviors (FIFO queue, then fallback to default)
   mockReturnValueOnce(value: ReturnType<T>): MockedFunction<T>;

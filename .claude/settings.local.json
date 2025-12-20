@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm test:*)",
+      "Bash(gh pr list:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

@@ -10,7 +10,8 @@ import { compare } from "../argsComparisons/compare";
 function executeBehaviour<T extends (...args: any[]) => any>(
   behaviour: NewBehaviourParam<T>,
   callArgs: any[],
-  original: T
+  original: T,
+  thisArg?: any
 ): any {
   switch (behaviour.kind) {
     case Behaviours.Throw:
@@ -25,9 +26,9 @@ function executeBehaviour<T extends (...args: any[]) => any>(
       return Promise.reject(behaviour.rejectedValue);
     case Behaviours.Custom:
       // @ts-expect-error - The type says params but the API expects spread args
-      return behaviour.customBehaviour(...callArgs);
+      return behaviour.customBehaviour.call(thisArg, ...callArgs);
     case Behaviours.Preserve:
-      return original(...callArgs);
+      return original.call(thisArg, ...callArgs);
     default:
       throw new Error(
         "Invalid behaviour. This should not happen. Please open an issue on the GitHub repository."
@@ -65,7 +66,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
 
   // Each set of arguments will have a list of behaviours, so we can have multiple behaviours for the same set of arguments.
   const proxy = new Proxy(original, {
-    apply: (original, _thisArg, callArgs) => {
+    apply: (original, thisArg, callArgs) => {
       calls.push({
         args: callArgs as unknown as Parameters<T>,
         date: new Date(),
@@ -74,7 +75,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
       // 1. Check once behaviours first (FIFO - consume from front)
       if (onceBehaviours.length > 0) {
         const onceBehaviour = onceBehaviours.shift()!;
-        return executeBehaviour(onceBehaviour, callArgs, original);
+        return executeBehaviour(onceBehaviour, callArgs, original, thisArg);
       }
 
       // 2. Check custom behaviours by exact args (hash comparison)
@@ -82,7 +83,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
         (behaviour) => hasher.hash(behaviour.args) === hasher.hash(callArgs)
       );
       if (customBehaviour) {
-        return executeBehaviour(customBehaviour.behaviour, callArgs, original);
+        return executeBehaviour(customBehaviour.behaviour, callArgs, original, thisArg);
       }
 
       // 3. Check custom behaviours by matcher comparison
@@ -90,11 +91,11 @@ export function mockFunction<T extends (...args: any[]) => any>(
         (behaviour) => compare(callArgs, behaviour.args)
       );
       if (constructBasedCustomBehaviour) {
-        return executeBehaviour(constructBasedCustomBehaviour.behaviour, callArgs, original);
+        return executeBehaviour(constructBasedCustomBehaviour.behaviour, callArgs, original, thisArg);
       }
 
       // 4. Fallback to default behaviour
-      return executeBehaviour(defaultBehaviour, callArgs, original);
+      return executeBehaviour(defaultBehaviour, callArgs, original, thisArg);
     },
     get: (target, prop, receiver) => {
       // Existing properties
@@ -127,6 +128,17 @@ export function mockFunction<T extends (...args: any[]) => any>(
       if (prop === "mockImplementation") {
         return (fn: (...args: any[]) => any) => {
           defaultBehaviour = { kind: Behaviours.Custom, customBehaviour: fn };
+          return proxy;
+        };
+      }
+      if (prop === "mockReturnThis") {
+        return () => {
+          defaultBehaviour = {
+            kind: Behaviours.Custom,
+            customBehaviour: function () {
+              return this;
+            },
+          };
           return proxy;
         };
       }
