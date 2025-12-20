@@ -214,6 +214,15 @@ export function mockFunction<T extends (...args: any[]) => any>(
           return proxy;
         };
       }
+      if (prop === "mockRestore") {
+        return () => {
+          calls.length = 0;
+          onceBehaviours.length = 0;
+          customBehaviours.length = 0;
+          defaultBehaviour = { kind: Behaviours.Preserve };
+          return proxy;
+        };
+      }
 
       return Reflect.get(target, prop, receiver);
     },

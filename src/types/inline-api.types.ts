@@ -47,6 +47,7 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   // Reset methods
   mockClear(): MockedFunction<T>; // Clears call history
   mockReset(): MockedFunction<T>; // Clears history + behaviors
+  mockRestore(): MockedFunction<T>; // Clears + restores original
 
   // Naming (for debugging)
   mockName(name: string): MockedFunction<T>;
