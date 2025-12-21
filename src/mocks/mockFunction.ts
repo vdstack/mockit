@@ -84,8 +84,8 @@ export function mockFunction<T extends (...args: any[]) => any>(
         if (customBehaviour) {
           behaviourToExecute = customBehaviour.behaviour;
         } else {
-          const matcherBehaviour = customBehaviours.find(
-            (b) => compare(callArgs, b.args)
+          const matcherBehaviour = customBehaviours.find((b) =>
+            compare(callArgs, b.args)
           );
           if (matcherBehaviour) {
             behaviourToExecute = matcherBehaviour.behaviour;
@@ -95,7 +95,12 @@ export function mockFunction<T extends (...args: any[]) => any>(
 
       // Execute and record result
       try {
-        const value = executeBehaviour(behaviourToExecute, callArgs, original, thisArg);
+        const value = executeBehaviour(
+          behaviourToExecute,
+          callArgs,
+          original,
+          thisArg
+        );
         calls.push({
           args: callArgs as Parameters<T>,
           date: callDate,
@@ -157,6 +162,14 @@ export function mockFunction<T extends (...args: any[]) => any>(
           return proxy;
         };
       }
+
+      if (prop === "mockThrow") {
+        return (error: any) => {
+          defaultBehaviour = { kind: Behaviours.Throw, error };
+          return proxy;
+        };
+      }
+
       if (prop === "mockReturnThis") {
         return () => {
           defaultBehaviour = {
@@ -172,25 +185,41 @@ export function mockFunction<T extends (...args: any[]) => any>(
       // Chainable methods for once behaviors (FIFO queue)
       if (prop === "mockReturnValueOnce") {
         return (value: any) => {
-          onceBehaviours.push({ kind: Behaviours.Return, returnedValue: value });
+          onceBehaviours.push({
+            kind: Behaviours.Return,
+            returnedValue: value,
+          });
           return proxy;
         };
       }
       if (prop === "mockResolvedValueOnce") {
         return (value: any) => {
-          onceBehaviours.push({ kind: Behaviours.Resolve, resolvedValue: value });
+          onceBehaviours.push({
+            kind: Behaviours.Resolve,
+            resolvedValue: value,
+          });
           return proxy;
         };
       }
       if (prop === "mockRejectedValueOnce") {
         return (value: any) => {
-          onceBehaviours.push({ kind: Behaviours.Reject, rejectedValue: value });
+          onceBehaviours.push({
+            kind: Behaviours.Reject,
+            rejectedValue: value,
+          });
           return proxy;
         };
       }
       if (prop === "mockImplementationOnce") {
         return (fn: (...args: any[]) => any) => {
           onceBehaviours.push({ kind: Behaviours.Custom, customBehaviour: fn });
+          return proxy;
+        };
+      }
+
+      if (prop === "mockThrowOnce") {
+        return (error: any) => {
+          onceBehaviours.push({ kind: Behaviours.Throw, error });
           return proxy;
         };
       }
@@ -241,8 +270,6 @@ export function mockFunction<T extends (...args: any[]) => any>(
         );
         return true;
       }
-
-
 
       if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;

@@ -30,10 +30,7 @@ describe("Once behaviours (FIFO queue)", () => {
 
     it("should combine with mockReturnValue for fallback", () => {
       const mock = Mock(getValue);
-      mock
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(2)
-        .mockReturnValue(99);
+      mock.mockReturnValueOnce(1).mockReturnValueOnce(2).mockReturnValue(99);
 
       expect(mock()).toBe(1);
       expect(mock()).toBe(2);
@@ -67,9 +64,7 @@ describe("Once behaviours (FIFO queue)", () => {
     it("should use implementation once then fallback", () => {
       const mock = Mock(getValue);
       let count = 0;
-      mock
-        .mockImplementationOnce(() => ++count * 10)
-        .mockReturnValue(0);
+      mock.mockImplementationOnce(() => ++count * 10).mockReturnValue(0);
 
       expect(mock()).toBe(10);
       expect(mock()).toBe(0);
@@ -90,6 +85,16 @@ describe("Once behaviours (FIFO queue)", () => {
     });
   });
 
+  describe("mockThrowOnce", () => {
+    it("should throw once then fallback", () => {
+      const mock = Mock(getValue);
+      mock.mockThrowOnce(new Error("once")).mockReturnValue(0);
+
+      expect(() => mock()).toThrow("once");
+      expect(mock()).toBe(0);
+    });
+  });
+
   describe("mixing once behaviors", () => {
     it("should process different once behaviors in order", () => {
       const mock = Mock(getValue);
@@ -107,10 +112,7 @@ describe("Once behaviours (FIFO queue)", () => {
   describe("reset clears once queue", () => {
     it("mockReset should clear once behaviors", () => {
       const mock = Mock(getValue);
-      mock
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(2)
-        .mockReturnValue(99);
+      mock.mockReturnValueOnce(1).mockReturnValueOnce(2).mockReturnValue(99);
 
       expect(mock()).toBe(1);
       mock.mockReset();

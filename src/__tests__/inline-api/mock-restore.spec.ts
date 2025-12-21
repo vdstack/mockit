@@ -15,19 +15,23 @@ describe("mockRestore", () => {
     mock(1);
     mock(2);
 
+    expect(mock.calls).toHaveLength(2);
+
     mock.mockRestore();
 
     expect(mock.calls).toHaveLength(0);
   });
 
   it("should clear once behaviours", () => {
-    const mock = Mock((x: number) => x)
-      .mockReturnValueOnce(1)
-      .mockReturnValueOnce(2);
+    const mock = Mock((x: number) => x).mockImplementationOnce(() => 1);
 
     mock.mockRestore();
 
     expect(mock(5)).toBe(5); // original, not 1
+
+    mock.mockReturnValueOnce(2);
+    mock.mockRestore();
+    expect(mock(5)).toBe(5);
   });
 
   it("should be chainable", () => {

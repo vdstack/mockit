@@ -29,6 +29,7 @@ export type ObjectConfig<T> = {
 export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   // Default behavior setters
   mockReturnValue(value: ReturnType<T>): MockedFunction<T>;
+  mockThrow(error: any): MockedFunction<T>;
   mockResolvedValue(value: Awaited<ReturnType<T>>): MockedFunction<T>;
   mockRejectedValue(value: any): MockedFunction<T>;
   mockImplementation(
@@ -43,6 +44,7 @@ export interface MockFunctionMethods<T extends (...args: any[]) => any> {
   mockImplementationOnce(
     fn: (...args: Parameters<T>) => ReturnType<T>
   ): MockedFunction<T>;
+  mockThrowOnce(error: any): MockedFunction<T>;
 
   // Reset methods
   mockClear(): MockedFunction<T>; // Clears call history

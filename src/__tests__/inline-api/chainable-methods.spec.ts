@@ -32,6 +32,16 @@ describe("Chainable mock methods (Approach 1 - Jest-style)", () => {
     });
   });
 
+  describe("mockThrow", () => {
+    it("should set the default throw value", () => {
+      const mock = Mock(getValue);
+      mock.mockThrow(new Error("error"));
+      expect(() => mock()).toThrow("error");
+      mock.mockThrow(new Error("error2"));
+      expect(() => mock()).toThrow("error2");
+    });
+  });
+
   describe("mockResolvedValue", () => {
     it("should set the resolved value", async () => {
       const mock = Mock(fetchData);
