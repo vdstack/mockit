@@ -288,7 +288,7 @@ export function mockFunction<T extends (...args: any[]) => any>(
 
       return false;
     },
-  });
+  }) as T;
 
   return proxy;
 }
