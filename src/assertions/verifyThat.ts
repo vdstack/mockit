@@ -1,3 +1,4 @@
+import { MockedFunction, MockedObject } from "../types";
 import { getMockHistory } from "./getMockHistory";
 
 /**
@@ -220,4 +221,10 @@ export function verifyThat<TFunc extends (...args: any[]) => any>(
       }
     },
   };
+}
+
+export function then<TFunc extends (...args: any[]) => any>(
+  mockedFunction: TFunc
+) {
+  return verifyThat(mockedFunction);
 }

@@ -1,2 +1,2 @@
-export { verifyThat } from "./verifyThat";
+export { verifyThat, then } from "./verifyThat";
 export { getMockHistory } from "./getMockHistory";

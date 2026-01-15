@@ -92,3 +92,72 @@ export function when<TFunc extends (...args: any[]) => any>(
     },
   };
 }
+
+export function given<TFunc extends (...args: any[]) => any>(
+  mockedFunction: TFunc
+) {
+  return {
+    whenCalledWith(...args: Parameters<TFunc>) {
+      return {
+        willReturn: (value: ReturnType<TFunc>) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Return,
+            returnedValue: value,
+          });
+        },
+        willPreserve: () => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Preserve,
+          });
+        },
+        willThrow: (error: any) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Throw,
+            error,
+          });
+        },
+        willResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Resolve,
+            resolvedValue,
+          });
+        },
+        willReject: (rejectedValue: any) => {
+          Reflect.set(mockedFunction, "defaultBehaviour", {
+            kind: Behaviours.Reject,
+            rejectedValue,
+          });
+        },
+      };
+    },
+    willReturn: (value: ReturnType<TFunc>) => {
+      Reflect.set(mockedFunction, "defaultBehaviour", {
+        kind: Behaviours.Return,
+        returnedValue: value,
+      });
+    },
+    willPreserve: () => {
+      Reflect.set(mockedFunction, "defaultBehaviour", {
+        kind: Behaviours.Preserve,
+      });
+    },
+    willThrow: (error: any) => {
+      Reflect.set(mockedFunction, "defaultBehaviour", {
+        kind: Behaviours.Throw,
+        error,
+      });
+    },
+    willResolve: (resolvedValue: Awaited<ReturnType<TFunc>>) => {
+      Reflect.set(mockedFunction, "defaultBehaviour", {
+        kind: Behaviours.Resolve,
+        resolvedValue,
+      });
+    },
+    willReject: (rejectedValue: any) => {
+      Reflect.set(mockedFunction, "defaultBehaviour", {
+        kind: Behaviours.Reject,
+        rejectedValue,
+      });
+    },
+  };
+}
