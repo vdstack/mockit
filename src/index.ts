@@ -6,8 +6,6 @@ import * as matchers from "./behaviours/matchers";
 
 // Export inline API types
 export type {
-  FnOptions,
-  ObjectConfig,
   MockedFunction,
   MockedObject,
   MockFunctionMethods,

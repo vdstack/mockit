@@ -4,7 +4,9 @@
       "Bash(pnpm test:*)",
       "Bash(gh pr list:*)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

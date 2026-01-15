@@ -1,28 +1,6 @@
 import { Call } from "../types";
 
 /**
- * Options for configuring a mock function at creation time.
- * This is a discriminated union - only one behavior can be set at a time.
- */
-export type FnOptions<T extends (...args: any[]) => any> =
-  | { returns: ReturnType<T> }
-  | { resolves: Awaited<ReturnType<T>> }
-  | { rejects: any }
-  | { throws: any }
-  | { calls: (...args: Parameters<T>) => ReturnType<T> };
-
-/**
- * Configuration for object/class/interface mocks.
- * Maps method names to their FnOptions configuration.
- * Only methods (functions) can be configured, not regular properties.
- */
-export type ObjectConfig<T> = {
-  [K in keyof T as T[K] extends (...args: any[]) => any
-    ? K
-    : never]?: T[K] extends (...args: any[]) => any ? FnOptions<T[K]> : never;
-};
-
-/**
  * Chainable methods available on mocked functions (Jest-style API).
  * All methods return the mock itself to enable chaining.
  */

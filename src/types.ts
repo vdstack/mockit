@@ -2,8 +2,6 @@ import { z } from "zod";
 
 // Re-export inline API types
 export type {
-  FnOptions,
-  ObjectConfig,
   MockedFunction,
   MockedObject,
   MockFunctionMethods,
