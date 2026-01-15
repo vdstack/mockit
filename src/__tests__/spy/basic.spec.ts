@@ -11,8 +11,16 @@ test("spied function should give access to its calls", () => {
   mock(2, "world");
 
   expect(spy.getCalls()).toEqual([
-    { args: [1, "hello"], date: expect.any(Date) },
-    { args: [2, "world"], date: expect.any(Date) },
+    {
+      args: [1, "hello"],
+      date: expect.any(Date),
+      result: { kind: "return", value: undefined },
+    },
+    {
+      args: [2, "world"],
+      date: expect.any(Date),
+      result: { kind: "return", value: undefined },
+    },
   ]);
 });
 

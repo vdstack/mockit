@@ -1,41 +1,92 @@
 import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
+import { MockedFunction, MockedObject } from "../types/inline-api.types";
 
 /**
- * This function is used to create a mock of classes, abstract classes, functions, objects,
- * types and interfaces.
- * For types and interfaces, pass them in the generic slot to create a mock that respects the type.
- * @param _param anything that can be mocked: class, abstract class or function
- * @returns a mock of the provided parameter
- *
- * @example Class, Object, Abstract Class and Function
+ * Creates a standalone mock function, similar to jest.fn().
+ * Accepts an optional implementation function.
+ * @example
  * ```ts
- * const mockedVersion = Mock(original);
- * // You can now use the mocked version as if it was the original
- * ```
- * @example Types and Interfaces
- * ```ts
- * type MyType = {
- *   doSomething(): void;
- *   doSomethingElse(): string;
- * };
+ * const fn = fn();
+ * fn.mockReturnValue(42);
+ * fn(); // returns 42
  *
- * const mockedType = Mock<MyType>();
- * // You can now use the mocked version as if it was the original
- * mockedType.doSomething(); // returns undefined
+ * // With implementation
+ * const fn2 = fn((x: number) => x * 2);
+ * fn2(5); // returns 10
  * ```
  */
-export function Mock<T>(_param: Class<T> | AbstractClass<T> | T | void): T {
+export function fn<T extends (...args: any[]) => any = (...args: any[]) => any>(
+  implementation?: T
+): MockedFunction<T> {
+  const mock = mockFunction(() => {}) as MockedFunction<T>;
+  if (implementation) {
+    mock.mockImplementation(implementation);
+  }
+  return mock;
+}
+
+/**
+ * Creates a mock of a function.
+ * @example
+ * ```ts
+ * const fn = Mock(someFunc);
+ * fn.mockReturnValue(42);
+ * ```
+ */
+export function Mock<T extends (...args: any[]) => any>(
+  fn: T
+): MockedFunction<T>;
+
+/**
+ * Creates a mock of a class.
+ * @example
+ * ```ts
+ * const mock = Mock(UserService);
+ * ```
+ */
+export function Mock<T>(classRef: Class<T> | AbstractClass<T>): MockedObject<T>;
+
+/**
+ * Creates a mock from a plain object.
+ * @example
+ * ```ts
+ * const mock = Mock({ getUser: () => user });
+ * ```
+ */
+export function Mock<T extends object>(obj: T): MockedObject<T>;
+
+/**
+ * Creates a mock from a type/interface.
+ * @example
+ * ```ts
+ * const mock = Mock<UserService>();
+ * ```
+ */
+export function Mock<T>(): MockedObject<T>;
+
+/**
+ * Implementation that handles all overloads.
+ */
+export function Mock<T>(_param?: any): T {
+  // Case: Mock<Type>() - no arguments, create object mock
+  if (_param === undefined) {
+    return ProxyMockBase<T>();
+  }
+
+  // Case: function or class
   if (typeof _param === "function") {
-    // Issue in JS is that both functions & classes have "function" as typeof
     if (isClass(_param)) {
+      // Class or Abstract Class
       return ProxyMockBase<T>(_param);
     }
 
-    // @ts-expect-error
+    // Regular function
     return mockFunction(_param) as T;
   }
+
+  // Case: plain object
   return ProxyMockBase<T>(_param);
 }
 
@@ -49,9 +100,9 @@ function ProxyMockBase<T>(
       }
 
       if (typeof prop === "string") {
-        const mockedFunction = mockFunction(() => {});
-        Reflect.set(target, prop, mockedFunction, receiver);
-        return mockedFunction;
+        const mockedFn = mockFunction(() => {});
+        Reflect.set(target, prop, mockedFn, receiver);
+        return mockedFn;
       }
     },
     set(target, prop, _value, _receiver) {
