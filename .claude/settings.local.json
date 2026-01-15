@@ -6,7 +6,12 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(ls:*)",
+      "Bash(git show-branch:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }
