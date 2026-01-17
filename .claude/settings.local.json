@@ -9,7 +9,8 @@
       "Bash(npm test:*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm lint:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "WebSearch"
     ]
   }
 }
