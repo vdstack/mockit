@@ -271,6 +271,11 @@ export function mockFunction<T extends (...args: any[]) => any>(
         return true;
       }
 
+      if (prop === "newOnceBehaviour") {
+        onceBehaviours.push(value as NewBehaviourParam<T>);
+        return true;
+      }
+
       if (prop === "resetBehaviourOf") {
         customBehaviours.length = 0;
         onceBehaviours.length = 0;
