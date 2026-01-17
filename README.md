@@ -2,7 +2,7 @@
 
 Mockit solves the problem of [mocking behaviour](https://martinfowler.com/articles/mocksArentStubs.html) in TypeScript. With its help, patterns like Strategy, or Ports & Adapters, become super easy to unit test. Its API was inspired by Java's Mockito package, but has diverged along the way. Mockito's knowledge is easily transferable though. It's main objective is to make it easy to [setup](#when) and [verify](#verifyThat) the behaviour of mocks, while ensuring that your tests are not fragile [by providing ways to decouple your tests](#Matchers) from as many superflous details as possible.
 
-It's been used in all its successive versions by around 20 engineers at @Skillup, for almost two years now, so you can consider it battle tested.
+It's been used in all its successive versions by around 20 engineers at @Skillup, for almost four years now, so you can consider it battle tested.
 
 Mockit API can mock any dependency:
 
