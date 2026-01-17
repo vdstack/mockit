@@ -8,7 +8,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm test:*)",
       "Bash(pnpm build:*)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(gh pr view:*)"
     ]
   }
 }
