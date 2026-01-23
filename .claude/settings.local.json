@@ -10,8 +10,8 @@
       "Bash(ls:*)",
       "Bash(git show-branch:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(pnpm lint:*)",
       "Bash(pnpm build:*)",
+      "Bash(pnpm lint:*)",
       "Bash(gh pr view:*)"
     ]
   }
