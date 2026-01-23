@@ -1,6 +1,6 @@
 {
   "name": "@vdstack/mockit",
-  "version": "6.0.0-beta.1",
+  "version": "6.0.0-beta.2",
   "description": "Behaviour mocking library for TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -25,6 +25,7 @@
     "@types/node": "^18.19.21",
     "jest": "^29.7.0",
     "prettier": "^2.8.8",
+    "pretty-format": "^30.2.0",
     "ts-jest": "^29.1.2",
     "tslib": "^2.6.2",
     "tsup": "^6.7.0",
@@ -35,6 +36,7 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
+    "jest-diff": "^30.2.0",
     "node-object-hash": "^2.3.10"
   },
   "peerDependencies": {
