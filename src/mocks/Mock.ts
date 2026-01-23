@@ -2,6 +2,7 @@ import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
 import { MockedFunction, MockedObject } from "../types/inline-api.types";
+import { NoInfer } from "../behaviours/matchers";
 
 /**
  * Creates a standalone mock function, similar to jest.fn().
@@ -62,7 +63,7 @@ export function Mock<T extends (...args: any[]) => any>(
  * const mock = Mock(UserService);
  * ```
  */
-export function Mock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial<T>): MockedObject<T>;
+export function Mock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial<NoInfer<T>>): MockedObject<T>;
 
 /**
  * Creates a mock from a plain object.
@@ -71,7 +72,7 @@ export function Mock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial
  * const mock = Mock({ getUser: () => user });
  * ```
  */
-export function Mock<T extends object>(obj: T): MockedObject<T>;
+export function Mock<T extends object>(obj: NoInfer<T>): MockedObject<T>;
 
 /**
  * Creates a mock from a type/interface.
@@ -80,7 +81,7 @@ export function Mock<T extends object>(obj: T): MockedObject<T>;
  * const mock = Mock<UserService>();
  * ```
  */
-export function Mock<T>(partial?: Partial<T>): MockedObject<T>;
+export function Mock<T>(partial?: Partial<NoInfer<T>>): MockedObject<T>;
 
 /**
  * Implementation that handles all overloads.
