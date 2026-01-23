@@ -51,3 +51,12 @@ it("should allow several setups", async () => {
     }));
     expect(response).toEqual({ isAvailable: true, id: expect.any(String) });
 });
+
+it("should stub the methods automatically if not provided", async () => {
+    const response = await registerBook("The Greate Gatsby", m.Mock({
+        isBookNameAvailable: m.resolves({ isAvailable: true }),
+    }));
+    expect(response).toEqual({ isAvailable: true, id: expect.any(String) });
+    // To explain, above should only be possible if repository.saveBook is stubbed. Otherwise it would throw an error
+    // because sut is trying to call the method => it can only work if it's been auto stubbed.
+});
