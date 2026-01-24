@@ -11,8 +11,8 @@ export type {
   MockFunctionMethods,
 } from "./types";
 
-import { Mock, fn } from "./mocks/Mock";
+import { Mock, fn, stubReturning, stubThrowing, stubResolving, stubRejecting } from "./mocks/Mock";
 import * as resets from "./mocks/mockFunction.reset";
 import * as verifications from "./assertions";
 import { when } from "./behaviours";
-export const m = { ...matchers, ...resets, ...verifications, when, Mock, fn };
+export const m = { ...matchers, ...resets, ...verifications, when, Mock, fn, returns: stubReturning, throws: stubThrowing, resolves: stubResolving, rejects: stubRejecting };

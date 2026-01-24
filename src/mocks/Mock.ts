@@ -2,6 +2,7 @@ import { AbstractClass, Class } from "../types";
 import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
 import { MockedFunction, MockedObject } from "../types/inline-api.types";
+import { NoInfer } from "../behaviours/matchers";
 
 /**
  * Creates a standalone mock function, similar to jest.fn().
@@ -27,6 +28,22 @@ export function fn<T extends (...args: any[]) => any = (...args: any[]) => any>(
   return mock;
 }
 
+export function stubReturning<T>(value: T): () => T {
+  return fn().mockReturnValue(value);
+}
+
+export function stubThrowing<T>(error: any): () => T {
+  return fn().mockThrow(error);
+}
+
+export function stubResolving<T>(value: T): () => Promise<T> {
+  return fn().mockResolvedValue(value);
+}
+
+export function stubRejecting<T>(error: any): () => Promise<T> {
+  return fn().mockRejectedValue(error);
+}
+
 /**
  * Creates a mock of a function.
  * @example
@@ -46,7 +63,7 @@ export function Mock<T extends (...args: any[]) => any>(
  * const mock = Mock(UserService);
  * ```
  */
-export function Mock<T>(classRef: Class<T> | AbstractClass<T>): MockedObject<T>;
+export function Mock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial<NoInfer<T>>): MockedObject<T>;
 
 /**
  * Creates a mock from a plain object.
@@ -64,7 +81,7 @@ export function Mock<T extends object>(obj: T): MockedObject<T>;
  * const mock = Mock<UserService>();
  * ```
  */
-export function Mock<T>(): MockedObject<T>;
+export function Mock<T>(partial?: Partial<NoInfer<T>>): MockedObject<T>;
 
 /**
  * Implementation that handles all overloads.
@@ -93,7 +110,20 @@ export function Mock<T>(_param?: any): T {
 function ProxyMockBase<T>(
   _param: Class<T> | AbstractClass<T> | T | void = undefined
 ): T {
-  return new Proxy({} as any, {
+  const target: any = {};
+
+  // If _param is a plain object, only copy properties that are already mock functions
+  // This allows Mock<Type>({ get: m.resolves(42) }) while keeping Mock(realObject) behavior
+  if (_param && typeof _param === "object") {
+    for (const key of Object.keys(_param)) {
+      const value = (_param as any)[key];
+      if (value && value.isMockitMock) {
+        target[key] = value;
+      }
+    }
+  }
+
+  return new Proxy(target, {
     get(target, prop, receiver) {
       if (prop in target) {
         return Reflect.get(target, prop, receiver);
