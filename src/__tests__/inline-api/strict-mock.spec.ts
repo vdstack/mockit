@@ -1,4 +1,4 @@
-import { StrictMock, m } from "../../index";
+import { MockStrict, m } from "../../index";
 
 interface UserService {
   getUser(id: number): { id: number; name: string };
@@ -14,22 +14,22 @@ class UserServiceClass {
   }
 }
 
-describe("StrictMock", () => {
+describe("MockStrict", () => {
   describe("with interface mock", () => {
     it("throws when an unconfigured method is called", () => {
-      const mock = StrictMock<UserService>();
+      const mock = MockStrict<UserService>();
 
       expect(() => mock.getUser(1)).toThrow("No behavior configured for 'getUser'");
     });
 
     it("includes the method name in the error message", () => {
-      const mock = StrictMock<UserService>();
+      const mock = MockStrict<UserService>();
 
       expect(() => mock.deleteUser(1)).toThrow("No behavior configured for 'deleteUser'");
     });
 
     it("works normally when the method is configured", () => {
-      const mock = StrictMock<UserService>();
+      const mock = MockStrict<UserService>();
       mock.getUser.mockReturnValue({ id: 1, name: "Test User" });
 
       const result = mock.getUser(1);
@@ -38,7 +38,7 @@ describe("StrictMock", () => {
     });
 
     it("works with partial configuration", () => {
-      const mock = StrictMock<UserService>({
+      const mock = MockStrict<UserService>({
         getUser: m.returns({ id: 42, name: "Configured User" }),
       });
 
@@ -49,13 +49,13 @@ describe("StrictMock", () => {
 
   describe("with class mock", () => {
     it("throws when an unconfigured method is called", () => {
-      const mock = StrictMock(UserServiceClass);
+      const mock = MockStrict(UserServiceClass);
 
       expect(() => mock.getUser(1)).toThrow("No behavior configured for 'getUser'");
     });
 
     it("works normally when the method is configured", () => {
-      const mock = StrictMock(UserServiceClass);
+      const mock = MockStrict(UserServiceClass);
       mock.getUser.mockReturnValue({ id: 1, name: "Test User" });
 
       const result = mock.getUser(1);
@@ -67,23 +67,23 @@ describe("StrictMock", () => {
   describe("with function mock", () => {
     it("throws when called without configuration", () => {
       const fn = (x: number) => x * 2;
-      const mock = StrictMock(fn);
+      const mock = MockStrict(fn);
 
       expect(() => mock(5)).toThrow("No behavior configured");
     });
 
     it("works normally when configured", () => {
       const fn = (x: number) => x * 2;
-      const mock = StrictMock(fn);
+      const mock = MockStrict(fn);
       mock.mockReturnValue(100);
 
       expect(mock(5)).toBe(100);
     });
   });
 
-  describe("accessible via m.StrictMock", () => {
+  describe("accessible via m.MockStrict", () => {
     it("is available on the m namespace", () => {
-      const mock = m.StrictMock<UserService>();
+      const mock = m.MockStrict<UserService>();
 
       expect(() => mock.getUser(1)).toThrow("No behavior configured for 'getUser'");
     });

@@ -1,4 +1,4 @@
-export { Mock, fn, StrictMock } from "./mocks/Mock";
+export { Mock, fn, MockStrict } from "./mocks/Mock";
 export { when } from "./behaviours";
 export { getMockHistory, verifyThat } from "./assertions";
 export { resetBehaviourOf, resetCompletely, resetHistoryOf } from "./mocks";
@@ -11,8 +11,8 @@ export type {
   MockFunctionMethods,
 } from "./types";
 
-import { Mock, fn, StrictMock, stubReturning, stubThrowing, stubResolving, stubRejecting } from "./mocks/Mock";
+import { Mock, fn, MockStrict, stubReturning, stubThrowing, stubResolving, stubRejecting } from "./mocks/Mock";
 import * as resets from "./mocks/mockFunction.reset";
-import * as verifications from "./assertions";
+import { verifyThat } from "./assertions";
 import { when } from "./behaviours";
-export const m = { ...matchers, ...resets, ...verifications, when, Mock, fn, StrictMock, returns: stubReturning, throws: stubThrowing, resolves: stubResolving, rejects: stubRejecting };
+export const m = { ...matchers, ...resets, verifyThat, when, Mock, fn, MockStrict, returns: stubReturning, throws: stubThrowing, resolves: stubResolving, rejects: stubRejecting };
