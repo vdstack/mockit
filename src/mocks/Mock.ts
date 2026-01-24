@@ -72,7 +72,7 @@ export function Mock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial
  * const mock = Mock({ getUser: () => user });
  * ```
  */
-export function Mock<T extends object>(obj: NoInfer<T>): MockedObject<T>;
+export function Mock<T extends object>(obj: T): MockedObject<T>;
 
 /**
  * Creates a mock from a type/interface.

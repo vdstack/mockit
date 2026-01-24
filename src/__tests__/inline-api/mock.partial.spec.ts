@@ -60,3 +60,27 @@ it("should stub the methods automatically if not provided", async () => {
     // To explain, above should only be possible if repository.saveBook is stubbed. Otherwise it would throw an error
     // because sut is trying to call the method => it can only work if it's been auto stubbed.
 });
+
+
+interface UserRepository {
+  getUser: (id: number) => string;
+  saveUser: (user: { id: number; name: string }) => void;
+}
+
+function sut(userRepository: UserRepository) {
+  userRepository.getUser(1);
+  userRepository.saveUser({ id: 1, name: "John" });
+}
+
+test("mocking only get", () => {
+
+  expect(sut(m.Mock({
+    getUser: m.returns("User 1"),
+  }))).toBeUndefined();
+
+  const mock2 = m.Mock<UserRepository>({
+    getUser: m.returns("User 1"),
+  });
+  
+  expect(sut(mock2)).toBeUndefined();
+});
