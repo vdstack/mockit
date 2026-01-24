@@ -1,4 +1,4 @@
-import { getMockHistory, verifyThat } from "../../assertions";
+import { verifyThat } from "../../assertions";
 import { when } from "../../behaviours";
 import { Mock } from "../..";
 

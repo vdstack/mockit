@@ -10,16 +10,17 @@ type UserRepository = {
 
 const userRepositoryMock = m.Mock<UserRepository>();
 
-test("I should access the raw history of a mock", () => {
+test("I should access the raw history of a mock via .calls", () => {
     userRepositoryMock.getUser(1);
     userRepositoryMock.getUser(2);
 
-    const history = m.getMockHistory(userRepositoryMock.getUser);
+    // Access call history directly via .calls property
+    const calls = userRepositoryMock.getUser.calls;
 
-    expect(history.getCalls()[0].args[0]).toBe(1);
-    expect(history.getCalls()[1].args[0]).toBe(2);
+    expect(calls[0].args[0]).toBe(1);
+    expect(calls[1].args[0]).toBe(2);
 
     // the calls are type-safe to help you explore the history of the mock
     // Uncomment the next line: it will not compile because the argument is expected to be a number
-    // history.getCalls()[0].args[0] === "Victor"
+    // calls[0].args[0] === "Victor"
 });
