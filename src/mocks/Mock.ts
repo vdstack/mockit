@@ -3,6 +3,9 @@ import { mockFunction } from "./mockFunction";
 import { resetBehaviourOf, resetHistoryOf } from "./mockFunction.reset";
 import { MockedFunction, MockedObject } from "../types/inline-api.types";
 import { NoInfer } from "../behaviours/matchers";
+import { Behaviours, NewBehaviourParam } from "../behaviours/behaviours";
+
+type DefaultBehaviourFactory = (propertyName: string) => NewBehaviourParam<any>;
 
 /**
  * Creates a standalone mock function, similar to jest.fn().
@@ -108,7 +111,8 @@ export function Mock<T>(_param?: any): T {
 }
 
 function ProxyMockBase<T>(
-  _param: Class<T> | AbstractClass<T> | T | void = undefined
+  _param: Class<T> | AbstractClass<T> | T | void = undefined,
+  options: { defaultBehaviourFactory?: DefaultBehaviourFactory } = {}
 ): T {
   const target: any = {};
 
@@ -130,7 +134,8 @@ function ProxyMockBase<T>(
       }
 
       if (typeof prop === "string") {
-        const mockedFn = mockFunction(() => {});
+        const defaultBehaviour = options.defaultBehaviourFactory?.(prop);
+        const mockedFn = mockFunction(() => {}, defaultBehaviour ? { defaultBehaviour } : undefined);
         Reflect.set(target, prop, mockedFn, receiver);
         return mockedFn;
       }
@@ -187,4 +192,76 @@ function isClass(obj: Function) {
   if (!descriptor) return false;
 
   return !descriptor.writable;
+}
+
+/**
+ * Creates a strict mock of a function that throws when called without configuration.
+ * @example
+ * ```ts
+ * const fn = StrictMock(someFunc);
+ * fn(); // throws Error: "No behavior configured"
+ * fn.mockReturnValue(42);
+ * fn(); // returns 42
+ * ```
+ */
+export function StrictMock<T extends (...args: any[]) => any>(fn: T): MockedFunction<T>;
+
+/**
+ * Creates a strict mock of a class that throws when unconfigured methods are called.
+ * @example
+ * ```ts
+ * const mock = StrictMock(UserService);
+ * mock.getUser(); // throws Error: "No behavior configured for 'getUser'"
+ * ```
+ */
+export function StrictMock<T>(classRef: Class<T> | AbstractClass<T>, partial?: Partial<NoInfer<T>>): MockedObject<T>;
+
+/**
+ * Creates a strict mock from a plain object.
+ * @example
+ * ```ts
+ * const mock = StrictMock({ getUser: () => user });
+ * ```
+ */
+export function StrictMock<T extends object>(obj: T): MockedObject<T>;
+
+/**
+ * Creates a strict mock from a type/interface that throws when unconfigured methods are called.
+ * @example
+ * ```ts
+ * const mock = StrictMock<UserService>();
+ * mock.getUser(); // throws Error: "No behavior configured for 'getUser'"
+ * ```
+ */
+export function StrictMock<T>(partial?: Partial<NoInfer<T>>): MockedObject<T>;
+
+/**
+ * Implementation that handles all overloads.
+ */
+export function StrictMock<T>(_param?: any): T {
+  const strictBehaviourFactory: DefaultBehaviourFactory = (propertyName) => ({
+    kind: Behaviours.Throw,
+    error: new Error(`No behavior configured for '${propertyName}'`),
+  });
+
+  // Case: StrictMock<Type>() - no arguments, create strict object mock
+  if (_param === undefined) {
+    return ProxyMockBase<T>(undefined, { defaultBehaviourFactory: strictBehaviourFactory });
+  }
+
+  // Case: function or class
+  if (typeof _param === "function") {
+    if (isClass(_param)) {
+      // Class or Abstract Class
+      return ProxyMockBase<T>(_param, { defaultBehaviourFactory: strictBehaviourFactory });
+    }
+
+    // Regular function
+    return mockFunction(_param, {
+      defaultBehaviour: { kind: Behaviours.Throw, error: new Error("No behavior configured") }
+    }) as T;
+  }
+
+  // Case: plain object
+  return ProxyMockBase<T>(_param, { defaultBehaviourFactory: strictBehaviourFactory });
 }

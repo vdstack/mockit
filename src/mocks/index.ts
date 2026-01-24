@@ -1,5 +1,5 @@
 export { mockFunction } from "./mockFunction";
-export { Mock, fn } from "./Mock";
+export { Mock, fn, StrictMock } from "./Mock";
 
 export {
   resetBehaviourOf,
