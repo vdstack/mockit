@@ -84,3 +84,10 @@ test("mocking only get", () => {
   
   expect(sut(mock2)).toBeUndefined();
 });
+
+test("should allow extracting a function mock", () => {
+  const getUser = m.fn((id) => "User 1");
+  expect(sut(m.Mock<UserRepository>({ getUser }))).toBeUndefined();
+  
+  m.verifyThat(getUser).wasCalledWith(1);
+});
