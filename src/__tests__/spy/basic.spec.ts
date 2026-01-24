@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { Mock, getMockHistory, m } from "../..";
+import { Mock, m } from "../..";
+import { getMockHistory } from "../../assertions";
 
 test("spied function should give access to its calls", () => {
   const mock = Mock((x: number, y: string) => {});
