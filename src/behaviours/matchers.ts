@@ -5,7 +5,6 @@
  * Kudos to Matt Pococks for the inspiration
  */
 
-import { ZodSchema } from "zod";
 import { containing } from "./containing";
 import { containingDeep } from "./containing.deep";
 import { ProxyFactory } from "./matcher-proxy-factory";
@@ -25,6 +24,18 @@ export const isOneOf = <T, U>(options: U | NoInfer<T>[]): T => {
 
 export interface Schema {
   safeParse(value: any): { success: boolean };
+}
+
+/**
+ * Structural check instead of `instanceof ZodSchema`: works with zod v3 and v4
+ * (v4 no longer exports ZodSchema), and with several zod copies in the same tree.
+ */
+function isSchema(value: unknown): value is Schema {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as Schema).safeParse === "function"
+  );
 }
 
 /**
@@ -375,11 +386,11 @@ export function validates<T>(validationFunction: (value: T) => boolean): T;
  * const schema = z.number().int().positive()
  * m.validate(schema) // matches 1
  */
-export function validates<T>(validationFunction: ZodSchema<any, any, any>): T;
+export function validates<T>(validationFunction: Schema): T;
 export function validates<T>(
-  validationFunction: ((value: T) => boolean) | ZodSchema<any, any, any>
+  validationFunction: ((value: T) => boolean) | Schema
 ): T {
-  if (validationFunction instanceof ZodSchema) {
+  if (isSchema(validationFunction)) {
     return ProxyFactory<T>("isSchema", { schema: validationFunction });
   }
 
