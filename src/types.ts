@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { Schema } from "./behaviours/matchers";
 
 // Re-export inline API types
 export type {
@@ -40,6 +40,6 @@ export type UnsafeCall = {
  */
 export type AllowZodSchemas<Tuple extends any[]> = [
   ...{
-    [Key in keyof Tuple]: Tuple[Key] | z.ZodType;
+    [Key in keyof Tuple]: Tuple[Key] | Schema;
   }
 ];
