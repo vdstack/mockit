@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { Schema } from "./behaviours/matchers";
 
 export type AbstractClass<T> = abstract new (...args: any[]) => T;
 export type Class<T> = new (...args: any[]) => T;
@@ -27,6 +27,6 @@ export type UnsafeCall = {
  */
 export type AllowZodSchemas<Tuple extends any[]> = [
   ...{
-    [Key in keyof Tuple]: Tuple[Key] | z.ZodType;
+    [Key in keyof Tuple]: Tuple[Key] | Schema;
   }
 ];
