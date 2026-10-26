@@ -39,13 +39,5 @@
   "dependencies": {
     "jest-diff": "^30.2.0",
     "node-object-hash": "^2.3.10"
-  },
-  "peerDependencies": {
-    "zod": "^3.21.4 || ^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "zod": {
-      "optional": true
-    }
   }
 }
