@@ -1,4 +1,4 @@
-import { ZodSchema, z } from "zod";
+import type { Schema } from "../behaviours/matchers";
 
 import { Call, UnsafeCall } from "../types";
 import { compare } from "../argsComparisons/compare";
@@ -68,11 +68,11 @@ type wasUnsafe = {
 };
 
 type wasZod = {
-  wasCalledOnceWith: (...args: Array<ZodSchema | any>) => boolean;
-  wasNeverCalledWith: (...args: Array<ZodSchema | any>) => boolean;
-  wasCalledWith: (...z: Array<ZodSchema | any>) => boolean;
+  wasCalledOnceWith: (...args: Array<Schema | any>) => boolean;
+  wasNeverCalledWith: (...args: Array<Schema | any>) => boolean;
+  wasCalledWith: (...z: Array<Schema | any>) => boolean;
   wasCalledNTimesWith: (params: {
     howMuch: number;
-    args: Array<ZodSchema | any>;
+    args: Array<Schema | any>;
   }) => boolean;
 };
