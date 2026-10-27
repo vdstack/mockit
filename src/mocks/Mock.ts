@@ -35,16 +35,16 @@ export function stubReturning<T>(value: T): () => T {
   return fn().mockReturnValue(value);
 }
 
-export function stubThrowing<T>(error: any): () => T {
-  return fn().mockThrow(error);
+export function stubThrowing(error: any): () => never {
+  return fn<() => never>().mockThrow(error);
 }
 
 export function stubResolving<T>(value: T): () => Promise<T> {
   return fn().mockResolvedValue(value);
 }
 
-export function stubRejecting<T>(error: any): () => Promise<T> {
-  return fn().mockRejectedValue(error);
+export function stubRejecting(error: any): () => Promise<never> {
+  return fn<() => Promise<never>>().mockRejectedValue(error);
 }
 
 /**

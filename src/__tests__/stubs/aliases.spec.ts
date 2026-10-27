@@ -25,6 +25,14 @@ async function sutAsync(x: string, rs: typeof resolvesSomething) {
     return rs(x);
 }
 
+// If you pay attention to this test, you will find that it is not checking the exact symetrical behaviour of the synchronous version:
+// - in the synchronous version, we only accept .returns and .throws, and the compiler will generate errors for .resolves and .rejects
+// - BUT in the asynchronous version, the compiler will NOT generate an error for .throws().
+// WHY ?
+// because () => never is assignable to pretty much anything...
+// () => never is assignable to anything, so also to () => Promise<T> for any T.
+// On the other hand, () => T is not assignable to () => Promise<T> for any T.
+// So, the compiler will not generate an error for .throws() in the asynchronous version. I didn't find any clean way to make it do it without breaking something else :'(
 it("should do it asynchronously", async () => {
     expect(sutAsync("hello", m.resolves("23"))).resolves.toBe("23");
     expect(sutAsync("hello", m.rejects(new Error("23")))).rejects.toThrow("23");
