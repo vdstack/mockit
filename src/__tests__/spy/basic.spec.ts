@@ -94,6 +94,18 @@ test("spy should assert if a function was called with arguments", () => {
       howMuch: 1,
     })
   ).toBe(true);
+
+  mock(2, "world");
+
+  // Other calls with different args don't affect "once with"
+  expect(mockHistory.wasCalledOnceWith(1, "hello")).toBe(true);
+  expect(mockHistory.wasCalledOnceWith(2, "world")).toBe(true);
+
+  mock(1, "hello");
+
+  // Two matching calls: no longer "once with"
+  expect(mockHistory.wasCalledOnceWith(1, "hello")).toBe(false);
+  expect(mockHistory.wasCalledWith(1, "hello")).toBe(true);
 });
 
 test("spy should accept zod schemas as arguments", () => {
