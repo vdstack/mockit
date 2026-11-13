@@ -32,7 +32,9 @@ export function getMockHistory<T extends (...args: any[]) => any>(
     getUnsafeCalls: () => calls as unknown as UnsafeCall,
     wasCalledOnce: () => calls.length === 1,
     wasCalledOnceWith: (...expectedArgs: Parameters<T>) => {
-      return calls.some((call) => compare(call.args, expectedArgs));
+      return (
+        calls.filter((call) => compare(call.args, expectedArgs)).length === 1
+      );
     },
     wasCalledNTimes: (howMuch: number) => calls.length === howMuch,
     wasCalledNTimesWith: ({
