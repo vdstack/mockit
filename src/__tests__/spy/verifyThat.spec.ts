@@ -34,6 +34,21 @@ test("verifyThat should assert if a function was called with specific arguments"
   verifyThat(mock).wasCalled();
 });
 
+test("verifyThat.wasCalledOnceWith should fail when the matching call happened more than once", () => {
+  const mock = Mock(hellaw);
+
+  mock(1, 2, 3);
+  mock(4, 5, 6);
+
+  // Other calls with different args don't affect "once with"
+  verifyThat(mock).wasCalledOnceWith(1, 2, 3);
+
+  mock(1, 2, 3);
+
+  expect(() => verifyThat(mock).wasCalledOnceWith(1, 2, 3)).toThrow();
+  verifyThat(mock).wasCalledOnceWith(4, 5, 6);
+});
+
 test("verifyThat should assert if a function was called with data matching zod schemas", () => {
   const mock = Mock(hellaw);
   verifyThat(mock).wasNeverCalledWith(
